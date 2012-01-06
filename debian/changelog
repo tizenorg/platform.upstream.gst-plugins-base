@@ -1,0 +1,7 @@
+gst-plugins-base0.10 (0.10.34-39slp2+14) unstable; urgency=low
+
+  * Initial release
+  * Git: pkgs/g/gst-plugins-base0.10
+  * Tag: gst-plugins-base0.10_0.10.34-39slp2+14
+
+ -- Jeongmo Yang <jm80.yang@samsung.com>  Wed, 07 Dec 2011 12:43:18 +0900
