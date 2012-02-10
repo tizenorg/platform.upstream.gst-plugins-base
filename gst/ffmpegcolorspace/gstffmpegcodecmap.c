@@ -625,9 +625,11 @@ gst_ffmpeg_caps_to_pixfmt (const GstCaps * caps,
     if (gst_structure_get_fourcc (structure, "format", &fourcc)) {
       switch (fourcc) {
         case GST_MAKE_FOURCC ('Y', 'U', 'Y', '2'):
+        case GST_MAKE_FOURCC ('S', 'U', 'Y', 'V'):
           context->pix_fmt = PIX_FMT_YUV422;
           break;
         case GST_MAKE_FOURCC ('U', 'Y', 'V', 'Y'):
+        case GST_MAKE_FOURCC ('S', 'Y', 'V', 'Y'):
           context->pix_fmt = PIX_FMT_UYVY422;
           break;
         case GST_MAKE_FOURCC ('Y', 'V', 'Y', 'U'):
@@ -637,6 +639,7 @@ gst_ffmpeg_caps_to_pixfmt (const GstCaps * caps,
           context->pix_fmt = PIX_FMT_UYVY411;
           break;
         case GST_MAKE_FOURCC ('I', '4', '2', '0'):
+        case GST_MAKE_FOURCC ('S', '4', '2', '0'):
           context->pix_fmt = PIX_FMT_YUV420P;
           break;
         case GST_MAKE_FOURCC ('A', '4', '2', '0'):
