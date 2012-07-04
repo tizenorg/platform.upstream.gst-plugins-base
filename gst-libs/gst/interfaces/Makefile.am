@@ -5,6 +5,8 @@ libgstinterfacesincludedir = \
 headers_interfaces = 		\
 	colorbalance.h		\
 	colorbalancechannel.h	\
+	cameracontrol.h     \
+	cameracontrolchannel.h  \
 	mixer.h			\
 	mixeroptions.h		\
 	mixertrack.h		\
@@ -40,6 +42,8 @@ nodist_libgstinterfacesinclude_HEADERS = \
 libgstinterfaces_@GST_MAJORMINOR@_la_SOURCES = \
 	colorbalance.c		\
 	colorbalancechannel.c	\
+	cameracontrol.c     \
+	cameracontrolchannel.c  \
 	mixer.c			\
 	mixeroptions.c		\
 	mixertrack.c		\

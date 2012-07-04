@@ -162,6 +162,8 @@ rm -rf %{buildroot}/tmp/dump
 %dir %{_includedir}/gstreamer-0.10/gst/interfaces
 %{_includedir}/gstreamer-0.10/gst/interfaces/colorbalance.h
 %{_includedir}/gstreamer-0.10/gst/interfaces/colorbalancechannel.h
+%{_includedir}/gstreamer-0.10/gst/interfaces/cameracontrol.h
+%{_includedir}/gstreamer-0.10/gst/interfaces/cameracontrolchannel.h
 %{_includedir}/gstreamer-0.10/gst/interfaces/interfaces-enumtypes.h
 %{_includedir}/gstreamer-0.10/gst/interfaces/mixer.h
 %{_includedir}/gstreamer-0.10/gst/interfaces/mixeroptions.h

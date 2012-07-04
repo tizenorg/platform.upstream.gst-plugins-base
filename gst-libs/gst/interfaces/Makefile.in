@@ -130,6 +130,8 @@ libgstinterfaces_@GST_MAJORMINOR@_la_DEPENDENCIES =  \
 am_libgstinterfaces_@GST_MAJORMINOR@_la_OBJECTS =  \
 	libgstinterfaces_@GST_MAJORMINOR@_la-colorbalance.lo \
 	libgstinterfaces_@GST_MAJORMINOR@_la-colorbalancechannel.lo \
+	libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.lo \
+	libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.lo \
 	libgstinterfaces_@GST_MAJORMINOR@_la-mixer.lo \
 	libgstinterfaces_@GST_MAJORMINOR@_la-mixeroptions.lo \
 	libgstinterfaces_@GST_MAJORMINOR@_la-mixertrack.lo \
@@ -491,6 +493,8 @@ libgstinterfacesincludedir = \
 headers_interfaces = \
 	colorbalance.h		\
 	colorbalancechannel.h	\
+	cameracontrol.h     \
+	cameracontrolchannel.h  \
 	mixer.h			\
 	mixeroptions.h		\
 	mixertrack.h		\
@@ -526,6 +530,8 @@ nodist_libgstinterfacesinclude_HEADERS = \
 libgstinterfaces_@GST_MAJORMINOR@_la_SOURCES = \
 	colorbalance.c		\
 	colorbalancechannel.c	\
+	cameracontrol.c     \
+	cameracontrolchannel.c  \
 	mixer.c			\
 	mixeroptions.c		\
 	mixertrack.c		\
@@ -650,6 +656,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-colorbalance.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-colorbalancechannel.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-interfaces-enumtypes.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-interfaces-marshal.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-mixer.Plo@am__quote@
@@ -698,6 +706,22 @@ libgstinterfaces_@GST_MAJORMINOR@_la-colorbalancechannel.lo: colorbalancechannel
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='colorbalancechannel.c' object='libgstinterfaces_@GST_MAJORMINOR@_la-colorbalancechannel.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstinterfaces_@GST_MAJORMINOR@_la_CFLAGS) $(CFLAGS) -c -o libgstinterfaces_@GST_MAJORMINOR@_la-colorbalancechannel.lo `test -f 'colorbalancechannel.c' || echo '$(srcdir)/'`colorbalancechannel.c
+
+
+libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.lo: cameracontrol.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstinterfaces_@GST_MAJORMINOR@_la_CFLAGS) $(CFLAGS) -MT libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.lo -MD -MP -MF $(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.Tpo -c -o libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.lo `test -f 'cameracontrol.c' || echo '$(srcdir)/'`cameracontrol.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.Tpo $(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='cameracontrol.c' object='libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstinterfaces_@GST_MAJORMINOR@_la_CFLAGS) $(CFLAGS) -c -o libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrol.lo `test -f 'cameracontrol.c' || echo '$(srcdir)/'`cameracontrol.c
+
+
+libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.lo: cameracontrolchannel.c
+@am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstinterfaces_@GST_MAJORMINOR@_la_CFLAGS) $(CFLAGS) -MT libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.lo -MD -MP -MF $(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.Tpo -c -o libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.lo `test -f 'cameracontrolchannel.c' || echo '$(srcdir)/'`cameracontrolchannel.c
+@am__fastdepCC_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.Tpo $(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.Plo
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	$(AM_V_CC)source='cameracontrolchannel.c' object='libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(AM_V_CC@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstinterfaces_@GST_MAJORMINOR@_la_CFLAGS) $(CFLAGS) -c -o libgstinterfaces_@GST_MAJORMINOR@_la-cameracontrolchannel.lo `test -f 'cameracontrolchannel.c' || echo '$(srcdir)/'`cameracontrolchannel.c
 
 libgstinterfaces_@GST_MAJORMINOR@_la-mixer.lo: mixer.c
 @am__fastdepCC_TRUE@	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstinterfaces_@GST_MAJORMINOR@_la_CFLAGS) $(CFLAGS) -MT libgstinterfaces_@GST_MAJORMINOR@_la-mixer.lo -MD -MP -MF $(DEPDIR)/libgstinterfaces_@GST_MAJORMINOR@_la-mixer.Tpo -c -o libgstinterfaces_@GST_MAJORMINOR@_la-mixer.lo `test -f 'mixer.c' || echo '$(srcdir)/'`mixer.c

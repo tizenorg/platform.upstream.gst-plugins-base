@@ -1,3 +1,6 @@
+* Wed Jul 04 2012 Yan Yin <yan.yin@intel.com> upstream/0.10.36@aa0242d
+- add Tizen 1.0 patches for camera interface
+
 * Mon June 25 2012 Yan Yin <yan.yin@intel.com> - 0.10.36
 - import upstream version 0.10.36
 - add packaging files
