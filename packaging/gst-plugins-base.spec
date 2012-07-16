@@ -18,6 +18,7 @@ BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(gstreamer-0.10)
 BuildRequires:  pkgconfig(gstreamer-base-0.10)
 BuildRequires:  pkgconfig(xv)
+BuildRequires:  pkgconfig(pango)
 BuildRequires:  intltool
 
 
@@ -71,7 +72,6 @@ export CFLAGS+=" -DGST_EXT_TEXTRENDER_ENHANCEMENT  -DGST_EXT_XV_ENHANCEMENT"
 	--disable-gcov 				\
 	--disable-gtk-doc 			\
 	--disable-debug 				\
-	--disable-pango                        \
     	--with-audioresample-format=int 
 
 make %{?jobs:-j%jobs}
@@ -128,7 +128,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgsttheora.so
 %{_libdir}/gstreamer-0.10/libgstvorbis.so
 %{_libdir}/gstreamer-0.10/libgstximagesink.so
-
+%{_libdir}/gstreamer-0.10/libgstpango.so
 
 %files devel
 %manifest gst-plugins-base.manifest
