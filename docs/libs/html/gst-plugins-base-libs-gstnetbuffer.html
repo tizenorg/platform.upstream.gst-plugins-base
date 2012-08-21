@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gstnetbuffer</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-netbuffer.html" title="Network Buffer Library">
 <link rel="prev" href="gstreamer-netbuffer.html" title="Network Buffer Library">
 <link rel="next" href="gstreamer-riff.html" title="Riff Media Library">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -47,24 +47,24 @@ struct              <a class="link" href="gst-plugins-base-libs-gstnetbuffer.htm
 <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetBuffer" title="struct GstNetBuffer"><span class="returnvalue">GstNetBuffer</span></a> *      <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netbuffer-new" title="gst_netbuffer_new ()">gst_netbuffer_new</a>                   (<em class="parameter"><code><span class="type">void</span></code></em>);
 <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetType" title="enum GstNetType"><span class="returnvalue">GstNetType</span></a>          <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-get-net-type" title="gst_netaddress_get_net_type ()">gst_netaddress_get_net_type</a>         (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-set-ip4-address" title="gst_netaddress_set_ip4_address ()">gst_netaddress_set_ip4_address</a>      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> address</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> port</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> address</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> port</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-get-ip4-address" title="gst_netaddress_get_ip4_address ()">gst_netaddress_get_ip4_address</a>      (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *address</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *port</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> *address</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> *port</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-set-ip6-address" title="gst_netaddress_set_ip6_address ()">gst_netaddress_set_ip6_address</a>      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> address[16]</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> port</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint8</span> address[16]</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> port</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-get-ip6-address" title="gst_netaddress_get_ip6_address ()">gst_netaddress_get_ip6_address</a>      (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> address[16]</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *port</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint8</span> address[16]</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> *port</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>                <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-get-address-bytes" title="gst_netaddress_get_address_bytes ()">gst_netaddress_get_address_bytes</a>    (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> address[16]</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *port</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint8</span> address[16]</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> *port</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>                <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-set-address-bytes" title="gst_netaddress_set_address_bytes ()">gst_netaddress_set_address_bytes</a>    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetType" title="enum GstNetType"><span class="type">GstNetType</span></a> type</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> address[16]</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> port</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint8</span> address[16]</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> port</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-equal" title="gst_netaddress_equal ()">gst_netaddress_equal</a>                (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr1</code></em>,
                                                          <em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr2</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>                <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#gst-netaddress-to-string" title="gst_netaddress_to_string ()">gst_netaddress_to_string</a>            (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
@@ -213,8 +213,8 @@ Get the type of address stored in <em class="parameter"><code>naddr</code></em>.
 <div class="refsect2">
 <a name="gst-netaddress-set-ip4-address"></a><h3>gst_netaddress_set_ip4_address ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_netaddress_set_ip4_address      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> address</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> port</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> address</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> port</code></em>);</pre>
 <p>
 Set <em class="parameter"><code>naddr</code></em> with the IPv4 <em class="parameter"><code>address</code></em> and <em class="parameter"><code>port</code></em> pair.
 </p>
@@ -244,8 +244,8 @@ use <a href="http://library.gnome.org/devel/glib/unstable/glib-Byte-Order-Macros
 <div class="refsect2">
 <a name="gst-netaddress-get-ip4-address"></a><h3>gst_netaddress_get_ip4_address ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_netaddress_get_ip4_address      (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *address</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *port</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> *address</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> *port</code></em>);</pre>
 <p>
 Get the IPv4 address stored in <em class="parameter"><code>naddr</code></em> into <em class="parameter"><code>address</code></em>. This function requires
 that the address type of <em class="parameter"><code>naddr</code></em> is of type <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GST-NET-TYPE-IP4:CAPS"><span class="type">GST_NET_TYPE_IP4</span></a>.
@@ -280,8 +280,8 @@ Note that <em class="parameter"><code>port</code></em> and <em class="parameter"
 <div class="refsect2">
 <a name="gst-netaddress-set-ip6-address"></a><h3>gst_netaddress_set_ip6_address ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_netaddress_set_ip6_address      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> address[16]</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> port</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint8</span> address[16]</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> port</code></em>);</pre>
 <p>
 Set <em class="parameter"><code>naddr</code></em> with the IPv6 <em class="parameter"><code>address</code></em> and <em class="parameter"><code>port</code></em> pair.
 </p>
@@ -311,8 +311,8 @@ it to network byte order.
 <div class="refsect2">
 <a name="gst-netaddress-get-ip6-address"></a><h3>gst_netaddress_get_ip6_address ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_netaddress_get_ip6_address      (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> address[16]</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *port</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint8</span> address[16]</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> *port</code></em>);</pre>
 <p>
 Get the IPv6 address stored in <em class="parameter"><code>naddr</code></em> into <em class="parameter"><code>address</code></em>.
 </p>
@@ -350,8 +350,8 @@ it to host order.
 <div class="refsect2">
 <a name="gst-netaddress-get-address-bytes"></a><h3>gst_netaddress_get_address_bytes ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>                gst_netaddress_get_address_bytes    (<em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> address[16]</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> *port</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint8</span> address[16]</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> *port</code></em>);</pre>
 <p>
 Get just the address bytes stored in <em class="parameter"><code>naddr</code></em> into <em class="parameter"><code>address</code></em>.
 </p>
@@ -387,14 +387,14 @@ it to host order. IP4 addresses are also stored in network byte order.
 <a name="gst-netaddress-set-address-bytes"></a><h3>gst_netaddress_set_address_bytes ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="returnvalue">gint</span></a>                gst_netaddress_set_address_bytes    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetAddress" title="struct GstNetAddress"><span class="type">GstNetAddress</span></a> *naddr</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstnetbuffer.html#GstNetType" title="enum GstNetType"><span class="type">GstNetType</span></a> type</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> address[16]</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> port</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint8</span> address[16]</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint16</span> port</code></em>);</pre>
 <p>
 Set just the address bytes stored in <em class="parameter"><code>naddr</code></em> into <em class="parameter"><code>address</code></em>.
 </p>
 <p>
 Note that <em class="parameter"><code>port</code></em> must be expressed in network byte order, use <a href="http://library.gnome.org/devel/glib/unstable/glib-Byte-Order-Macros.html#g-htons"><code class="function">g_htons()</code></a> to
-convert it to network byte order order. IP4 address bytes must also be
+convert it to network byte order. IP4 address bytes must also be
 stored in network byte order.
 </p>
 <div class="variablelist"><table border="0">
@@ -493,6 +493,6 @@ enough</td>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

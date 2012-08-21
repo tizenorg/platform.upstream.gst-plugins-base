@@ -21,7 +21,12 @@
 #include "config.h"
 #endif
 
+/* FIXME 0.11: suppress warnings for deprecated API such as GStaticRecMutex
+ * with newer GLib versions (>= 2.31.0) */
+#define GLIB_DISABLE_DEPRECATION_WARNINGS
+
 #include "gststreamsynchronizer.h"
+#include "gst/glib-compat-private.h"
 
 GST_DEBUG_CATEGORY_STATIC (stream_synchronizer_debug);
 #define GST_CAT_DEFAULT stream_synchronizer_debug
@@ -89,11 +94,16 @@ gst_stream_get_other_pad (GstStream * stream, GstPad * pad)
 static GstPad *
 gst_stream_get_other_pad_from_pad (GstPad * pad)
 {
-  GstStreamSynchronizer *self =
-      GST_STREAM_SYNCHRONIZER (gst_pad_get_parent (pad));
+  GstObject *parent = gst_pad_get_parent (pad);
+  GstStreamSynchronizer *self;
   GstStream *stream;
   GstPad *opad = NULL;
 
+  /* released pad does not have parent anymore */
+  if (!G_LIKELY (parent))
+    goto exit;
+
+  self = GST_STREAM_SYNCHRONIZER (parent);
   GST_STREAM_SYNCHRONIZER_LOCK (self);
   stream = gst_pad_get_element_private (pad);
   if (!stream)
@@ -105,6 +115,7 @@ out:
   GST_STREAM_SYNCHRONIZER_UNLOCK (self);
   gst_object_unref (self);
 
+exit:
   if (!opad)
     GST_WARNING_OBJECT (pad, "Trying to get other pad after releasing");
 
@@ -554,7 +565,7 @@ gst_stream_synchronizer_sink_bufferalloc (GstPad * pad, guint64 offset,
     guint size, GstCaps * caps, GstBuffer ** buf)
 {
   GstPad *opad;
-  GstFlowReturn ret = GST_FLOW_ERROR;
+  GstFlowReturn ret = GST_FLOW_OK;
 
   GST_LOG_OBJECT (pad, "Allocating buffer: size=%u", size);
 
@@ -562,6 +573,10 @@ gst_stream_synchronizer_sink_bufferalloc (GstPad * pad, guint64 offset,
   if (opad) {
     ret = gst_pad_alloc_buffer (opad, offset, size, caps, buf);
     gst_object_unref (opad);
+  } else {
+    /* may have been released during shutdown;
+     * silently trigger fallback */
+    *buf = NULL;
   }
 
   GST_LOG_OBJECT (pad, "Allocation: %s", gst_flow_get_name (ret));
@@ -605,7 +620,8 @@ gst_stream_synchronizer_sink_chain (GstPad * pad, GstBuffer * buffer)
   GST_STREAM_SYNCHRONIZER_LOCK (self);
   stream = gst_pad_get_element_private (pad);
 
-  stream->seen_data = TRUE;
+  if (stream)
+    stream->seen_data = TRUE;
   if (stream && stream->drop_discont) {
     buffer = gst_buffer_make_metadata_writable (buffer);
     GST_BUFFER_FLAG_UNSET (buffer, GST_BUFFER_FLAG_DISCONT);
@@ -955,10 +971,8 @@ gst_stream_synchronizer_base_init (gpointer g_class)
 {
   GstElementClass *gstelement_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&srctemplate));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&sinktemplate));
+  gst_element_class_add_static_pad_template (gstelement_class, &srctemplate);
+  gst_element_class_add_static_pad_template (gstelement_class, &sinktemplate);
 
   gst_element_class_set_details_simple (gstelement_class,
       "Stream Synchronizer", "Generic",

@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>playbin2</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-base Elements">
 <link rel="prev" href="gst-plugins-base-plugins-playbin.html" title="playbin">
 <link rel="next" href="gst-plugins-base-plugins-subtitleoverlay.html" title="subtitleoverlay">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -88,12 +88,12 @@ GstPlayBin2 implements
   "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--vis-plugin" title='The "vis-plugin" property'>vis-plugin</a>"               <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html"><span class="type">GstElement</span></a>*           : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--volume" title='The "volume" property'>volume</a>"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>               : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--mute" title='The "mute" property'>mute</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read / Write
-  "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--buffer-duration" title='The "buffer-duration" property'>buffer-duration</a>"          <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a>                : Read / Write
+  "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--buffer-duration" title='The "buffer-duration" property'>buffer-duration</a>"          <span class="type">gint64</span>                : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--buffer-size" title='The "buffer-size" property'>buffer-size</a>"              <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>                  : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--text-sink" title='The "text-sink" property'>text-sink</a>"                <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html"><span class="type">GstElement</span></a>*           : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--subpic-sink" title='The "subpic-sink" property'>subpic-sink</a>"              <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html"><span class="type">GstElement</span></a>*           : Read / Write
-  "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--av-offset" title='The "av-offset" property'>av-offset</a>"                <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a>                : Read / Write
-  "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--ring-buffer-max-size" title='The "ring-buffer-max-size" property'>ring-buffer-max-size</a>"     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a>               : Read / Write
+  "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--av-offset" title='The "av-offset" property'>av-offset</a>"                <span class="type">gint64</span>                : Read / Write
+  "<a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--ring-buffer-max-size" title='The "ring-buffer-max-size" property'>ring-buffer-max-size</a>"     <span class="type">guint64</span>               : Read / Write
 </pre>
 </div>
 <div class="refsect1">
@@ -162,7 +162,7 @@ volume control with mute option
 <p>
 </p>
 <div class="refsect2">
-<a name="idp12984144"></a><h3>Usage</h3>
+<a name="idp12868672"></a><h3>Usage</h3>
 <p>
 A playbin2 element can be created just like any other element using
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElementFactory.html#gst-element-factory-make"><code class="function">gst_element_factory_make()</code></a>. The file/URI to play should be set via the <a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--uri" title='The "uri" property'><span class="type">"uri"</span></a>
@@ -210,7 +210,7 @@ the duration or position will have been returned in units of nanoseconds.
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp13000256"></a><h3>Advanced Usage: specifying the audio and video sink</h3>
+<a name="idp12884784"></a><h3>Advanced Usage: specifying the audio and video sink</h3>
 <p>
 By default, if no audio sink or video sink has been specified via the
 <a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--audio-sink" title='The "audio-sink" property'><span class="type">"audio-sink"</span></a> or <a class="link" href="gst-plugins-base-plugins-playbin2.html#GstPlayBin2--video-sink" title='The "video-sink" property'><span class="type">"video-sink"</span></a> property, playbin will use the autoaudiosink
@@ -251,7 +251,7 @@ It is also possible to 'suppress' audio and/or video output by using
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp13010816"></a><h3>Retrieving Tags and Other Meta Data</h3>
+<a name="idp12895344"></a><h3>Retrieving Tags and Other Meta Data</h3>
 <p>
 Most of the common meta data (artist, title, etc.) can be retrieved by
 watching for TAG messages on the pipeline's bus (see above).
@@ -266,7 +266,7 @@ from the negotiated caps on the sink pads of the sinks.
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp13012928"></a><h3>Buffering</h3>
+<a name="idp12897456"></a><h3>Buffering</h3>
 Playbin handles buffering automatically for the most part, but applications
 need to handle parts of the buffering process as well. Whenever playbin is
 buffering, it will post BUFFERING messages on the bus with a percentage
@@ -311,7 +311,7 @@ of 100 percent is received (if PLAYING is the desired state, that is).
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp13015696"></a><h3>Embedding the video window in your application</h3>
+<a name="idp12900224"></a><h3>Embedding the video window in your application</h3>
 By default, playbin (or rather the video sinks used) will create their own
 window. Applications will usually want to force output to a window of their
 own, however. This can be done using the <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstxoverlay.html#GstXOverlay"><span class="type">GstXOverlay</span></a> interface, which most
@@ -321,7 +321,7 @@ video sinks implement. See the documentation there for more details.
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp13017664"></a><h3>Specifying which CD/DVD device to use</h3>
+<a name="idp12902192"></a><h3>Specifying which CD/DVD device to use</h3>
 The device to use for CDs/DVDs needs to be set on the source element
 playbin creates before it is opened. The only way to do this at the moment
 is to connect to playbin's "notify::source" signal, which will be emitted
@@ -335,7 +335,7 @@ possible yet.
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp13019088"></a><h3>Handling redirects</h3>
+<a name="idp12903616"></a><h3>Handling redirects</h3>
 <p>
 Some elements may post 'redirect' messages on the bus to tell the
 application to open another location. These are element messages containing
@@ -348,7 +348,7 @@ for such redirects can be found in many quicktime movie trailers.
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp13020768"></a><h3>Examples</h3>
+<a name="idp12905296"></a><h3>Examples</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -394,7 +394,7 @@ the drive is detected automatically by the plugin).
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp13025664"></a><h3>Element Information</h3>
+<a name="idp12910192"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -417,7 +417,7 @@ the drive is detected automatically by the plugin).
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp13033120"></a><h3>Element Pads</h3>
+<a name="idp12917648"></a><h3>Element Pads</h3>
 </div>
 </div>
 <p>
@@ -505,7 +505,7 @@ Extra flags to configure the behaviour of the sinks.
 </tr>
 <tr>
 <td><p><a name="GST-PLAY-FLAG-DEINTERLACE:CAPS"></a><span class="term"><code class="literal">GST_PLAY_FLAG_DEINTERLACE</code></span></p></td>
-<td>
+<td>deinterlace raw video (if native not forced).
 </td>
 </tr>
 </tbody>
@@ -681,7 +681,7 @@ Get or set the current audio stream volume. 1.0 means 100%,
 <hr>
 <div class="refsect2">
 <a name="GstPlayBin2--buffer-duration"></a><h3>The <code class="literal">"buffer-duration"</code> property</h3>
-<pre class="programlisting">  "buffer-duration"          <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a>                : Read / Write</pre>
+<pre class="programlisting">  "buffer-duration"          <span class="type">gint64</span>                : Read / Write</pre>
 <p>Buffer duration when buffering network streams.</p>
 <p>Allowed values: &gt;= G_MAXULONG</p>
 <p>Default value: -1</p>
@@ -709,7 +709,7 @@ Get or set the current audio stream volume. 1.0 means 100%,
 <hr>
 <div class="refsect2">
 <a name="GstPlayBin2--av-offset"></a><h3>The <code class="literal">"av-offset"</code> property</h3>
-<pre class="programlisting">  "av-offset"                <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a>                : Read / Write</pre>
+<pre class="programlisting">  "av-offset"                <span class="type">gint64</span>                : Read / Write</pre>
 <p>
 Control the synchronisation offset between the audio and video streams.
 Positive values make the audio ahead of the video and negative values make
@@ -721,7 +721,7 @@ the audio go behind the video.
 <hr>
 <div class="refsect2">
 <a name="GstPlayBin2--ring-buffer-max-size"></a><h3>The <code class="literal">"ring-buffer-max-size"</code> property</h3>
-<pre class="programlisting">  "ring-buffer-max-size"     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a>               : Read / Write</pre>
+<pre class="programlisting">  "ring-buffer-max-size"     <span class="type">guint64</span>               : Read / Write</pre>
 <p>Max. amount of data in the ring buffer (bytes, 0 = ring buffer disabled).</p>
 <p>Allowed values: &lt;= G_MAXUINT</p>
 <p>Default value: 0</p>
@@ -736,6 +736,9 @@ the audio go behind the video.
 <p>
 This signal is emitted when the current uri is about to finish. You can
 set the uri and suburi to make sure that playback continues.
+</p>
+<p>
+This signal is emitted from the context of a GStreamer streaming thread.
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -761,6 +764,11 @@ set the uri and suburi to make sure that playback continues.
 This signal is emitted whenever the number or order of the audio
 streams has changed. The application will most likely want to select
 a new audio stream.
+</p>
+<p>
+This signal may be emitted from the context of a GStreamer streaming thread.
+You can use <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#gst-message-new-application"><code class="function">gst_message_new_application()</code></a> and <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html#gst-element-post-message"><code class="function">gst_element_post_message()</code></a>
+to notify your application's main thread.
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -889,6 +897,11 @@ This signal is emitted whenever the number or order of the text
 streams has changed. The application will most likely want to select
 a new text stream.
 </p>
+<p>
+This signal may be emitted from the context of a GStreamer streaming thread.
+You can use <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#gst-message-new-application"><code class="function">gst_message_new_application()</code></a> and <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html#gst-element-post-message"><code class="function">gst_element_post_message()</code></a>
+to notify your application's main thread.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -913,6 +926,11 @@ a new text stream.
 This signal is emitted whenever the number or order of the video
 streams has changed. The application will most likely want to select
 a new video stream.
+</p>
+<p>
+This signal is usually emitted from the context of a GStreamer streaming
+thread. You can use <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#gst-message-new-application"><code class="function">gst_message_new_application()</code></a> and
+<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html#gst-element-post-message"><code class="function">gst_element_post_message()</code></a> to notify your application's main thread.
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -1082,6 +1100,11 @@ queries, etc.
 This signal is emitted whenever the tags of an audio stream have changed.
 The application will most likely want to get the new tags.
 </p>
+<p>
+This signal may be emitted from the context of a GStreamer streaming thread.
+You can use <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#gst-message-new-application"><code class="function">gst_message_new_application()</code></a> and <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html#gst-element-post-message"><code class="function">gst_element_post_message()</code></a>
+to notify your application's main thread.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -1112,6 +1135,11 @@ The application will most likely want to get the new tags.
 This signal is emitted whenever the tags of a text stream have changed.
 The application will most likely want to get the new tags.
 </p>
+<p>
+This signal may be emitted from the context of a GStreamer streaming thread.
+You can use <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#gst-message-new-application"><code class="function">gst_message_new_application()</code></a> and <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html#gst-element-post-message"><code class="function">gst_element_post_message()</code></a>
+to notify your application's main thread.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -1141,6 +1169,11 @@ The application will most likely want to get the new tags.
 <p>
 This signal is emitted whenever the tags of a video stream have changed.
 The application will most likely want to get the new tags.
+</p>
+<p>
+This signal may be emitted from the context of a GStreamer streaming thread.
+You can use <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#gst-message-new-application"><code class="function">gst_message_new_application()</code></a> and <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html#gst-element-post-message"><code class="function">gst_element_post_message()</code></a>
+to notify your application's main thread.
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -1175,6 +1208,10 @@ proxy server for an http source, or set the device and read speed for
 an audio cd source). This is functionally equivalent to connecting to
 the notify::source signal, but more convenient.
 </p>
+<p>
+This signal is usually emitted from the context of a GStreamer streaming
+thread.
+</p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -1199,6 +1236,6 @@ the notify::source signal, but more convenient.
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

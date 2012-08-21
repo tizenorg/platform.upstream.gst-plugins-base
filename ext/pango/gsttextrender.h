@@ -89,11 +89,6 @@ struct _GstTextRender {
 
     gint xpad;
     gint ypad;
-
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-    gboolean              silent;
-#endif
-
 };
 
 struct _GstTextRenderClass {

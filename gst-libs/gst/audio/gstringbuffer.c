@@ -43,6 +43,8 @@
 
 #include "gstringbuffer.h"
 
+#include "gst/glib-compat-private.h"
+
 GST_DEBUG_CATEGORY_STATIC (gst_ring_buffer_debug);
 #define GST_CAT_DEFAULT gst_ring_buffer_debug
 
@@ -327,7 +329,7 @@ gst_ring_buffer_parse_caps (GstRingBufferSpec * spec, GstCaps * caps)
   /* we have to differentiate between int and float formats */
   mimetype = gst_structure_get_name (structure);
 
-  if (!strncmp (mimetype, "audio/x-raw-int", 15)) {
+  if (g_str_equal (mimetype, "audio/x-raw-int")) {
     gint endianness;
     const FormatDef *def;
     gint j, bytes;
@@ -367,7 +369,7 @@ gst_ring_buffer_parse_caps (GstRingBufferSpec * spec, GstCaps * caps)
         spec->silence_sample[i * bytes + j] = def->silence[j];
       }
     }
-  } else if (!strncmp (mimetype, "audio/x-raw-float", 17)) {
+  } else if (g_str_equal (mimetype, "audio/x-raw-float")) {
 
     spec->type = GST_BUFTYPE_FLOAT;
 
@@ -392,7 +394,7 @@ gst_ring_buffer_parse_caps (GstRingBufferSpec * spec, GstCaps * caps)
     }
     /* float silence is all zeros.. */
     memset (spec->silence_sample, 0, 32);
-  } else if (!strncmp (mimetype, "audio/x-alaw", 12)) {
+  } else if (g_str_equal (mimetype, "audio/x-alaw")) {
     /* extract the needed information from the cap */
     if (!(gst_structure_get_int (structure, "rate", &spec->rate) &&
             gst_structure_get_int (structure, "channels", &spec->channels)))
@@ -404,7 +406,7 @@ gst_ring_buffer_parse_caps (GstRingBufferSpec * spec, GstCaps * caps)
     spec->depth = 8;
     for (i = 0; i < spec->channels; i++)
       spec->silence_sample[i] = 0xd5;
-  } else if (!strncmp (mimetype, "audio/x-mulaw", 13)) {
+  } else if (g_str_equal (mimetype, "audio/x-mulaw")) {
     /* extract the needed information from the cap */
     if (!(gst_structure_get_int (structure, "rate", &spec->rate) &&
             gst_structure_get_int (structure, "channels", &spec->channels)))
@@ -416,7 +418,7 @@ gst_ring_buffer_parse_caps (GstRingBufferSpec * spec, GstCaps * caps)
     spec->depth = 8;
     for (i = 0; i < spec->channels; i++)
       spec->silence_sample[i] = 0xff;
-  } else if (!strncmp (mimetype, "audio/x-iec958", 14)) {
+  } else if (g_str_equal (mimetype, "audio/x-iec958")) {
     /* extract the needed information from the cap */
     if (!(gst_structure_get_int (structure, "rate", &spec->rate)))
       goto parse_error;
@@ -426,13 +428,46 @@ gst_ring_buffer_parse_caps (GstRingBufferSpec * spec, GstCaps * caps)
     spec->width = 16;
     spec->depth = 16;
     spec->channels = 2;
-  } else if (!strncmp (mimetype, "audio/x-ac3", 11)) {
+  } else if (g_str_equal (mimetype, "audio/x-ac3")) {
     /* extract the needed information from the cap */
     if (!(gst_structure_get_int (structure, "rate", &spec->rate)))
       goto parse_error;
 
     spec->type = GST_BUFTYPE_AC3;
     spec->format = GST_AC3;
+    spec->width = 16;
+    spec->depth = 16;
+    spec->channels = 2;
+  } else if (g_str_equal (mimetype, "audio/x-eac3")) {
+    /* extract the needed information from the cap */
+    if (!(gst_structure_get_int (structure, "rate", &spec->rate)))
+      goto parse_error;
+
+    spec->type = GST_BUFTYPE_EAC3;
+    spec->format = GST_EAC3;
+    spec->width = 64;
+    spec->depth = 64;
+    spec->channels = 2;
+  } else if (g_str_equal (mimetype, "audio/x-dts")) {
+    /* extract the needed information from the cap */
+    if (!(gst_structure_get_int (structure, "rate", &spec->rate)))
+      goto parse_error;
+
+    spec->type = GST_BUFTYPE_DTS;
+    spec->format = GST_DTS;
+    spec->width = 16;
+    spec->depth = 16;
+    spec->channels = 2;
+  } else if (g_str_equal (mimetype, "audio/mpeg") &&
+      gst_structure_get_int (structure, "mpegaudioversion", &i) &&
+      (i == 1 || i == 2)) {
+    /* Now we know this is MPEG-1 or MPEG-2 (non AAC) */
+    /* extract the needed information from the cap */
+    if (!(gst_structure_get_int (structure, "rate", &spec->rate)))
+      goto parse_error;
+
+    spec->type = GST_BUFTYPE_MPEG;
+    spec->format = GST_MPEG;
     spec->width = 16;
     spec->depth = 16;
     spec->channels = 2;
@@ -1738,7 +1773,7 @@ not_started:
  *
  * Commit @in_samples samples pointed to by @data to the ringbuffer @buf. 
  *
- * @in_samples and @out_samples define the rate conversion to perform on the the
+ * @in_samples and @out_samples define the rate conversion to perform on the
  * samples in @data. For negative rates, @out_samples must be negative and
  * @in_samples positive.
  *

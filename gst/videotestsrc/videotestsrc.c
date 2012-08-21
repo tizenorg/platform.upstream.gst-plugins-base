@@ -547,7 +547,7 @@ gst_video_test_src_get_size (GstVideoTestSrc * v, int w, int h)
 
   fourcc->paint_setup (p, NULL);
 
-  return (unsigned long) p->endptr;
+  return (guintptr) p->endptr;
 }
 
 #define SCALEBITS 10
@@ -740,7 +740,7 @@ gst_video_test_src_smpte (GstVideoTestSrc * v, unsigned char *dest, int w,
   fourcc->paint_setup (p, dest);
 
   y1 = 2 * h / 3;
-  y2 = h * 0.75;
+  y2 = 3 * h / 4;
 
   /* color bars */
   for (j = 0; j < y1; j++) {
@@ -1561,8 +1561,8 @@ gst_video_test_src_ball (GstVideoTestSrc * v, unsigned char *dest, int w, int h)
 
   fourcc->paint_setup (p, dest);
 
-  x = radius + (0.5 + 0.5 * sin (2 * M_PI * t / 200)) * (w - 2 * radius);
-  y = radius + (0.5 + 0.5 * sin (2 * M_PI * sqrt (2) * t / 200)) * (h -
+  x = radius + (0.5 + 0.5 * sin (2 * G_PI * t / 200)) * (w - 2 * radius);
+  y = radius + (0.5 + 0.5 * sin (2 * G_PI * sqrt (2) * t / 200)) * (h -
       2 * radius);
 
   for (i = 0; i < h; i++) {

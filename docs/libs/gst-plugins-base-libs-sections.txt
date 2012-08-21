@@ -3,7 +3,6 @@
 <FILE>gstappsrc</FILE>
 <TITLE>appsrc</TITLE>
 <INCLUDE>gst/app/gstappsrc.h</INCLUDE>
-GstAppSrc
 GstAppStreamType
 gst_app_src_set_caps
 gst_app_src_get_caps
@@ -35,7 +34,10 @@ GST_APP_BUFFER_CLASS
 GST_IS_APP_BUFFER
 GST_IS_APP_BUFFER_CLASS
 GST_TYPE_APP_BUFFER
+GST_TYPE_APP_STREAM_TYPE
+gst_app_stream_type_get_type
 <SUBSECTION Private>
+GstAppSrc
 GstAppSrcPrivate
 GstAppBuffer
 GstAppBufferClass
@@ -48,7 +50,6 @@ gst_app_buffer_new
 <FILE>gstappsink</FILE>
 <TITLE>appsink</TITLE>
 <INCLUDE>gst/app/gstappsink.h</INCLUDE>
-GstAppSink
 gst_app_sink_set_caps
 gst_app_sink_get_caps
 gst_app_sink_is_eos
@@ -64,6 +65,7 @@ gst_app_sink_pull_buffer_list
 GstAppSinkCallbacks
 gst_app_sink_set_callbacks
 <SUBSECTION Standard>
+GstAppSink
 GstAppSinkPrivate
 GstAppSinkClass
 GST_APP_SINK
@@ -80,6 +82,42 @@ GST_IS_APP_SINK_CLASS
 <SECTION>
 <FILE>gstaudio</FILE>
 <INCLUDE>gst/audio/audio.h</INCLUDE>
+GstAudioFlags
+GstAudioFormat
+GstAudioFormatFlags
+GstAudioFormatInfo
+GstAudioInfo
+gst_audio_info_init
+gst_audio_info_clear
+gst_audio_info_copy
+gst_audio_info_free
+gst_audio_info_from_caps
+gst_audio_info_to_caps
+gst_audio_info_convert
+gst_audio_format_get_info
+GST_AUDIO_FORMAT_INFO_DEPTH
+GST_AUDIO_FORMAT_INFO_ENDIANNESS
+GST_AUDIO_FORMAT_INFO_FLAGS
+GST_AUDIO_FORMAT_INFO_FORMAT
+GST_AUDIO_FORMAT_INFO_IS_FLOAT
+GST_AUDIO_FORMAT_INFO_IS_INTEGER
+GST_AUDIO_FORMAT_INFO_IS_BIG_ENDIAN
+GST_AUDIO_FORMAT_INFO_IS_LITTLE_ENDIAN
+GST_AUDIO_FORMAT_INFO_IS_SIGNED
+GST_AUDIO_FORMAT_INFO_NAME
+GST_AUDIO_FORMAT_INFO_WIDTH
+GST_AUDIO_INFO_BPF
+GST_AUDIO_INFO_BPS
+GST_AUDIO_INFO_CHANNELS
+GST_AUDIO_INFO_DEPTH
+GST_AUDIO_INFO_FLAGS
+GST_AUDIO_INFO_FORMAT
+GST_AUDIO_INFO_HAS_DEFAULT_POSITIONS
+GST_AUDIO_INFO_NAME
+GST_AUDIO_INFO_POSITION
+GST_AUDIO_INFO_RATE
+GST_AUDIO_INFO_WIDTH
+
 GstAudioFieldFlag
 GST_FRAMES_TO_CLOCK_TIME
 GST_CLOCK_TIME_TO_FRAMES
@@ -99,6 +137,8 @@ GST_TYPE_BUFFER_FORMAT
 GST_TYPE_BUFFER_FORMAT_TYPE
 gst_buffer_format_get_type
 gst_buffer_format_type_get_type
+<SUBSECTION Private>
+_GST_AUDIO_FORMAT_NE
 </SECTION>
 
 <SECTION>
@@ -121,6 +161,96 @@ gst_audio_clock_get_type
 GST_AUDIO_CLOCK_CLASS
 GST_IS_AUDIO_CLOCK_CLASS
 GST_AUDIO_CLOCK_CAST
+</SECTION>
+
+<SECTION>
+<FILE>gstaudiodecoder</FILE>
+<INCLUDE>gst/audio/gstaudiodecoder.h</INCLUDE>
+GstAudioDecoder
+GstAudioDecoderClass
+GST_AUDIO_DECODER_ERROR
+GST_AUDIO_DECODER_SINK_NAME
+GST_AUDIO_DECODER_SINK_PAD
+GST_AUDIO_DECODER_SRC_NAME
+GST_AUDIO_DECODER_SRC_PAD
+gst_audio_decoder_finish_frame
+gst_audio_decoder_get_audio_info
+gst_audio_decoder_get_byte_time
+gst_audio_decoder_get_delay
+gst_audio_decoder_get_drainable
+gst_audio_decoder_get_latency
+gst_audio_decoder_get_max_errors
+gst_audio_decoder_get_min_latency
+gst_audio_decoder_get_needs_format
+gst_audio_decoder_get_parse_state
+gst_audio_decoder_get_plc
+gst_audio_decoder_get_plc_aware
+gst_audio_decoder_get_tolerance
+gst_audio_decoder_set_byte_time
+gst_audio_decoder_set_drainable
+gst_audio_decoder_set_latency
+gst_audio_decoder_set_max_errors
+gst_audio_decoder_set_min_latency
+gst_audio_decoder_set_needs_format
+gst_audio_decoder_set_plc
+gst_audio_decoder_set_plc_aware
+gst_audio_decoder_set_tolerance
+<SUBSECTION Standard>
+GST_AUDIO_DECODER
+GST_IS_AUDIO_DECODER
+GST_TYPE_AUDIO_DECODER
+gst_audio_decoder_get_type
+GST_AUDIO_DECODER_CLASS
+GST_IS_AUDIO_DECODER_CLASS
+GST_AUDIO_DECODER_GET_CLASS
+GstAudioDecoderPrivate
+</SECTION>
+
+<SECTION>
+<FILE>gstaudioencoder</FILE>
+<INCLUDE>gst/audio/gstaudioencoder.h</INCLUDE>
+GstAudioEncoder
+GstAudioEncoderClass
+GST_AUDIO_ENCODER_SEGMENT
+GST_AUDIO_ENCODER_SINK_NAME
+GST_AUDIO_ENCODER_SINK_PAD
+GST_AUDIO_ENCODER_SRC_NAME
+GST_AUDIO_ENCODER_SRC_PAD
+gst_audio_encoder_finish_frame
+gst_audio_encoder_get_audio_info
+gst_audio_encoder_get_drainable
+gst_audio_encoder_get_frame_max
+gst_audio_encoder_get_frame_samples_min
+gst_audio_encoder_get_frame_samples_max
+gst_audio_encoder_get_hard_min
+gst_audio_encoder_get_hard_resync
+gst_audio_encoder_get_latency
+gst_audio_encoder_get_lookahead
+gst_audio_encoder_get_mark_granule
+gst_audio_encoder_get_perfect_timestamp
+gst_audio_encoder_get_tolerance
+gst_audio_encoder_proxy_getcaps
+gst_audio_encoder_set_drainable
+gst_audio_encoder_set_frame_max
+gst_audio_encoder_set_frame_samples_min
+gst_audio_encoder_set_frame_samples_max
+gst_audio_encoder_set_hard_min
+gst_audio_encoder_set_hard_resync
+gst_audio_encoder_set_latency
+gst_audio_encoder_set_lookahead
+gst_audio_encoder_set_mark_granule
+gst_audio_encoder_set_perfect_timestamp
+gst_audio_encoder_set_tolerance
+<SUBSECTION Standard>
+GST_AUDIO_ENCODER
+GST_AUDIO_ENCODER_CAST
+GST_IS_AUDIO_ENCODER
+GST_TYPE_AUDIO_ENCODER
+gst_audio_encoder_get_type
+GST_AUDIO_ENCODER_CLASS
+GST_IS_AUDIO_ENCODER_CLASS
+GST_AUDIO_ENCODER_GET_CLASS
+GstAudioEncoderPrivate
 </SECTION>
 
 <SECTION>
@@ -317,6 +447,13 @@ gst_ring_buffer_debug_spec_buff
 gst_ring_buffer_debug_spec_caps
 </SECTION>
 
+<SECTION>
+<FILE>gstaudioiec61937</FILE>
+<INCLUDE>gst/audio/gstaudioiec61937.h</INCLUDE>
+gst_audio_iec61937_frame_size
+gst_audio_iec61937_payload
+</SECTION>
+
 
 # cdda
 
@@ -457,6 +594,8 @@ KISS_FFT_F64_SIN
 <INCLUDE>gst/floatcast/floatcast.h</INCLUDE>
 gst_cast_double
 gst_cast_float
+<SUBSECTION Standard>
+inline
 </SECTION>
 
 
@@ -852,6 +991,22 @@ gst_netbuffer_get_type
 <SECTION>
 <FILE>gstriff</FILE>
 <INCLUDE>gst/riff/riff-media.h</INCLUDE>
+gst_riff_create_audio_caps
+gst_riff_create_audio_template_caps
+gst_riff_create_iavs_caps
+gst_riff_create_iavs_template_caps
+gst_riff_create_video_caps
+gst_riff_create_video_template_caps
+gst_riff_init
+gst_riff_parse_chunk
+gst_riff_parse_file_header
+gst_riff_parse_info
+gst_riff_parse_strf_auds
+gst_riff_parse_strf_iavs
+gst_riff_parse_strf_vids
+gst_riff_parse_strh
+gst_riff_read_chunk
+<SUBSECTION Standard>
 GST_RIFF_00
 GST_RIFF_0021
 GST_RIFF_0031
@@ -1036,28 +1191,12 @@ GST_RIFF_yuy2
 GST_RIFF_yv12
 
 gst_riff_acid
-gst_riff_create_audio_caps
-gst_riff_create_audio_template_caps
-gst_riff_create_iavs_caps
-gst_riff_create_iavs_template_caps
-gst_riff_create_video_caps
-gst_riff_create_video_template_caps
 gst_riff_dmlh
 gst_riff_index_entry
-gst_riff_init
-gst_riff_parse_chunk
-gst_riff_parse_file_header
-gst_riff_parse_info
-gst_riff_parse_strf_auds
-gst_riff_parse_strf_iavs
-gst_riff_parse_strf_vids
-gst_riff_parse_strh
-gst_riff_read_chunk
 gst_riff_strf_auds
 gst_riff_strf_iavs
 gst_riff_strf_vids
 gst_riff_strh
-<SUBSECTION Standard>
 </SECTION>
 
 
@@ -1385,6 +1524,7 @@ gst_rtp_buffer_list_add_extension_twobytes_header
 <FILE>gstrtspdefs</FILE>
 <INCLUDE>gst/rtsp/gstrtspdefs.h</INCLUDE>
 GST_RTSP_CHECK
+GST_RTSP_AUTH_MAX
 GstRTSPEvent
 GstRTSPResult
 GstRTSPFamily
@@ -1392,7 +1532,6 @@ GstRTSPState
 GstRTSPVersion
 GstRTSPMethod
 GstRTSPAuthMethod
-GST_RTSP_AUTH_MAX
 GstRTSPHeaderField
 GstRTSPStatusCode
 gst_rtsp_strresult
@@ -1732,8 +1871,10 @@ GST_TAG_CAPTURING_FLASH_FIRED
 GST_TAG_CAPTURING_FLASH_MODE
 GST_TAG_CAPTURING_METERING_MODE
 GST_TAG_CAPTURING_SOURCE
+GST_TAG_CAPTURING_EXPOSURE_COMPENSATION
 GST_TAG_IMAGE_HORIZONTAL_PPI
 GST_TAG_IMAGE_VERTICAL_PPI
+GST_TAG_ID3V2_HEADER_SIZE
 gst_tag_register_musicbrainz_tags
 gst_tag_freeform_string_to_utf8
 gst_tag_parse_extended_comment
@@ -1772,6 +1913,8 @@ gst_tag_from_id3_tag
 gst_tag_from_id3_user_tag
 gst_tag_to_id3_tag
 gst_tag_list_add_id3_image
+gst_tag_get_id3v2_tag_size
+gst_tag_list_from_id3v2_tag
 </SECTION>
 
 <SECTION>
@@ -1779,6 +1922,8 @@ gst_tag_list_add_id3_image
 <INCLUDE>gst/tag/tag.h</INCLUDE>
 gst_tag_list_from_xmp_buffer
 gst_tag_list_to_xmp_buffer
+gst_tag_list_to_xmp_buffer_full
+gst_tag_xmp_list_schemas
 <SUBSECTION Standard>
 </SECTION>
 
@@ -1811,15 +1956,64 @@ gst_tag_demux_result_get_type
 </SECTION>
 
 <SECTION>
+<FILE>gsttagmux</FILE>
+<INCLUDE>gst/tag/gsttagmux.h</INCLUDE>
+GstTagMux
+GstTagMuxClass
+<SUBSECTION Standard>
+GstTagMuxPrivate
+GST_IS_TAG_MUX
+GST_IS_TAG_MUX_CLASS
+GST_TAG_MUX
+GST_TAG_MUX_CLASS
+GST_TYPE_TAG_MUX
+gst_tag_mux_get_type
+</SECTION>
+
+<SECTION>
 <FILE>gsttaglanguagecodes</FILE>
 <INCLUDE>gst/tag/tag.h</INCLUDE>
-<SUBSECTION>
 gst_tag_get_language_codes
 gst_tag_get_language_name
 gst_tag_get_language_code
 gst_tag_get_language_code_iso_639_1
 gst_tag_get_language_code_iso_639_2B
 gst_tag_get_language_code_iso_639_2T
+</SECTION>
+
+<SECTION>
+<FILE>gsttaglicenses</FILE>
+<INCLUDE>gst/tag/tag.h</INCLUDE>
+GstTagLicenseFlags
+gst_tag_get_license_flags
+gst_tag_get_license_nick
+gst_tag_get_license_title
+gst_tag_get_license_description
+gst_tag_get_license_jurisdiction
+gst_tag_get_license_version
+gst_tag_get_licenses
+<SUBSECTION Standard>
+gst_tag_license_flags_get_type
+</SECTION>
+
+<SECTION>
+<FILE>gsttagxmpwriter</FILE>
+gst_tag_xmp_writer_add_all_schemas
+gst_tag_xmp_writer_add_schema
+gst_tag_xmp_writer_has_schema
+gst_tag_xmp_writer_remove_schema
+gst_tag_xmp_writer_remove_all_schemas
+gst_tag_xmp_writer_tag_list_to_xmp_buffer
+<SUBSECTION Standard>
+GstTagXmpWriter
+GstTagXmpWriterInterface
+GST_TYPE_TAG_XMP_WRITER
+GST_TAG_XMP_WRITER
+GST_TAG_XMP_WRITER_INTERFACE
+GST_IS_TAG_XMP_WRITER
+GST_IS_TAG_XMP_WRITER_INTERFACE
+GST_TAG_XMP_WRITER_GET_INTERFACE
+gst_tag_xmp_writer_get_type
 </SECTION>
 
 # base utils
@@ -1829,6 +2023,11 @@ gst_tag_get_language_code_iso_639_2T
 <INCLUDE>gst/pbutils/pbutils.h</INCLUDE>
 <SUBSECTION>
 gst_pb_utils_init
+</SECTION>
+
+<SECTION>
+<FILE>gstpluginsbaseversion</FILE>
+<INCLUDE>gst/pbutils/gstpluginsbaseversion.h</INCLUDE>
 <SUBSECTION>
 GST_PLUGINS_BASE_VERSION_MAJOR
 GST_PLUGINS_BASE_VERSION_MINOR
@@ -1909,6 +2108,7 @@ gst_codec_utils_aac_caps_set_level_and_profile
 gst_codec_utils_h264_get_profile
 gst_codec_utils_h264_get_level
 gst_codec_utils_h264_caps_set_level_and_profile
+gst_codec_utils_h264_get_level_idc
 <SUBSECTION>
 gst_codec_utils_mpeg4video_get_profile
 gst_codec_utils_mpeg4video_get_level
@@ -1922,6 +2122,7 @@ GstEncodingProfile
 gst_encoding_profile_unref
 gst_encoding_profile_ref
 gst_encoding_profile_find
+gst_encoding_profile_from_discoverer
 gst_encoding_profile_get_name
 gst_encoding_profile_get_description
 gst_encoding_profile_get_format
@@ -2047,6 +2248,20 @@ GST_VIDEO_CAPS_BGR_16
 GST_VIDEO_CAPS_RGB8_PALETTED
 GST_VIDEO_CAPS_GRAY8
 GST_VIDEO_CAPS_GRAY16
+GST_VIDEO_CAPS_ARGB_64
+GST_VIDEO_CAPS_r210
+GST_VIDEO_COMP1_MASK_15
+GST_VIDEO_COMP1_MASK_15_INT
+GST_VIDEO_COMP1_MASK_16
+GST_VIDEO_COMP1_MASK_16_INT
+GST_VIDEO_COMP2_MASK_15
+GST_VIDEO_COMP2_MASK_15_INT
+GST_VIDEO_COMP2_MASK_16
+GST_VIDEO_COMP2_MASK_16_INT
+GST_VIDEO_COMP3_MASK_15
+GST_VIDEO_COMP3_MASK_15_INT
+GST_VIDEO_COMP3_MASK_16
+GST_VIDEO_COMP3_MASK_16_INT
 GST_VIDEO_FPS_RANGE
 GST_VIDEO_GREEN_MASK_15
 GST_VIDEO_GREEN_MASK_15_INT
@@ -2060,16 +2275,20 @@ GST_VIDEO_SIZE_RANGE
 GST_VIDEO_BUFFER_TFF
 GST_VIDEO_BUFFER_RFF
 GST_VIDEO_BUFFER_ONEFIELD
+GST_VIDEO_BUFFER_PROGRESSIVE
 GstVideoFormat
 gst_video_calculate_display_ratio
 gst_video_frame_rate
 gst_video_get_size
+gst_video_get_size_from_caps
 gst_video_format_convert
 gst_video_format_new_caps
 gst_video_format_new_caps_interlaced
+gst_video_format_new_template_caps
 gst_video_format_get_component_height
 gst_video_format_get_component_offset
 gst_video_format_get_component_width
+gst_video_format_get_component_depth
 gst_video_format_get_pixel_stride
 gst_video_format_get_row_stride
 gst_video_format_get_size
@@ -2091,9 +2310,64 @@ gst_video_convert_frame
 gst_video_convert_frame_async
 gst_video_event_new_still_frame
 gst_video_event_parse_still_frame
+gst_video_event_new_upstream_force_key_unit
+gst_video_event_new_downstream_force_key_unit
+gst_video_event_is_force_key_unit
+gst_video_event_parse_upstream_force_key_unit
+gst_video_event_parse_downstream_force_key_unit
 <SUBSECTION Standard>
 gst_video_format_get_type
 GST_TYPE_VIDEO_FORMAT
+</SECTION>
+
+<SECTION>
+<FILE>gstvideooverlaycomposition</FILE>
+<INCLUDE>gst/video/video-overlay-composition.h</INCLUDE>
+<SUBSECTION composition>
+GstVideoOverlayComposition
+GstVideoOverlayCompositionClass
+gst_video_overlay_composition_new
+gst_video_overlay_composition_ref
+gst_video_overlay_composition_unref
+gst_video_overlay_composition_add_rectangle
+gst_video_overlay_composition_n_rectangles
+gst_video_overlay_composition_get_rectangle
+gst_video_overlay_composition_get_seqnum
+gst_video_overlay_composition_copy
+gst_video_overlay_composition_make_writable
+gst_video_overlay_composition_blend
+<SUBSECTION composition-set-get>
+gst_video_buffer_get_overlay_composition
+gst_video_buffer_set_overlay_composition
+<SUBSECTION rectangle>
+GstVideoOverlayFormatFlags
+GstVideoOverlayRectangle
+GstVideoOverlayRectangleClass
+gst_video_overlay_rectangle_new_argb
+gst_video_overlay_rectangle_ref
+gst_video_overlay_rectangle_unref
+gst_video_overlay_rectangle_get_pixels_argb
+gst_video_overlay_rectangle_get_pixels_unscaled_argb
+gst_video_overlay_rectangle_get_render_rectangle
+gst_video_overlay_rectangle_get_seqnum
+gst_video_overlay_rectangle_set_render_rectangle
+gst_video_overlay_rectangle_copy
+<SUBSECTION Standard>
+GST_TYPE_VIDEO_OVERLAY_COMPOSITION
+GST_VIDEO_OVERLAY_COMPOSITION
+GST_VIDEO_OVERLAY_COMPOSITION_CLASS
+GST_VIDEO_OVERLAY_COMPOSITION_GET_CLASS
+GST_IS_VIDEO_OVERLAY_COMPOSITION
+GST_IS_VIDEO_VIDEO_OVERLAY_COMPOSITION_CLASS
+gst_video_overlay_composition_get_type
+
+GST_TYPE_VIDEO_OVERLAY_RECTANGLE
+GST_VIDEO_OVERLAY_RECTANGLE
+GST_VIDEO_OVERLAY_RECTANGLE_CLASS
+GST_VIDEO_OVERLAY_RECTANGLE_GET_CLASS
+GST_IS_VIDEO_OVERLAY_RECTANGLE
+GST_IS_VIDEO_VIDEO_OVERLAY_RECTANGLE_CLASS
+gst_video_overlay_rectangle_get_type
 </SECTION>
 
 <SECTION>
@@ -2161,6 +2435,7 @@ GstDiscovererStreamInfo
 GstDiscovererContainerInfo
 GstDiscovererAudioInfo
 GstDiscovererVideoInfo
+GstDiscovererSubtitleInfo
 gst_discoverer_stream_info_get_caps
 gst_discoverer_stream_info_get_misc
 gst_discoverer_stream_info_get_next
@@ -2173,13 +2448,16 @@ gst_discoverer_stream_info_get_stream_type_nick
 gst_discoverer_info_get_audio_streams
 gst_discoverer_info_get_container_streams
 gst_discoverer_info_get_streams
+gst_discoverer_info_get_subtitle_streams
 gst_discoverer_info_get_video_streams
 gst_discoverer_audio_info_get_bitrate
 gst_discoverer_audio_info_get_channels
 gst_discoverer_audio_info_get_depth
+gst_discoverer_audio_info_get_language
 gst_discoverer_audio_info_get_max_bitrate
 gst_discoverer_audio_info_get_sample_rate
 gst_discoverer_container_info_get_streams
+gst_discoverer_subtitle_info_get_language
 gst_discoverer_video_info_get_bitrate
 gst_discoverer_video_info_get_depth
 gst_discoverer_video_info_get_framerate_denom
@@ -2199,6 +2477,7 @@ GST_DISCOVERER_CONTAINER_INFO
 GST_DISCOVERER_INFO
 GST_DISCOVERER_STREAM_INFO
 GST_DISCOVERER_VIDEO_INFO
+GST_DISCOVERER_SUBTITLE_INFO
 GST_IS_DISCOVERER
 GST_IS_DISCOVERER_INFO
 GST_IS_DISCOVERER_AUDIO_INFO
@@ -2206,6 +2485,7 @@ GST_IS_DISCOVERER_CLASS
 GST_IS_DISCOVERER_CONTAINER_INFO
 GST_IS_DISCOVERER_STREAM_INFO
 GST_IS_DISCOVERER_VIDEO_INFO
+GST_IS_DISCOVERER_SUBTITLE_INFO
 GST_TYPE_DISCOVERER
 GST_TYPE_DISCOVERER_AUDIO_INFO
 GST_TYPE_DISCOVERER_CONTAINER_INFO
@@ -2213,12 +2493,14 @@ GST_TYPE_DISCOVERER_INFO
 GST_TYPE_DISCOVERER_RESULT
 GST_TYPE_DISCOVERER_STREAM_INFO
 GST_TYPE_DISCOVERER_VIDEO_INFO
+GST_TYPE_DISCOVERER_SUBTITLE_INFO
 GstDiscovererAudioInfoClass
 GstDiscovererClass
 GstDiscovererContainerInfoClass
 GstDiscovererPrivate
 GstDiscovererStreamInfoClass
 GstDiscovererVideoInfoClass
+GstDiscovererSubtitleInfoClass
 GstDiscovererInfoClass
 gst_discoverer_audio_info_get_type
 gst_discoverer_container_info_get_type
@@ -2227,6 +2509,7 @@ gst_discoverer_info_get_type
 gst_discoverer_info_copy
 gst_discoverer_result_get_type
 gst_discoverer_stream_info_get_type
+gst_discoverer_subtitle_info_get_type
 gst_discoverer_video_info_get_type
 </SECTION>
 

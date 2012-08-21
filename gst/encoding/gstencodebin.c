@@ -110,13 +110,22 @@
  * Handling mp3!xing!idv3 and theora!ogg tagsetting scenarios:
  *  Once we have chosen a muxer:
  *   When a new stream is requested:
- *    If muxer is 'Formatter' OR doesn't have a TagSetter interface:
+ *    If muxer isn't 'Formatter' OR doesn't have a TagSetter interface:
  *      Find a Formatter for the given stream (preferably with TagSetter)
  *       Insert that before muxer
  **/
 
 #define fast_pad_link(a,b) gst_pad_link_full((a),(b),GST_PAD_LINK_CHECK_NOTHING)
 #define fast_element_link(a,b) gst_element_link_pads_full((a),"src",(b),"sink",GST_PAD_LINK_CHECK_NOTHING)
+
+typedef enum
+{
+  GST_ENC_FLAG_NO_AUDIO_CONVERSION = (1 << 0),
+  GST_ENC_FLAG_NO_VIDEO_CONVERSION = (1 << 1)
+} GstEncFlags;
+
+#define GST_TYPE_ENC_FLAGS (gst_enc_flags_get_type())
+GType gst_enc_flags_get_type (void);
 
 /* generic templates */
 static GstStaticPadTemplate muxer_src_template =
@@ -162,6 +171,7 @@ struct _GstEncodeBin
 
   /* available muxers, encoders and parsers */
   GList *muxers;
+  GList *formatters;
   GList *encoders;
   GList *parsers;
 
@@ -179,6 +189,8 @@ struct _GstEncodeBin
 
   guint64 tolerance;
   gboolean avoid_reencoding;
+
+  GstEncFlags flags;
 };
 
 struct _GstEncodeBinClass
@@ -205,6 +217,7 @@ struct _StreamGroup
   GstElement *parser;
   GstElement *smartencoder;
   GstElement *outfilter;        /* Output capsfilter (streamprofile.format) */
+  GstElement *formatter;
   GstElement *outqueue;         /* Queue just before the muxer */
 };
 
@@ -214,6 +227,7 @@ struct _StreamGroup
 #define DEFAULT_QUEUE_TIME_MAX     GST_SECOND
 #define DEFAULT_AUDIO_JITTER_TOLERANCE 20 * GST_MSECOND
 #define DEFAULT_AVOID_REENCODING   FALSE
+#define DEFAULT_FLAGS              0
 
 #define DEFAULT_RAW_CAPS			\
   "video/x-raw-yuv; "				\
@@ -236,6 +250,7 @@ enum
   PROP_QUEUE_TIME_MAX,
   PROP_AUDIO_JITTER_TOLERANCE,
   PROP_AVOID_REENCODING,
+  PROP_FLAGS,
   PROP_LAST
 };
 
@@ -245,6 +260,31 @@ enum
   SIGNAL_REQUEST_PAD,
   LAST_SIGNAL
 };
+
+#define C_FLAGS(v) ((guint) v)
+
+GType
+gst_enc_flags_get_type (void)
+{
+  static const GFlagsValue values[] = {
+    {C_FLAGS (GST_ENC_FLAG_NO_AUDIO_CONVERSION), "Do not use audio conversion "
+          "elements", "no-audio-conversion"},
+    {C_FLAGS (GST_ENC_FLAG_NO_VIDEO_CONVERSION), "Do not use video conversion "
+          "elements", "no-video-conversion"},
+    {0, NULL, NULL}
+  };
+  static volatile GType id = 0;
+
+  if (g_once_init_enter ((gsize *) & id)) {
+    GType _id;
+
+    _id = g_flags_register_static ("GstEncFlags", values);
+
+    g_once_init_leave ((gsize *) & id, _id);
+  }
+
+  return id;
+}
 
 static guint gst_encode_bin_signals[LAST_SIGNAL] = { 0 };
 
@@ -279,6 +319,9 @@ static void stream_group_remove (GstEncodeBin * ebin, StreamGroup * sgroup);
 static GstPad *gst_encode_bin_request_pad_signal (GstEncodeBin * encodebin,
     GstCaps * caps);
 
+static inline GstElement *_get_formatter (GstEncodeBin * ebin,
+    GstEncodingProfile * sprof);
+
 static void
 gst_encode_bin_class_init (GstEncodeBinClass * klass)
 {
@@ -305,13 +348,13 @@ gst_encode_bin_class_init (GstEncodeBinClass * klass)
           "The GstEncodingProfile to use", GST_TYPE_ENCODING_PROFILE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_klass, PROP_QUEUE_BUFFERS_MAX,
+  g_object_class_install_property (gobject_klass, PROP_QUEUE_BYTES_MAX,
       g_param_spec_uint ("queue-bytes-max", "Max. size (kB)",
           "Max. amount of data in the queue (bytes, 0=disable)",
           0, G_MAXUINT, DEFAULT_QUEUE_BYTES_MAX,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  g_object_class_install_property (gobject_klass, PROP_QUEUE_BYTES_MAX,
+  g_object_class_install_property (gobject_klass, PROP_QUEUE_BUFFERS_MAX,
       g_param_spec_uint ("queue-buffers-max", "Max. size (buffers)",
           "Max. number of buffers in the queue (0=disable)", 0, G_MAXUINT,
           DEFAULT_QUEUE_BUFFERS_MAX,
@@ -332,6 +375,16 @@ gst_encode_bin_class_init (GstEncodeBinClass * klass)
       g_param_spec_boolean ("avoid-reencoding", "Avoid re-encoding",
           "Whether to re-encode portions of compatible video streams that lay on segment boundaries",
           DEFAULT_AVOID_REENCODING,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * GstEncodeBin:flags
+   *
+   * Control the behaviour of encodebin.
+   */
+  g_object_class_install_property (gobject_klass, PROP_FLAGS,
+      g_param_spec_flags ("flags", "Flags", "Flags to control behaviour",
+          GST_TYPE_ENC_FLAGS, DEFAULT_FLAGS,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /* Signals */
@@ -355,16 +408,16 @@ gst_encode_bin_class_init (GstEncodeBinClass * klass)
 
   klass->request_pad = gst_encode_bin_request_pad_signal;
 
-  gst_element_class_add_pad_template (gstelement_klass,
-      gst_static_pad_template_get (&muxer_src_template));
-  gst_element_class_add_pad_template (gstelement_klass,
-      gst_static_pad_template_get (&video_sink_template));
-  gst_element_class_add_pad_template (gstelement_klass,
-      gst_static_pad_template_get (&audio_sink_template));
-  /* gst_element_class_add_pad_template (gstelement_klass, */
-  /*     gst_static_pad_template_get (&text_sink_template)); */
-  gst_element_class_add_pad_template (gstelement_klass,
-      gst_static_pad_template_get (&private_sink_template));
+  gst_element_class_add_static_pad_template (gstelement_klass,
+      &muxer_src_template);
+  gst_element_class_add_static_pad_template (gstelement_klass,
+      &video_sink_template);
+  gst_element_class_add_static_pad_template (gstelement_klass,
+      &audio_sink_template);
+  /* gst_element_class_add_static_pad_template (gstelement_klass, */
+  /*     &text_sink_template); */
+  gst_element_class_add_static_pad_template (gstelement_klass,
+      &private_sink_template);
 
   gstelement_klass->change_state =
       GST_DEBUG_FUNCPTR (gst_encode_bin_change_state);
@@ -388,6 +441,9 @@ gst_encode_bin_dispose (GObject * object)
   if (ebin->muxers)
     gst_plugin_feature_list_free (ebin->muxers);
 
+  if (ebin->formatters)
+    gst_plugin_feature_list_free (ebin->formatters);
+
   if (ebin->encoders)
     gst_plugin_feature_list_free (ebin->encoders);
 
@@ -410,15 +466,14 @@ static void
 gst_encode_bin_init (GstEncodeBin * encode_bin)
 {
   GstPadTemplate *tmpl;
-  GList *formatters;
 
   encode_bin->muxers =
       gst_element_factory_list_get_elements (GST_ELEMENT_FACTORY_TYPE_MUXER,
       GST_RANK_MARGINAL);
-  formatters =
+
+  encode_bin->formatters =
       gst_element_factory_list_get_elements (GST_ELEMENT_FACTORY_TYPE_FORMATTER,
       GST_RANK_SECONDARY);
-  encode_bin->muxers = g_list_concat (encode_bin->muxers, formatters);
 
   encode_bin->encoders =
       gst_element_factory_list_get_elements (GST_ELEMENT_FACTORY_TYPE_ENCODER,
@@ -440,6 +495,7 @@ gst_encode_bin_init (GstEncodeBin * encode_bin)
   encode_bin->queue_time_max = DEFAULT_QUEUE_TIME_MAX;
   encode_bin->tolerance = DEFAULT_AUDIO_JITTER_TOLERANCE;
   encode_bin->avoid_reencoding = DEFAULT_AVOID_REENCODING;
+  encode_bin->flags = DEFAULT_FLAGS;
 
   tmpl = gst_static_pad_template_get (&muxer_src_template);
   encode_bin->srcpad = gst_ghost_pad_new_no_target_from_template ("src", tmpl);
@@ -473,6 +529,9 @@ gst_encode_bin_set_property (GObject * object, guint prop_id,
     case PROP_AVOID_REENCODING:
       ebin->avoid_reencoding = g_value_get_boolean (value);
       break;
+    case PROP_FLAGS:
+      ebin->flags = g_value_get_flags (value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -503,6 +562,9 @@ gst_encode_bin_get_property (GObject * object, guint prop_id,
       break;
     case PROP_AVOID_REENCODING:
       g_value_set_boolean (value, ebin->avoid_reencoding);
+      break;
+    case PROP_FLAGS:
+      g_value_set_flags (value, ebin->flags);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -910,6 +972,16 @@ no_template:
   }
 }
 
+static gboolean
+_has_class (GstElement * element, const gchar * classname)
+{
+  GstElementClass *klass;
+
+  klass = GST_ELEMENT_GET_CLASS (element);
+
+  return strstr (klass->details.klass, classname) != NULL;
+}
+
 /* FIXME : Add handling of streams that don't need encoding  */
 /* FIXME : Add handling of streams that don't require conversion elements */
 /*
@@ -928,6 +1000,7 @@ _create_stream_group (GstEncodeBin * ebin, GstEncodingProfile * sprof,
   GList *tmp, *tosync = NULL;
   const GstCaps *format;
   const GstCaps *restriction;
+  const gchar *missing_element_name;
 
   format = gst_encoding_profile_get_format (sprof);
   restriction = gst_encoding_profile_get_restriction (sprof);
@@ -965,14 +1038,16 @@ _create_stream_group (GstEncodeBin * ebin, GstEncodingProfile * sprof,
     muxerpad = get_compatible_muxer_sink_pad (ebin, NULL, format);
     if (G_UNLIKELY (muxerpad == NULL))
       goto no_muxer_pad;
+
   }
 
   /* Output Queue.
    * We only use a 1buffer long queue here, the actual queueing will be done
-   * in the intput queue */
+   * in the input queue */
   last = sgroup->outqueue = gst_element_factory_make ("queue", NULL);
   g_object_set (sgroup->outqueue, "max-size-buffers", (guint32) 1,
-      "max-size-bytes", (guint32) 0, "max-size-time", (guint64) 0, NULL);
+      "max-size-bytes", (guint32) 0, "max-size-time", (guint64) 0,
+      "silent", TRUE, NULL);
 
   gst_bin_add (GST_BIN (ebin), sgroup->outqueue);
   tosync = g_list_append (tosync, sgroup->outqueue);
@@ -987,6 +1062,26 @@ _create_stream_group (GstEncodeBin * ebin, GstEncodingProfile * sprof,
   }
   gst_object_unref (srcpad);
 
+  /* Check if we need a formatter
+   * If we have no muxer or
+   * if the muxer isn't a formatter and doesn't implement the tagsetter interface
+   */
+  if (!ebin->muxer
+      || (!gst_element_implements_interface (ebin->muxer, GST_TYPE_TAG_SETTER)
+          && !_has_class (ebin->muxer, "Formatter"))) {
+    sgroup->formatter = _get_formatter (ebin, sprof);
+    if (sgroup->formatter) {
+      GST_DEBUG ("Adding formatter for %" GST_PTR_FORMAT, format);
+
+      gst_bin_add (GST_BIN (ebin), sgroup->formatter);
+      tosync = g_list_append (tosync, sgroup->formatter);
+      if (G_UNLIKELY (!fast_element_link (sgroup->formatter, last)))
+        goto formatter_link_failure;
+      last = sgroup->formatter;
+    }
+  }
+
+
   /* Output capsfilter
    * This will receive the format caps from the streamprofile */
   GST_DEBUG ("Adding output capsfilter for %" GST_PTR_FORMAT, format);
@@ -1000,45 +1095,6 @@ _create_stream_group (GstEncodeBin * ebin, GstEncodingProfile * sprof,
   last = sgroup->outfilter;
 
 
-  /* FIXME :
-   *
-   *   The usage of parsers in encoding/muxing scenarios is
-   * just too undefined to just use as-is.
-   *
-   * Take the use-case where you want to re-mux a stream of type
-   * "my/media". You create a StreamEncodingProfile with that type
-   * as the target (as-is). And you use decodebin2/uridecodebin
-   * upstream.
-   *
-   * * demuxer exposes "my/media"
-   * * a parser is available for "my/media" which has a source pad
-   *   caps of "my/media,parsed=True"
-   * * decodebin2/uridecodebin exposes a new pad with the parsed caps
-   * * You request a new stream from encodebin, which will match the
-   *   streamprofile and creates a group (i.e. going through this method)
-   *   There is a matching parser (the same used in the decoder) whose
-   *   source pad caps intersects with the stream profile caps, you
-   *   therefore use it...
-   * * ... but that parser has a "my/media,parsed=False" sink pad caps
-   * * ... and you can't link your decodebin pad to encodebin.
-   *
-   * In the end, it comes down to parsers only taking into account the
-   * decoding use-cases.
-   *
-   * One way to solve that might be to :
-   * * Make parsers sink pad caps be "framed={False,True}" and the
-   *   source pad caps be "framed=True"
-   * * Modify decodebin2 accordingly to avoid looping and chaining
-   *   an infinite number of parsers
-   *
-   * Another way would be to have "well-known" caps properties to specify
-   * whether a stream has been parsed or not.
-   * * currently we fail. aacparse uses 'framed' and mp3parse uses 'parsed'
-   */
-  /* FIXME : Re-enable once parser situation is un-$#*@(%$#ed */
-#if 0
-  /* Parser.
-   * FIXME : identify smart parsers (used for re-encoding) */
   sgroup->parser = _get_parser (ebin, sprof);
 
   if (sgroup->parser != NULL) {
@@ -1049,7 +1105,6 @@ _create_stream_group (GstEncodeBin * ebin, GstEncodingProfile * sprof,
       goto parser_link_failure;
     last = sgroup->parser;
   }
-#endif
 
   /* Stream combiner */
   sgroup->combiner = g_object_new (GST_TYPE_STREAM_COMBINER, NULL);
@@ -1072,7 +1127,7 @@ _create_stream_group (GstEncodeBin * ebin, GstEncodingProfile * sprof,
   g_object_set (sgroup->inqueue, "max-size-buffers",
       (guint32) ebin->queue_buffers_max, "max-size-bytes",
       (guint32) ebin->queue_bytes_max, "max-size-time",
-      (guint64) ebin->queue_time_max, NULL);
+      (guint64) ebin->queue_time_max, "silent", TRUE, NULL);
 
   gst_bin_add (GST_BIN (ebin), sgroup->inqueue);
   tosync = g_list_append (tosync, sgroup->inqueue);
@@ -1107,7 +1162,7 @@ _create_stream_group (GstEncodeBin * ebin, GstEncodingProfile * sprof,
 
     /* Check if stream format is compatible */
     srcpad = gst_element_get_static_pad (sgroup->smartencoder, "src");
-    tmpcaps = gst_pad_get_caps (srcpad);
+    tmpcaps = gst_pad_get_caps_reffed (srcpad);
     if (!gst_caps_can_intersect (tmpcaps, format)) {
       GST_DEBUG ("We don't have a smart encoder for the stream format");
       gst_object_unref (sgroup->smartencoder);
@@ -1167,53 +1222,91 @@ _create_stream_group (GstEncodeBin * ebin, GstEncodingProfile * sprof,
   /* 3.2. restriction elements */
   /* FIXME : Once we have properties for specific converters, use those */
   if (GST_IS_ENCODING_VIDEO_PROFILE (sprof)) {
-    GstElement *cspace, *scale, *vrate, *cspace2;
+    const gboolean native_video =
+        ! !(ebin->flags & GST_ENC_FLAG_NO_VIDEO_CONVERSION);
+    GstElement *cspace = NULL, *scale, *vrate, *cspace2 = NULL;
 
     GST_LOG ("Adding conversion elements for video stream");
 
-    cspace = gst_element_factory_make ("ffmpegcolorspace", NULL);
-    scale = gst_element_factory_make ("videoscale", NULL);
-    /* 4-tap scaling and black borders */
-    g_object_set (scale, "method", 2, "add-borders", TRUE, NULL);
-    cspace2 = gst_element_factory_make ("ffmpegcolorspace", NULL);
+    if (!native_video) {
+      cspace = gst_element_factory_make ("ffmpegcolorspace", NULL);
+      scale = gst_element_factory_make ("videoscale", NULL);
+      if (!scale) {
+        missing_element_name = "videoscale";
+        goto missing_element;
+      }
+      /* 4-tap scaling and black borders */
+      g_object_set (scale, "method", 2, "add-borders", TRUE, NULL);
+      cspace2 = gst_element_factory_make ("ffmpegcolorspace", NULL);
 
-    gst_bin_add_many ((GstBin *) ebin, cspace, scale, cspace2, NULL);
-    tosync = g_list_append (tosync, cspace);
-    tosync = g_list_append (tosync, scale);
-    tosync = g_list_append (tosync, cspace2);
+      if (!cspace || !cspace2) {
+        missing_element_name = "ffmpegcolorspace";
+        goto missing_element;
+      }
 
-    sgroup->converters = g_list_prepend (sgroup->converters, cspace);
-    sgroup->converters = g_list_prepend (sgroup->converters, scale);
-    sgroup->converters = g_list_prepend (sgroup->converters, cspace2);
+      gst_bin_add_many ((GstBin *) ebin, cspace, scale, cspace2, NULL);
+      tosync = g_list_append (tosync, cspace);
+      tosync = g_list_append (tosync, scale);
+      tosync = g_list_append (tosync, cspace2);
 
-    if (!fast_element_link (cspace, scale) ||
-        !fast_element_link (scale, cspace2))
-      goto converter_link_failure;
+      sgroup->converters = g_list_prepend (sgroup->converters, cspace);
+      sgroup->converters = g_list_prepend (sgroup->converters, scale);
+      sgroup->converters = g_list_prepend (sgroup->converters, cspace2);
+
+      if (!fast_element_link (cspace, scale) ||
+          !fast_element_link (scale, cspace2))
+        goto converter_link_failure;
+    }
 
     if (!gst_encoding_video_profile_get_variableframerate
         (GST_ENCODING_VIDEO_PROFILE (sprof))) {
       vrate = gst_element_factory_make ("videorate", NULL);
+      if (!vrate) {
+        missing_element_name = "videorate";
+        goto missing_element;
+      }
+
       gst_bin_add ((GstBin *) ebin, vrate);
       tosync = g_list_prepend (tosync, vrate);
       sgroup->converters = g_list_prepend (sgroup->converters, vrate);
-      if (!fast_element_link (cspace2, vrate) ||
-          !fast_element_link (vrate, last))
+
+      if ((!native_video && !fast_element_link (cspace2, vrate))
+          || !fast_element_link (vrate, last))
         goto converter_link_failure;
-    } else if (!fast_element_link (cspace2, last))
-      goto converter_link_failure;
 
-    last = cspace;
+      if (!native_video)
+        last = cspace;
+      else
+        last = vrate;
+    } else if (!native_video) {
+      if (!fast_element_link (cspace2, last))
+        goto converter_link_failure;
+      last = cspace;
+    }
 
-  } else if (GST_IS_ENCODING_AUDIO_PROFILE (sprof)) {
+  } else if (GST_IS_ENCODING_AUDIO_PROFILE (sprof)
+      && !(ebin->flags & GST_ENC_FLAG_NO_AUDIO_CONVERSION)) {
     GstElement *aconv, *ares, *arate, *aconv2;
 
     GST_LOG ("Adding conversion elements for audio stream");
 
     arate = gst_element_factory_make ("audiorate", NULL);
     g_object_set (arate, "tolerance", (guint64) ebin->tolerance, NULL);
+    if (!arate) {
+      missing_element_name = "audiorate";
+      goto missing_element;
+    }
     aconv = gst_element_factory_make ("audioconvert", NULL);
     aconv2 = gst_element_factory_make ("audioconvert", NULL);
     ares = gst_element_factory_make ("audioresample", NULL);
+    if (!aconv || !aconv2) {
+      missing_element_name = "audioconvert";
+      goto missing_element;
+    }
+    if (!ares) {
+      missing_element_name = "audioresample";
+      goto missing_element;
+    }
 
     gst_bin_add_many ((GstBin *) ebin, arate, aconv, ares, aconv2, NULL);
     tosync = g_list_append (tosync, arate);
@@ -1283,6 +1376,15 @@ no_muxer_pad:
       "Couldn't find a compatible muxer pad to link encoder to");
   goto cleanup;
 
+missing_element:
+  gst_element_post_message (GST_ELEMENT_CAST (ebin),
+      gst_missing_element_message_new (GST_ELEMENT_CAST (ebin),
+          missing_element_name));
+  GST_ELEMENT_ERROR (ebin, CORE, MISSING_PLUGIN,
+      (_("Missing element '%s' - check your GStreamer installation."),
+          missing_element_name), (NULL));
+  goto cleanup;
+
 encoder_link_failure:
   GST_ERROR_OBJECT (ebin, "Failed to link the encoder");
   goto cleanup;
@@ -1291,8 +1393,13 @@ muxer_link_failure:
   GST_ERROR_OBJECT (ebin, "Couldn't link encoder to muxer");
   goto cleanup;
 
-outfilter_link_failure:
+formatter_link_failure:
   GST_ERROR_OBJECT (ebin, "Couldn't link output filter to output queue");
+  goto cleanup;
+
+outfilter_link_failure:
+  GST_ERROR_OBJECT (ebin,
+      "Couldn't link output filter to output queue/formatter");
   goto cleanup;
 
 passthrough_link_failure:
@@ -1315,11 +1422,9 @@ combiner_link_failure:
   GST_ERROR_OBJECT (ebin, "Failure linking to the combiner");
   goto cleanup;
 
-#if 0
 parser_link_failure:
   GST_ERROR_OBJECT (ebin, "Failure linking the parser");
   goto cleanup;
-#endif
 
 converter_link_failure:
   GST_ERROR_OBJECT (ebin, "Failure linking the video converters");
@@ -1332,17 +1437,59 @@ cleanup:
 }
 
 static gboolean
-_factory_can_sink_caps (GstElementFactory * factory, const GstCaps * caps)
+_gst_caps_match_foreach (GQuark field_id, const GValue * value, gpointer data)
+{
+  GstStructure *structure = data;
+  const GValue *other_value = gst_structure_id_get_value (structure, field_id);
+
+  if (G_UNLIKELY (other_value == NULL))
+    return FALSE;
+  if (gst_value_compare (value, other_value) == GST_VALUE_EQUAL) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/*
+ * checks that there is at least one structure on caps_a that has
+ * all its fields exactly the same as one structure on caps_b
+ */
+static gboolean
+_gst_caps_match (const GstCaps * caps_a, const GstCaps * caps_b)
+{
+  gint i, j;
+  gboolean res = FALSE;
+
+  for (i = 0; i < gst_caps_get_size (caps_a); i++) {
+    GstStructure *structure_a = gst_caps_get_structure (caps_a, i);
+    for (j = 0; j < gst_caps_get_size (caps_b); j++) {
+      GstStructure *structure_b = gst_caps_get_structure (caps_b, j);
+
+      res = gst_structure_foreach (structure_a, _gst_caps_match_foreach,
+          structure_b);
+      if (res)
+        goto end;
+    }
+  }
+end:
+  return res;
+}
+
+static gboolean
+_factory_can_handle_caps (GstElementFactory * factory, const GstCaps * caps,
+    GstPadDirection dir, gboolean exact)
 {
   GList *templates = factory->staticpadtemplates;
 
   while (templates) {
     GstStaticPadTemplate *template = (GstStaticPadTemplate *) templates->data;
 
-    if (template->direction == GST_PAD_SINK) {
+    if (template->direction == dir) {
       GstCaps *tmp = gst_static_caps_get (&template->static_caps);
 
-      if (gst_caps_can_intersect (tmp, caps)) {
+      if ((exact && _gst_caps_match (caps, tmp)) ||
+          (!exact && gst_caps_can_intersect (tmp, caps))) {
         gst_caps_unref (tmp);
         return TRUE;
       }
@@ -1355,9 +1502,73 @@ _factory_can_sink_caps (GstElementFactory * factory, const GstCaps * caps)
 }
 
 static inline GstElement *
+_get_formatter (GstEncodeBin * ebin, GstEncodingProfile * sprof)
+{
+  GList *formatters, *tmpfmtr;
+  GstElement *formatter = NULL;
+  GstElementFactory *formatterfact = NULL;
+  const GstCaps *format;
+  const gchar *preset;
+
+  format = gst_encoding_profile_get_format (sprof);
+  preset = gst_encoding_profile_get_preset (sprof);
+
+  GST_DEBUG ("Getting list of formatters for format %" GST_PTR_FORMAT, format);
+
+  formatters =
+      gst_element_factory_list_filter (ebin->formatters, format, GST_PAD_SRC,
+      FALSE);
+
+  if (formatters == NULL)
+    goto beach;
+
+  /* FIXME : signal the user if he wants this */
+  for (tmpfmtr = formatters; tmpfmtr; tmpfmtr = tmpfmtr->next) {
+    formatterfact = (GstElementFactory *) tmpfmtr->data;
+
+    GST_DEBUG_OBJECT (ebin, "Trying formatter %s",
+        GST_PLUGIN_FEATURE_NAME (formatterfact));
+
+    if ((formatter =
+            _create_element_and_set_preset (formatterfact, preset, NULL)))
+      break;
+  }
+
+  gst_plugin_feature_list_free (formatters);
+
+beach:
+  return formatter;
+}
+
+static gint
+compare_elements (gconstpointer a, gconstpointer b, gpointer udata)
+{
+  GstCaps *caps = udata;
+  GstElementFactory *fac_a = (GstElementFactory *) a;
+  GstElementFactory *fac_b = (GstElementFactory *) b;
+
+  /* FIXME not quite sure this is the best algorithm to order the elements
+   * Some caps similarity comparison algorithm would fit better than going
+   * boolean (equals/not equals).
+   */
+  gboolean equals_a = _factory_can_handle_caps (fac_a, caps, GST_PAD_SRC, TRUE);
+  gboolean equals_b = _factory_can_handle_caps (fac_b, caps, GST_PAD_SRC, TRUE);
+
+  if (equals_a == equals_b) {
+    return gst_plugin_feature_get_rank ((GstPluginFeature *) fac_b) -
+        gst_plugin_feature_get_rank ((GstPluginFeature *) fac_a);
+  } else if (equals_a) {
+    return -1;
+  } else if (equals_b) {
+    return 1;
+  }
+  return 0;
+}
+
+static inline GstElement *
 _get_muxer (GstEncodeBin * ebin)
 {
-  GList *muxers, *tmpmux;
+  GList *muxers, *formatters, *tmpmux;
   GstElement *muxer = NULL;
   GstElementFactory *muxerfact = NULL;
   const GList *tmp;
@@ -1371,6 +1582,16 @@ _get_muxer (GstEncodeBin * ebin)
 
   muxers =
       gst_element_factory_list_filter (ebin->muxers, format, GST_PAD_SRC, TRUE);
+
+  formatters =
+      gst_element_factory_list_filter (ebin->formatters, format, GST_PAD_SRC,
+      TRUE);
+
+  muxers = g_list_sort_with_data (muxers, compare_elements, (gpointer) format);
+  formatters =
+      g_list_sort_with_data (formatters, compare_elements, (gpointer) format);
+
+  muxers = g_list_concat (muxers, formatters);
 
   if (muxers == NULL)
     goto beach;
@@ -1390,10 +1611,10 @@ _get_muxer (GstEncodeBin * ebin)
     for (tmp = profiles; tmp; tmp = tmp->next) {
       GstEncodingProfile *sprof = (GstEncodingProfile *) tmp->data;
 
-      if (!_factory_can_sink_caps (muxerfact,
-              gst_encoding_profile_get_format (sprof))) {
-        GST_DEBUG ("Skipping muxer because it can't sink caps %" GST_PTR_FORMAT,
-            gst_encoding_profile_get_format (sprof));
+      if (!_factory_can_handle_caps (muxerfact,
+              gst_encoding_profile_get_format (sprof), GST_PAD_SINK, FALSE)) {
+        GST_DEBUG ("Skipping muxer because it can't sink caps %"
+            GST_PTR_FORMAT, gst_encoding_profile_get_format (sprof));
         cansinkstreams = FALSE;
         break;
       }
@@ -1556,9 +1777,17 @@ stream_group_free (GstEncodeBin * ebin, StreamGroup * sgroup)
   if (sgroup->outqueue)
     gst_element_set_state (sgroup->outqueue, GST_STATE_NULL);
 
-  /* Capsfilter - outqueue */
-  gst_element_set_state (sgroup->outfilter, GST_STATE_NULL);
-  gst_element_unlink (sgroup->outfilter, sgroup->outqueue);
+  if (sgroup->formatter) {
+    /* capsfilter - formatter - outqueue */
+    gst_element_set_state (sgroup->formatter, GST_STATE_NULL);
+    gst_element_set_state (sgroup->outfilter, GST_STATE_NULL);
+    gst_element_unlink (sgroup->formatter, sgroup->outqueue);
+    gst_element_unlink (sgroup->outfilter, sgroup->formatter);
+  } else {
+    /* Capsfilter - outqueue */
+    gst_element_set_state (sgroup->outfilter, GST_STATE_NULL);
+    gst_element_unlink (sgroup->outfilter, sgroup->outqueue);
+  }
   gst_element_set_state (sgroup->outqueue, GST_STATE_NULL);
   gst_bin_remove (GST_BIN (ebin), sgroup->outqueue);
 

@@ -214,8 +214,7 @@ gst_tag_demux_base_init (gpointer klass)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_factory));
+  gst_element_class_add_static_pad_template (element_class, &src_factory);
 
   GST_DEBUG_CATEGORY_INIT (tagdemux_debug, "tagdemux", 0,
       "tag demux base class");
@@ -1196,7 +1195,9 @@ gst_tag_demux_sink_activate (GstPad * sinkpad)
       demux->priv->strip_start + demux->priv->strip_end) {
     /* There was no data (probably due to a truncated file) */
     GST_DEBUG_OBJECT (demux, "No data in file");
-    return FALSE;
+    /* so we don't know about type either */
+    GST_ELEMENT_ERROR (demux, STREAM, TYPE_NOT_FOUND, (NULL), (NULL));
+    goto done_activate;
   }
 
   /* 3 - Do typefinding on data */

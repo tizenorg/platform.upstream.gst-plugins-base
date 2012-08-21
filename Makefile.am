@@ -76,6 +76,8 @@ check: check-exports
 CRUFT_FILES = \
 	$(top_builddir)/common/shave \
 	$(top_builddir)/common/shave-libtool \
+	$(top_builddir)/gst-libs/gst/audio/testchannels \
+	$(top_builddir)/tests/examples/volume/volume \
 	$(top_builddir)/tools/gst-discoverer
 
 

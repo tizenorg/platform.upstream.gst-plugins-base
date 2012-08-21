@@ -48,15 +48,7 @@
 #include "gstaudiotestsrc.h"
 
 
-#ifndef M_PI
-#define M_PI  3.14159265358979323846
-#endif
-
-#ifndef M_PI_2
-#define M_PI_2  1.57079632679489661923
-#endif
-
-#define M_PI_M2 ( M_PI + M_PI )
+#define M_PI_M2 ( G_PI + G_PI )
 
 GST_DEBUG_CATEGORY_STATIC (audio_test_src_debug);
 #define GST_CAT_DEFAULT audio_test_src_debug
@@ -130,6 +122,9 @@ gst_audiostestsrc_wave_get_type (void)
     {GST_AUDIO_TEST_SRC_WAVE_TICKS, "Periodic Ticks", "ticks"},
     {GST_AUDIO_TEST_SRC_WAVE_GAUSSIAN_WHITE_NOISE, "White Gaussian noise",
         "gaussian-noise"},
+    {GST_AUDIO_TEST_SRC_WAVE_RED_NOISE, "Red (brownian) noise", "red-noise"},
+    {GST_AUDIO_TEST_SRC_WAVE_BLUE_NOISE, "Blue noise", "blue-noise"},
+    {GST_AUDIO_TEST_SRC_WAVE_VIOLET_NOISE, "Violet noise", "violet-noise"},
     {0, NULL, NULL},
   };
 
@@ -173,8 +168,8 @@ gst_audio_test_src_base_init (gpointer g_class)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_audio_test_src_src_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_audio_test_src_src_template);
   gst_element_class_set_details_simple (element_class,
       "Audio test source", "Source/Audio",
       "Creates audio test signals of given frequency and volume",
@@ -476,7 +471,7 @@ gst_audio_test_src_create_square_##type (GstAudioTestSrc * src, g##type * sample
       src->accumulator -= M_PI_M2; \
     \
     for (c = 0; c < src->channels; ++c) { \
-      samples[i++] = (g##type) ((src->accumulator < M_PI) ? amp : -amp); \
+      samples[i++] = (g##type) ((src->accumulator < G_PI) ? amp : -amp); \
     } \
   } \
 }
@@ -501,7 +496,7 @@ gst_audio_test_src_create_saw_##type (GstAudioTestSrc * src, g##type * samples) 
   gdouble step, amp; \
   \
   step = M_PI_M2 * src->freq / src->samplerate; \
-  amp = (src->volume * scale) / M_PI; \
+  amp = (src->volume * scale) / G_PI; \
   \
   i = 0; \
   while (i < (src->generate_samples_per_buffer * src->channels)) { \
@@ -509,7 +504,7 @@ gst_audio_test_src_create_saw_##type (GstAudioTestSrc * src, g##type * samples) 
     if (src->accumulator >= M_PI_M2) \
       src->accumulator -= M_PI_M2; \
     \
-    if (src->accumulator < M_PI) { \
+    if (src->accumulator < G_PI) { \
       for (c = 0; c < src->channels; ++c) \
         samples[i++] = (g##type) (src->accumulator * amp); \
     } else { \
@@ -539,7 +534,7 @@ gst_audio_test_src_create_triangle_##type (GstAudioTestSrc * src, g##type * samp
   gdouble step, amp; \
   \
   step = M_PI_M2 * src->freq / src->samplerate; \
-  amp = (src->volume * scale) / M_PI_2; \
+  amp = (src->volume * scale) / G_PI_2; \
   \
   i = 0; \
   while (i < (src->generate_samples_per_buffer * src->channels)) { \
@@ -547,12 +542,12 @@ gst_audio_test_src_create_triangle_##type (GstAudioTestSrc * src, g##type * samp
     if (src->accumulator >= M_PI_M2) \
       src->accumulator -= M_PI_M2; \
     \
-    if (src->accumulator < (M_PI * 0.5)) { \
+    if (src->accumulator < (G_PI_2)) { \
       for (c = 0; c < src->channels; ++c) \
         samples[i++] = (g##type) (src->accumulator * amp); \
-    } else if (src->accumulator < (M_PI * 1.5)) { \
+    } else if (src->accumulator < (G_PI * 1.5)) { \
       for (c = 0; c < src->channels; ++c) \
-        samples[i++] = (g##type) ((src->accumulator - M_PI) * -amp); \
+        samples[i++] = (g##type) ((src->accumulator - G_PI) * -amp); \
     } else { \
       for (c = 0; c < src->channels; ++c) \
         samples[i++] = (g##type) ((M_PI_M2 - src->accumulator) * -amp); \
@@ -837,6 +832,109 @@ static const ProcessFunc gaussian_white_noise_funcs[] = {
   (ProcessFunc) gst_audio_test_src_create_gaussian_white_noise_double
 };
 
+/* Brownian (Red) Noise: noise where the power density decreases by 6 dB per
+ * octave with increasing frequency
+ *
+ * taken from http://vellocet.com/dsp/noise/VRand.html
+ * by Andrew Simper of Vellocet (andy@vellocet.com)
+ */
+
+#define DEFINE_RED_NOISE(type,scale) \
+static void \
+gst_audio_test_src_create_red_noise_##type (GstAudioTestSrc * src, g##type * samples) \
+{ \
+  gint i, c; \
+  gdouble amp = (src->volume * scale); \
+  gdouble state = src->red.state; \
+  \
+  for (i = 0; i < src->generate_samples_per_buffer * src->channels; ) { \
+    for (c = 0; c < src->channels; ++c) { \
+      while (TRUE) { \
+        gdouble r = g_rand_double_range (src->gen, -1.0, 1.0); \
+        state += r; \
+        if (state < -8.0f || state > 8.0f) state -= r; \
+        else break; \
+      } \
+      samples[i++] = (g##type) (amp * state * 0.0625f); /* /16.0 */ \
+    } \
+  } \
+  src->red.state = state; \
+}
+
+DEFINE_RED_NOISE (int16, 32767.0);
+DEFINE_RED_NOISE (int32, 2147483647.0);
+DEFINE_RED_NOISE (float, 1.0);
+DEFINE_RED_NOISE (double, 1.0);
+
+static const ProcessFunc red_noise_funcs[] = {
+  (ProcessFunc) gst_audio_test_src_create_red_noise_int16,
+  (ProcessFunc) gst_audio_test_src_create_red_noise_int32,
+  (ProcessFunc) gst_audio_test_src_create_red_noise_float,
+  (ProcessFunc) gst_audio_test_src_create_red_noise_double
+};
+
+/* Blue Noise: apply spectral inversion to pink noise */
+
+#define DEFINE_BLUE_NOISE(type) \
+static void \
+gst_audio_test_src_create_blue_noise_##type (GstAudioTestSrc * src, g##type * samples) \
+{ \
+  gint i, c; \
+  static gdouble flip=1.0; \
+  \
+  gst_audio_test_src_create_pink_noise_##type (src, samples); \
+  for (i = 0; i < src->generate_samples_per_buffer * src->channels; ) { \
+    for (c = 0; c < src->channels; ++c) { \
+      samples[i++] *= flip; \
+    } \
+    flip *= -1.0; \
+  } \
+}
+
+DEFINE_BLUE_NOISE (int16);
+DEFINE_BLUE_NOISE (int32);
+DEFINE_BLUE_NOISE (float);
+DEFINE_BLUE_NOISE (double);
+
+static const ProcessFunc blue_noise_funcs[] = {
+  (ProcessFunc) gst_audio_test_src_create_blue_noise_int16,
+  (ProcessFunc) gst_audio_test_src_create_blue_noise_int32,
+  (ProcessFunc) gst_audio_test_src_create_blue_noise_float,
+  (ProcessFunc) gst_audio_test_src_create_blue_noise_double
+};
+
+
+/* Violet Noise: apply spectral inversion to red noise */
+
+#define DEFINE_VIOLET_NOISE(type) \
+static void \
+gst_audio_test_src_create_violet_noise_##type (GstAudioTestSrc * src, g##type * samples) \
+{ \
+  gint i, c; \
+  static gdouble flip=1.0; \
+  \
+  gst_audio_test_src_create_red_noise_##type (src, samples); \
+  for (i = 0; i < src->generate_samples_per_buffer * src->channels; ) { \
+    for (c = 0; c < src->channels; ++c) { \
+      samples[i++] *= flip; \
+    } \
+    flip *= -1.0; \
+  } \
+}
+
+DEFINE_VIOLET_NOISE (int16);
+DEFINE_VIOLET_NOISE (int32);
+DEFINE_VIOLET_NOISE (float);
+DEFINE_VIOLET_NOISE (double);
+
+static const ProcessFunc violet_noise_funcs[] = {
+  (ProcessFunc) gst_audio_test_src_create_violet_noise_int16,
+  (ProcessFunc) gst_audio_test_src_create_violet_noise_int32,
+  (ProcessFunc) gst_audio_test_src_create_violet_noise_float,
+  (ProcessFunc) gst_audio_test_src_create_violet_noise_double
+};
+
+
 /*
  * gst_audio_test_src_change_wave:
  * Assign function pointer of wave genrator.
@@ -888,6 +986,24 @@ gst_audio_test_src_change_wave (GstAudioTestSrc * src)
       if (!(src->gen))
         src->gen = g_rand_new ();
       src->process = gaussian_white_noise_funcs[src->format];
+      break;
+    case GST_AUDIO_TEST_SRC_WAVE_RED_NOISE:
+      if (!(src->gen))
+        src->gen = g_rand_new ();
+      src->red.state = 0.0;
+      src->process = red_noise_funcs[src->format];
+      break;
+    case GST_AUDIO_TEST_SRC_WAVE_BLUE_NOISE:
+      if (!(src->gen))
+        src->gen = g_rand_new ();
+      gst_audio_test_src_init_pink_noise (src);
+      src->process = blue_noise_funcs[src->format];
+      break;
+    case GST_AUDIO_TEST_SRC_WAVE_VIOLET_NOISE:
+      if (!(src->gen))
+        src->gen = g_rand_new ();
+      src->red.state = 0.0;
+      src->process = violet_noise_funcs[src->format];
       break;
     default:
       GST_ERROR ("invalid wave-form");
@@ -1050,6 +1166,8 @@ gst_audio_test_src_create (GstBaseSrc * basesrc, guint64 offset,
     if (eclass->send_event)
       eclass->send_event (GST_ELEMENT_CAST (basesrc),
           gst_event_new_tag (taglist));
+    else
+      gst_tag_list_free (taglist);
     src->tags_pushed = TRUE;
   }
 

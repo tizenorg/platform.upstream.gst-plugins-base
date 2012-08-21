@@ -1,11 +1,11 @@
 Name:       gst-plugins-base
 Summary:    GStreamer streaming media framework base plug-ins
-Version:	0.10.34
-Release:    1
+Version:    0.10.36
+Release:    7
 Group:      Applications/Multimedia
 License:    LGPLv2+
-URL:        http://gstreamer.freedesktop.org/
-Source0:    http://gstreamer.freedesktop.org/src/gst-plugins-base/%{name}-%{version}.tar.gz
+Source0:    %{name}-%{version}.tar.gz
+#Patch0:     Samsung-feature-bugs.patch
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig(ogg)
@@ -17,6 +17,7 @@ BuildRequires:  pkgconfig(alsa)
 BuildRequires:  pkgconfig(gstreamer-0.10)
 BuildRequires:  pkgconfig(gstreamer-base-0.10)
 BuildRequires:  pkgconfig(xv)
+BuildRequires:  pkgconfig(pango)
 BuildRequires:  intltool
 
 
@@ -48,33 +49,38 @@ Separate sub-package contaning helper applications of gstreamer base plugins.
 %prep
 %setup -q 
 
+#%patch0 -p1
 
 %build
-export CFLAGS+=" -DGST_EXT_TEXTRENDER_ENHANCEMENT  -DGST_EXT_XV_ENHANCEMENT"
 %autogen --noconfigure
-%configure \
-	--disable-static 				\
-	--disable-nls 				\
-	--with-html-dir=/tmp/dump 		\
-	--disable-examples 			\
-	--disable-audiorate 			\
-	--disable-gdp 				\
-	--disable-cdparanoia 			\
-	--disable-gnome_vfs 			\
-	--disable-gio 				\
-	--disable-libvisual 			\
-	--disable-freetypetest 			\
-	--disable-rpath 				\
-	--disable-valgrind 			\
-	--disable-gcov 				\
-	--disable-gtk-doc 			\
-	--disable-debug 				\
-	--disable-pango                        \
-    	--with-audioresample-format=int 
+
+export CFLAGS+=" -Wall -g -fPIC\
+ -DGST_EXT_XV_ENHANCEMENT\
+ -DGST_EXT_LINK_FIMCCONVERT\
+ -DGST_EXT_MIME_TYPES"
+
+%configure --prefix=/usr\
+ --disable-static\
+ --disable-nls\
+ --with-html-dir=/tmp/dump\
+ --disable-examples\
+ --disable-audiorate\
+ --disable-gdp\
+ --disable-cdparanoia\
+ --disable-gnome_vfs\
+ --disable-libvisual\
+ --disable-freetypetest\
+ --disable-rpath\
+ --disable-valgrind\
+ --disable-gcov\
+ --disable-gtk-doc\
+ --disable-debug\
+ --with-audioresample-format=int
 
 make %{?jobs:-j%jobs}
 
 %install
+rm -rf %{buildroot}
 %make_install
 
 
@@ -86,9 +92,12 @@ rm -rf %{buildroot}/tmp/dump
 
 
 %files
+%defattr(-,root,root,-)
+#%doc COPYING 
+# libraries
 %{_libdir}/libgstinterfaces-0.10.so.*
 %{_libdir}/libgstaudio-0.10.so.*
-%{_libdir}/libgstcdda-0.10.so.*
+%exclude %{_libdir}/libgstcdda-0.10.so.*
 %{_libdir}/libgstfft-0.10.so.*
 %{_libdir}/libgstriff-0.10.so.*
 %{_libdir}/libgsttag-0.10.so.*
@@ -125,12 +134,16 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgsttheora.so
 %{_libdir}/gstreamer-0.10/libgstvorbis.so
 %{_libdir}/gstreamer-0.10/libgstximagesink.so
+%{_libdir}/gstreamer-0.10/libgstpango.so
+%{_libdir}/gstreamer-0.10/libgstgio.so
+# data
+%{_datadir}/gst-plugins-base/license-translations.dict
 
 
 %files devel
 %defattr(-,root,root,-)
 %dir %{_includedir}/gstreamer-0.10/gst/app
-/usr/include/gstreamer-0.10/gst/tag/xmpwriter.h
+%{_includedir}/gstreamer-0.10/gst/tag/xmpwriter.h
 %{_includedir}/gstreamer-0.10/gst/app/gstappbuffer.h
 %{_includedir}/gstreamer-0.10/gst/app/gstappsink.h
 %{_includedir}/gstreamer-0.10/gst/app/gstappsrc.h
@@ -138,7 +151,10 @@ rm -rf %{buildroot}/tmp/dump
 %{_includedir}/gstreamer-0.10/gst/audio/audio.h
 %{_includedir}/gstreamer-0.10/gst/audio/audio-enumtypes.h
 %{_includedir}/gstreamer-0.10/gst/audio/gstaudioclock.h
+%{_includedir}/gstreamer-0.10/gst/audio/gstaudiodecoder.h
+%{_includedir}/gstreamer-0.10/gst/audio/gstaudioencoder.h
 %{_includedir}/gstreamer-0.10/gst/audio/gstaudiofilter.h
+%{_includedir}/gstreamer-0.10/gst/audio/gstaudioiec61937.h
 %{_includedir}/gstreamer-0.10/gst/audio/gstaudiosink.h
 %{_includedir}/gstreamer-0.10/gst/audio/gstaudiosrc.h
 %{_includedir}/gstreamer-0.10/gst/audio/gstbaseaudiosink.h
@@ -146,8 +162,8 @@ rm -rf %{buildroot}/tmp/dump
 %{_includedir}/gstreamer-0.10/gst/audio/gstringbuffer.h
 %{_includedir}/gstreamer-0.10/gst/audio/mixerutils.h
 %{_includedir}/gstreamer-0.10/gst/audio/multichannel.h
-%dir %{_includedir}/gstreamer-0.10/gst/cdda
-%{_includedir}/gstreamer-0.10/gst/cdda/gstcddabasesrc.h
+%exclude %dir %{_includedir}/gstreamer-0.10/gst/cdda
+%exclude %{_includedir}/gstreamer-0.10/gst/cdda/gstcddabasesrc.h
 %dir %{_includedir}/gstreamer-0.10/gst/floatcast
 %{_includedir}/gstreamer-0.10/gst/floatcast/floatcast.h
 %dir %{_includedir}/gstreamer-0.10/gst/fft
@@ -210,11 +226,13 @@ rm -rf %{buildroot}/tmp/dump
 %dir %{_includedir}/gstreamer-0.10/gst/tag
 %{_includedir}/gstreamer-0.10/gst/tag/tag.h
 %{_includedir}/gstreamer-0.10/gst/tag/gsttagdemux.h
+%{_includedir}/gstreamer-0.10/gst/tag/gsttagmux.h
 %dir %{_includedir}/gstreamer-0.10/gst/video
 %{_includedir}/gstreamer-0.10/gst/video/gstvideofilter.h
 %{_includedir}/gstreamer-0.10/gst/video/gstvideosink.h
 %{_includedir}/gstreamer-0.10/gst/video/video.h
 %{_includedir}/gstreamer-0.10/gst/video/video-enumtypes.h
+%{_includedir}/gstreamer-0.10/gst/video/video-overlay-composition.h
 %{_libdir}/libgstaudio-0.10.so
 %{_libdir}/libgstinterfaces-0.10.so
 %{_libdir}/libgstnetbuffer-0.10.so
@@ -222,7 +240,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/libgstrtp-0.10.so
 %{_libdir}/libgsttag-0.10.so
 %{_libdir}/libgstvideo-0.10.so
-%{_libdir}/libgstcdda-0.10.so
+%exclude %{_libdir}/libgstcdda-0.10.so
 %{_libdir}/libgstpbutils-0.10.so
 %{_libdir}/libgstrtsp-0.10.so
 %{_libdir}/libgstsdp-0.10.so
@@ -234,8 +252,7 @@ rm -rf %{buildroot}/tmp/dump
 %files tools
 %defattr(-,root,root,-)
 # helper programs
-%{_bindir}/gst-visualise-0.10
 %{_bindir}/gst-discoverer-0.10
-%{_mandir}/man1/gst-visualise-0.10*
-
+%exclude %{_bindir}/gst-visualise-0.10
+%exclude %{_mandir}/man1/gst-visualise-0.10*
 

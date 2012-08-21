@@ -23,6 +23,7 @@
 #endif
 
 #include "gststreamsplitter.h"
+#include "gst/glib-compat-private.h"
 
 static GstStaticPadTemplate src_template =
 GST_STATIC_PAD_TEMPLATE ("src_%d", GST_PAD_SRC, GST_PAD_REQUEST,
@@ -62,10 +63,8 @@ gst_stream_splitter_class_init (GstStreamSplitterClass * klass)
   GST_DEBUG_CATEGORY_INIT (gst_stream_splitter_debug, "streamsplitter", 0,
       "Stream Splitter");
 
-  gst_element_class_add_pad_template (gstelement_klass,
-      gst_static_pad_template_get (&src_template));
-  gst_element_class_add_pad_template (gstelement_klass,
-      gst_static_pad_template_get (&sink_template));
+  gst_element_class_add_static_pad_template (gstelement_klass, &src_template);
+  gst_element_class_add_static_pad_template (gstelement_klass, &sink_template);
 
   gstelement_klass->request_new_pad =
       GST_DEBUG_FUNCPTR (gst_stream_splitter_request_new_pad);
@@ -268,10 +267,13 @@ resync:
     GstPad *srcpad = (GstPad *) tmp->data;
 
     STREAMS_UNLOCK (stream_splitter);
-    if (res)
-      gst_caps_merge (res, gst_pad_peer_get_caps_reffed (srcpad));
-    else
+    if (res) {
+      GstCaps *peercaps = gst_pad_peer_get_caps_reffed (srcpad);
+      if (peercaps)
+        gst_caps_merge (res, gst_caps_make_writable (peercaps));
+    } else {
       res = gst_pad_peer_get_caps (srcpad);
+    }
     STREAMS_LOCK (stream_splitter);
 
     if (G_UNLIKELY (cookie != stream_splitter->cookie)) {
@@ -328,7 +330,7 @@ resync:
 
     if (res) {
       /* FIXME : we need to switch properly */
-      GST_DEBUG_OBJECT (srcpad, "Setting caps on this pad was succesfull");
+      GST_DEBUG_OBJECT (srcpad, "Setting caps on this pad was successful");
       stream_splitter->current = srcpad;
       goto beach;
     }

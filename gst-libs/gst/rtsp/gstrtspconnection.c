@@ -93,6 +93,8 @@
 #include "gstrtspconnection.h"
 #include "gstrtspbase64.h"
 
+#include "gst/glib-compat-private.h"
+
 union gst_sockaddr
 {
   struct sockaddr sa;
@@ -456,7 +458,7 @@ wrong_family:
 static gchar *
 do_resolve (const gchar * host)
 {
-  static gchar ip[INET6_ADDRSTRLEN];
+  gchar ip[INET6_ADDRSTRLEN];
   struct addrinfo *aires, hints;
   struct addrinfo *ai;
   gint aierr;
@@ -592,6 +594,14 @@ do_connect (const gchar * ip, guint16 port, GstPollFD * fdout,
     getsockopt (fd, SOL_SOCKET, SO_ERROR, (char *) &errno, &len);
 #endif
     goto sys_error;
+  } else {
+#ifdef __APPLE__
+    /* osx wakes up select with POLLOUT if the connection is refused... */
+    socklen_t len = sizeof (errno);
+    getsockopt (fd, SOL_SOCKET, SO_ERROR, (char *) &errno, &len);
+    if (errno != 0)
+      goto sys_error;
+#endif
   }
 
   gst_poll_fd_ignored (fdset, fdout);
@@ -1899,7 +1909,7 @@ build_next (GstRTSPBuilder * builder, GstRTSPMessage * message,
           goto done;
 
         /* we have the complete body now, store in the message adjusting the
-         * length to include the traling '\0' */
+         * length to include the trailing '\0' */
         gst_rtsp_message_take_body (message,
             (guint8 *) builder->body_data, builder->body_len + 1);
         builder->body_data = NULL;
@@ -2269,7 +2279,9 @@ gst_rtsp_connection_receive (GstRTSPConnection * conn, GstRTSPMessage * message,
     if (gst_poll_fd_has_error (conn->fdset, conn->writefd))
       goto socket_error;
 
-    gst_poll_set_controllable (conn->fdset, FALSE);
+    /* once we start reading the wait cannot be controlled */
+    if (builder.state != STATE_START)
+      gst_poll_set_controllable (conn->fdset, FALSE);
   }
 
   /* we have a message here */
@@ -3478,7 +3490,7 @@ gst_rtsp_watch_write_data (GstRTSPWatch * watch, const guint8 * data,
   g_mutex_lock (watch->mutex);
 
   /* try to send the message synchronously first */
-  if (watch->messages->length == 0) {
+  if (watch->messages->length == 0 && watch->write_data == NULL) {
     res = write_bytes (watch->writefd.fd, data, &off, size);
     if (res != GST_RTSP_EINTR) {
       if (id != NULL)

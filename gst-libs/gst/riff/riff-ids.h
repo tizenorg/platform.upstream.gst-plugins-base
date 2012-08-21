@@ -46,6 +46,8 @@ G_BEGIN_DECLS
 #define GST_RIFF_TAG_JUNQ GST_MAKE_FOURCC ('J','U','N','Q')
 #define GST_RIFF_TAG_idx1 GST_MAKE_FOURCC ('i','d','x','1')
 #define GST_RIFF_TAG_dmlh GST_MAKE_FOURCC ('d','m','l','h')
+#define GST_RIFF_TAG_ID32 GST_MAKE_FOURCC ('I','D','3','2')
+#define GST_RIFF_TAG_IDVX GST_MAKE_FOURCC ('I','D','V','X')
 /* WAV stuff */
 #define GST_RIFF_TAG_fmt  GST_MAKE_FOURCC ('f','m','t',' ')
 #define GST_RIFF_TAG_data GST_MAKE_FOURCC ('d','a','t','a')
@@ -424,6 +426,7 @@ typedef struct _gst_riff_strf_auds {       /* == WaveHeader (?) */
 #define GST_RIFF_WAVE_FORMAT_LH_CODEC       (0x1100)
 #define GST_RIFF_WAVE_FORMAT_NORRIS         (0x1400)
 #define GST_RIFF_WAVE_FORMAT_SOUNDSPACE_MUSICOMPRESS (0x1500)
+#define GST_RIFF_WAVE_FORMAT_AAC_PR         (0x1601)  /* Microsoft Playready */
 #define GST_RIFF_WAVE_FORMAT_A52            (0x2000)
 #define GST_RIFF_WAVE_FORMAT_DTS            (0x2001)
 #define GST_RIFF_WAVE_FORMAT_SONIC          (0x2048)

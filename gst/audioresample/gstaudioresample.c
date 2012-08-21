@@ -103,7 +103,7 @@ GST_STATIC_CAPS ( \
       "signed = (boolean) true" \
 )
 
-/* If TRUE integer arithmetic resampling is faster and will be used if appropiate */
+/* If TRUE integer arithmetic resampling is faster and will be used if appropriate */
 #if defined AUDIORESAMPLE_FORMAT_INT
 static gboolean gst_audio_resample_use_int = TRUE;
 #elif defined AUDIORESAMPLE_FORMAT_FLOAT
@@ -154,10 +154,10 @@ gst_audio_resample_base_init (gpointer g_class)
 {
   GstElementClass *gstelement_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&gst_audio_resample_src_template));
-  gst_element_class_add_pad_template (gstelement_class,
-      gst_static_pad_template_get (&gst_audio_resample_sink_template));
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &gst_audio_resample_src_template);
+  gst_element_class_add_static_pad_template (gstelement_class,
+      &gst_audio_resample_sink_template);
 
   gst_element_class_set_details_simple (gstelement_class, "Audio resampler",
       "Filter/Converter/Audio", "Resamples audio",
@@ -187,7 +187,7 @@ gst_audio_resample_class_init (GstAudioResampleClass * klass)
    *
    * Length of the resample filter
    *
-   * Deprectated: Use #GstAudioResample:quality property instead
+   * Deprecated: Use #GstAudioResample:quality property instead
    */
   g_object_class_install_property (gobject_class, PROP_FILTER_LENGTH,
       g_param_spec_int ("filter-length", "Filter length",
@@ -1168,10 +1168,6 @@ gst_audio_resample_process (GstAudioResample * resample, GstBuffer * inbuf,
       GST_TIME_ARGS (GST_BUFFER_DURATION (outbuf)),
       GST_BUFFER_OFFSET (outbuf), GST_BUFFER_OFFSET_END (outbuf));
 
-  if (out_processed == 0) {
-    GST_DEBUG_OBJECT (resample, "buffer dropped");
-    return GST_BASE_TRANSFORM_FLOW_DROPPED;
-  }
   return GST_FLOW_OK;
 }
 
@@ -1346,18 +1342,19 @@ gst_audio_resample_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec)
 {
   GstAudioResample *resample;
+  gint quality;
 
   resample = GST_AUDIO_RESAMPLE (object);
 
   switch (prop_id) {
     case PROP_QUALITY:
       GST_BASE_TRANSFORM_LOCK (resample);
-      resample->quality = g_value_get_int (value);
-      GST_DEBUG_OBJECT (resample, "new quality %d", resample->quality);
+      quality = g_value_get_int (value);
+      GST_DEBUG_OBJECT (resample, "new quality %d", quality);
 
       gst_audio_resample_update_state (resample, resample->width,
           resample->channels, resample->inrate, resample->outrate,
-          resample->quality, resample->fp);
+          quality, resample->fp);
       GST_BASE_TRANSFORM_UNLOCK (resample);
       break;
     case PROP_FILTER_LENGTH:{
@@ -1365,33 +1362,33 @@ gst_audio_resample_set_property (GObject * object, guint prop_id,
 
       GST_BASE_TRANSFORM_LOCK (resample);
       if (filter_length <= 8)
-        resample->quality = 0;
+        quality = 0;
       else if (filter_length <= 16)
-        resample->quality = 1;
+        quality = 1;
       else if (filter_length <= 32)
-        resample->quality = 2;
+        quality = 2;
       else if (filter_length <= 48)
-        resample->quality = 3;
+        quality = 3;
       else if (filter_length <= 64)
-        resample->quality = 4;
+        quality = 4;
       else if (filter_length <= 80)
-        resample->quality = 5;
+        quality = 5;
       else if (filter_length <= 96)
-        resample->quality = 6;
+        quality = 6;
       else if (filter_length <= 128)
-        resample->quality = 7;
+        quality = 7;
       else if (filter_length <= 160)
-        resample->quality = 8;
+        quality = 8;
       else if (filter_length <= 192)
-        resample->quality = 9;
+        quality = 9;
       else
-        resample->quality = 10;
+        quality = 10;
 
-      GST_DEBUG_OBJECT (resample, "new quality %d", resample->quality);
+      GST_DEBUG_OBJECT (resample, "new quality %d", quality);
 
       gst_audio_resample_update_state (resample, resample->width,
           resample->channels, resample->inrate, resample->outrate,
-          resample->quality, resample->fp);
+          quality, resample->fp);
       GST_BASE_TRANSFORM_UNLOCK (resample);
       break;
     }
@@ -1557,7 +1554,7 @@ _benchmark_integer_resampling (void)
   resample_int_resampler_destroy (stb);
 
   if (av > bv)
-    GST_INFO ("Using integer resampler if appropiate: %lf < %lf", bv, av);
+    GST_INFO ("Using integer resampler if appropriate: %lf < %lf", bv, av);
   else
     GST_INFO ("Using float resampler for everything: %lf <= %lf", av, bv);
 

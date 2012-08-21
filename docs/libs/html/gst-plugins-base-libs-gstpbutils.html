@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gstpbutils</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-base-utils.html" title="Base Utils Library">
 <link rel="prev" href="gstreamer-base-utils.html" title="Base Utils Library">
-<link rel="next" href="gst-plugins-base-libs-gstpbutilscodecutils.html" title="gstpbutilscodecutils">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<link rel="next" href="gst-plugins-base-libs-gstpluginsbaseversion.html" title="gstpluginsbaseversion">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -18,7 +18,7 @@
 <td><a accesskey="u" href="gstreamer-base-utils.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
 <th width="100%" align="center">GStreamer Base Plugins 0.10 Library Reference Manual</th>
-<td><a accesskey="n" href="gst-plugins-base-libs-gstpbutilscodecutils.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="gst-plugins-base-libs-gstpluginsbaseversion.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
 <tr><td colspan="5" class="shortcuts">
 <a href="#gst-plugins-base-libs-gstpbutils.synopsis" class="shortcut">Top</a>
@@ -41,19 +41,6 @@
 #include &lt;gst/pbutils/pbutils.h&gt;
 
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstpbutils.html#gst-pb-utils-init" title="gst_pb_utils_init ()">gst_pb_utils_init</a>                   (<em class="parameter"><code><span class="type">void</span></code></em>);
-
-#define             <a class="link" href="gst-plugins-base-libs-gstpbutils.html#GST-PLUGINS-BASE-VERSION-MAJOR:CAPS" title="GST_PLUGINS_BASE_VERSION_MAJOR">GST_PLUGINS_BASE_VERSION_MAJOR</a>
-#define             <a class="link" href="gst-plugins-base-libs-gstpbutils.html#GST-PLUGINS-BASE-VERSION-MINOR:CAPS" title="GST_PLUGINS_BASE_VERSION_MINOR">GST_PLUGINS_BASE_VERSION_MINOR</a>
-#define             <a class="link" href="gst-plugins-base-libs-gstpbutils.html#GST-PLUGINS-BASE-VERSION-MICRO:CAPS" title="GST_PLUGINS_BASE_VERSION_MICRO">GST_PLUGINS_BASE_VERSION_MICRO</a>
-#define             <a class="link" href="gst-plugins-base-libs-gstpbutils.html#GST-PLUGINS-BASE-VERSION-NANO:CAPS" title="GST_PLUGINS_BASE_VERSION_NANO">GST_PLUGINS_BASE_VERSION_NANO</a>
-#define             <a class="link" href="gst-plugins-base-libs-gstpbutils.html#GST-CHECK-PLUGINS-BASE-VERSION:CAPS" title="GST_CHECK_PLUGINS_BASE_VERSION()">GST_CHECK_PLUGINS_BASE_VERSION</a>      (major,
-                                                         minor,
-                                                         micro)
-<span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstpbutils.html#gst-plugins-base-version" title="gst_plugins_base_version ()">gst_plugins_base_version</a>            (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *major</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *minor</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *micro</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *nano</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="gst-plugins-base-libs-gstpbutils.html#gst-plugins-base-version-string" title="gst_plugins_base_version_string ()">gst_plugins_base_version_string</a>     (<em class="parameter"><code><span class="type">void</span></code></em>);
 </pre>
 </div>
 <div class="refsect1">
@@ -61,7 +48,7 @@
 <p>
 </p>
 <div class="refsect2">
-<a name="idp19337104"></a><h3>Linking to this library</h3>
+<a name="idp7121744"></a><h3>Linking to this library</h3>
 <p>
 libgstpbutils is a general utility library for plugins and applications,
 available since gst-plugins-base 0.10.12. It currently provides the
@@ -115,111 +102,10 @@ library has already been initialised.
 </p>
 <p class="since">Since 0.10.12</p>
 </div>
-<hr>
-<div class="refsect2">
-<a name="GST-PLUGINS-BASE-VERSION-MAJOR:CAPS"></a><h3>GST_PLUGINS_BASE_VERSION_MAJOR</h3>
-<pre class="programlisting">#define GST_PLUGINS_BASE_VERSION_MAJOR (0)
-</pre>
-<p>
-The major version of GStreamer's gst-plugins-base libraries at compile time.
-</p>
-<p class="since">Since 0.10.31</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-PLUGINS-BASE-VERSION-MINOR:CAPS"></a><h3>GST_PLUGINS_BASE_VERSION_MINOR</h3>
-<pre class="programlisting">#define GST_PLUGINS_BASE_VERSION_MINOR (10)
-</pre>
-<p>
-The minor version of GStreamer's gst-plugins-base libraries at compile time.
-</p>
-<p class="since">Since 0.10.31</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-PLUGINS-BASE-VERSION-MICRO:CAPS"></a><h3>GST_PLUGINS_BASE_VERSION_MICRO</h3>
-<pre class="programlisting">#define GST_PLUGINS_BASE_VERSION_MICRO (34)
-</pre>
-<p>
-The micro version of GStreamer's gst-plugins-base libraries at compile time.
-</p>
-<p class="since">Since 0.10.31</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-PLUGINS-BASE-VERSION-NANO:CAPS"></a><h3>GST_PLUGINS_BASE_VERSION_NANO</h3>
-<pre class="programlisting">#define GST_PLUGINS_BASE_VERSION_NANO (0)
-</pre>
-<p>
-The nano version of GStreamer's gst-plugins-base libraries at compile time.
-Actual releases have 0, GIT versions have 1, prerelease versions have 2-...
-</p>
-<p class="since">Since 0.10.31</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="GST-CHECK-PLUGINS-BASE-VERSION:CAPS"></a><h3>GST_CHECK_PLUGINS_BASE_VERSION()</h3>
-<pre class="programlisting">#define             GST_CHECK_PLUGINS_BASE_VERSION(major,minor,micro)</pre>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-plugins-base-version"></a><h3>gst_plugins_base_version ()</h3>
-<pre class="programlisting"><span class="returnvalue">void</span>                gst_plugins_base_version            (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *major</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *minor</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *micro</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> *nano</code></em>);</pre>
-<p>
-Gets the version number of the GStreamer Plugins Base libraries.
-</p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>major</code></em> :</span></p></td>
-<td>pointer to a guint to store the major version number, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. <span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>minor</code></em> :</span></p></td>
-<td>pointer to a guint to store the minor version number, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. <span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>micro</code></em> :</span></p></td>
-<td>pointer to a guint to store the micro version number, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. <span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span>
-</td>
-</tr>
-<tr>
-<td><p><span class="term"><em class="parameter"><code>nano</code></em> :</span></p></td>
-<td>pointer to a guint to store the nano version number, or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. <span class="annotation">[<acronym title="Parameter for returning results. Default is transfer full."><span class="acronym">out</span></acronym>]</span>
-</td>
-</tr>
-</tbody>
-</table></div>
-<p class="since">Since 0.10.31</p>
-</div>
-<hr>
-<div class="refsect2">
-<a name="gst-plugins-base-version-string"></a><h3>gst_plugins_base_version_string ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             gst_plugins_base_version_string     (<em class="parameter"><code><span class="type">void</span></code></em>);</pre>
-<p>
-This function returns a string that is useful for describing this version
-of GStreamer's gst-plugins-base libraries to the outside world: user agent
-strings, logging, about dialogs ...
-</p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody><tr>
-<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
-<td>a newly allocated string describing this version of gst-plugins-base</td>
-</tr></tbody>
-</table></div>
-<p class="since">Since 0.10.31</p>
-</div>
 </div>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

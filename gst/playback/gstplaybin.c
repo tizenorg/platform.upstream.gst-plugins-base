@@ -116,7 +116,7 @@
  * GNOME-based applications, for example, will usually want to create
  * gconfaudiosink and gconfvideosink elements and make playbin use those,
  * so that output happens to whatever the user has configured in the GNOME
- * Multimedia System Selector confinguration dialog.
+ * Multimedia System Selector configuration dialog.
  *
  * The sink elements do not necessarily need to be ready-made sinks. It is
  * possible to create container elements that look like a sink to playbin,
@@ -859,7 +859,7 @@ gen_video_element (GstPlayBin * play_bin)
   element = gst_bin_new ("vbin");
   gst_bin_add (GST_BIN_CAST (element), sink);
 
-  conv = gst_element_factory_make ("ffmpegcolorspace", "vconv");
+  conv = gst_element_factory_make (COLORSPACE, "vconv");
   if (conv == NULL)
     goto no_colorspace;
   gst_bin_add (GST_BIN_CAST (element), conv);
@@ -905,10 +905,10 @@ no_sinks:
   }
 no_colorspace:
   {
-    post_missing_element_message (play_bin, "ffmpegcolorspace");
+    post_missing_element_message (play_bin, COLORSPACE);
     GST_ELEMENT_ERROR (play_bin, CORE, MISSING_PLUGIN,
         (_("Missing element '%s' - check your GStreamer installation."),
-            "ffmpegcolorspace"), (NULL));
+            COLORSPACE), (NULL));
     gst_object_unref (element);
     return NULL;
   }
@@ -972,7 +972,7 @@ add_text_element (GstPlayBin * play_bin, GstElement * vbin)
   play_bin->textoverlay_element = GST_ELEMENT_CAST (gst_object_ref (overlay));
 
   /* we know this will succeed, as the video bin already created one before */
-  csp = gst_element_factory_make ("ffmpegcolorspace", "subtitlecsp");
+  csp = gst_element_factory_make (COLORSPACE, "subtitlecsp");
 
   /* Add our elements */
   gst_bin_add_many (GST_BIN_CAST (element), csp, overlay, vbin, NULL);
@@ -1046,7 +1046,7 @@ add_spu_element (GstPlayBin * play_bin, GstElement * vbin)
   play_bin->spu_element = GST_ELEMENT_CAST (gst_object_ref (overlay));
 
   /* we know this will succeed, as the video bin already created one before */
-  csp = gst_element_factory_make ("ffmpegcolorspace", "spucsp");
+  csp = gst_element_factory_make (COLORSPACE, "spucsp");
 
   /* Add our elements */
   gst_bin_add_many (GST_BIN_CAST (element), csp, overlay, vbin, NULL);
@@ -1207,7 +1207,7 @@ link_failed:
 }
 
 /* make the element (bin) that contains the elements needed to perform
- * visualisation ouput.  The idea is to split the audio using tee, then
+ * visualisation output.  The idea is to split the audio using tee, then
  * sending the output to the regular audio bin and the other output to
  * the vis plugin that transforms it into a video that is rendered with the
  * normal video bin. The video and audio bins are run in threads to make sure
@@ -1519,7 +1519,7 @@ add_sink (GstPlayBin * play_bin, GstElement * sink, GstPad * srcpad,
     goto subtitle_failed;
 
 done:
-  /* we got the sink succesfully linked, now keep the sink
+  /* we got the sink successfully linked, now keep the sink
    * in our internal list */
   play_bin->sinks = g_list_prepend (play_bin->sinks, sink);
 
@@ -1791,7 +1791,7 @@ gst_play_bin_send_event_to_sink (GstPlayBin * play_bin, GstEvent * event)
     gst_event_ref (event);
     if ((res = gst_element_send_event (sink, event))) {
       GST_DEBUG_OBJECT (play_bin,
-          "Sent event succesfully to sink %" GST_PTR_FORMAT, sink);
+          "Sent event successfully to sink %" GST_PTR_FORMAT, sink);
       break;
     }
     GST_DEBUG_OBJECT (play_bin,

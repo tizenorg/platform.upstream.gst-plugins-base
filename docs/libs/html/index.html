@@ -3,10 +3,10 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>GStreamer Base Plugins 0.10 Library Reference Manual</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="next" href="gstreamer-plugins-base.html" title="Part I. GStreamer Base Plugins Libraries">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -15,7 +15,7 @@
 <div>
 <div><table class="navigation" id="top" width="100%" cellpadding="2" cellspacing="0"><tr><th valign="middle"><p class="title">GStreamer Base Plugins 0.10 Library Reference Manual</p></th></tr></table></div>
 <div><p class="releaseinfo">
-      for GStreamer Base Library 0.10 (0.10.34)
+      for GStreamer Base Library 0.10 (0.10.36)
       <a class="ulink" href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/" target="_top">http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/</a>.
     </p></div>
 </div>
@@ -49,6 +49,12 @@ How to compile against the base plugins libraries
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gstaudioclock.html">gstaudioclock</a></span><span class="refpurpose"> — Helper object for implementing audio clocks</span>
 </dt>
 <dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gstaudiodecoder.html">gstaudiodecoder</a></span><span class="refpurpose"> — Base class for audio decoders</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gstaudioencoder.html">gstaudioencoder</a></span><span class="refpurpose"> — Base class for audio encoders</span>
+</dt>
+<dt>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gstaudiofilter.html">gstaudiofilter</a></span><span class="refpurpose"> — Base class for simple audio filters</span>
 </dt>
 <dt>
@@ -72,6 +78,9 @@ How to compile against the base plugins libraries
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gstringbuffer.html">gstringbuffer</a></span><span class="refpurpose"> — Base class for audio ringbuffer implementations</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gstaudioiec61937.html">gstaudioiec61937</a></span><span class="refpurpose"> — Utility functions for IEC 61937 payloading</span>
 </dt>
 </dl></dd>
 <dt><span class="chapter"><a href="gstreamer-cdda.html">CDDA Library</a></span></dt>
@@ -222,21 +231,38 @@ supporting it</span>
                     dealing with ID3v1 and ID3v2 tags</span>
 </dt>
 <dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gsttagexif.html">gsttagexif</a></span><span class="refpurpose"> — tag mappings and support functions for plugins
+                    dealing with exif tags</span>
+</dt>
+<dt>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gsttagxmp.html">gsttagxmp</a></span><span class="refpurpose"> — tag mappings and support functions for plugins
                     dealing with xmp packets</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gsttagxmpwriter.html">gsttagxmpwriter</a></span><span class="refpurpose"> — Interface for elements that provide XMP serialization</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gsttagdemux.html">gsttagdemux</a></span><span class="refpurpose"> — Base class for demuxing tags that are in chunks
                     directly at the beginning or at the end of a file</span>
 </dt>
 <dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gsttagmux.html">gsttagmux</a></span><span class="refpurpose"> — Base class for adding tags that are in one single chunk
+                    directly at the beginning or at the end of a file</span>
+</dt>
+<dt>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gsttaglanguagecodes.html">gsttaglanguagecodes</a></span><span class="refpurpose"> — mappings for ISO-639 language codes and names</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gsttaglicenses.html">gsttaglicenses</a></span><span class="refpurpose"> — utility functions for Creative Commons licenses</span>
 </dt>
 </dl></dd>
 <dt><span class="chapter"><a href="gstreamer-base-utils.html">Base Utils Library</a></span></dt>
 <dd><dl>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gstpbutils.html">gstpbutils</a></span><span class="refpurpose"> — General Application and Plugin Utility Library</span>
+</dt>
+<dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gstpluginsbaseversion.html">gstpluginsbaseversion</a></span><span class="refpurpose"> — GStreamer gst-plugins-base libraries version macros.</span>
 </dt>
 <dt>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gstpbutilscodecutils.html">gstpbutilscodecutils</a></span><span class="refpurpose"> — Miscellaneous codec-specific utility functions</span>
@@ -264,6 +290,9 @@ and encoder, decoder, URI source and URI sink elements</span>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gstvideo.html">gstvideo</a></span><span class="refpurpose"> — Support library for video operations</span>
 </dt>
 <dt>
+<span class="refentrytitle"><a href="gst-plugins-base-libs-gstvideooverlaycomposition.html">gstvideooverlaycomposition</a></span><span class="refpurpose"> — Video Buffer Overlay Compositions (Subtitles, Logos)</span>
+</dt>
+<dt>
 <span class="refentrytitle"><a href="gst-plugins-base-libs-gstvideofilter.html">gstvideofilter</a></span><span class="refpurpose"> — Base class for video filters</span>
 </dt>
 <dt>
@@ -279,6 +308,6 @@ and encoder, decoder, URI source and URI sink elements</span>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

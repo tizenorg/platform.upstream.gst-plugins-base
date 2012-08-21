@@ -14,10 +14,9 @@
 #define XV_VERSION_MISMATCH -2
 
 /* Video Mode */
-#define VIDEO_MODE_TV_LCD	1
-#define VIDEO_MODE_TVONLY	2
-#define VIDEO_MODE_LCDONLY	3
-#define VIDEO_MODE_TVCAPTION	4
+#define DISPLAY_MODE_DEFAULT                                      0
+#define DISPLAY_MODE_PRI_VIDEO_ON_AND_SEC_VIDEO_FULL_SCREEN       1
+#define DISPLAY_MODE_PRI_VIDEO_OFF_AND_SEC_VIDEO_FULL_SCREEN      2
 
 /* Data structure for XvPutImage / XvShmPutImage */
 typedef struct {

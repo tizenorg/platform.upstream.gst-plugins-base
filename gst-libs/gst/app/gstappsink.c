@@ -17,22 +17,6 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-
-/**
- * SECTION:element-appsink
- * 
- * Appsink is a sink plugin that supports many different methods for making
- * the application get a handle on the GStreamer data in a pipeline. Unlike
- * most GStreamer elements, Appsink provides external API functions.
- *
- * For the documentation of the API, please see the
- * <link linkend="gst-plugins-base-libs-appsink">libgstapp</link> section in
- * the GStreamer Plugins Base Libraries documentation.
- *
- * Since: 0.10.22
- */
-
-
 /**
  * SECTION:gstappsink
  * @short_description: Easy way for applications to extract buffers from a
@@ -91,6 +75,8 @@
 #include <string.h>
 
 #include "gstappsink.h"
+
+#include "gst/glib-compat-private.h"
 
 struct _GstAppSinkPrivate
 {
@@ -245,8 +231,8 @@ gst_app_sink_base_init (gpointer g_class)
       "Generic/Sink", "Allow the application to get access to raw buffer",
       "David Schleef <ds@schleef.org>, Wim Taymans <wim.taymans@gmail.com>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_app_sink_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_app_sink_template);
 }
 
 static void
@@ -290,9 +276,9 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
 
   /**
    * GstAppSink::eos:
-   * @appsink: the appsink element that emited the signal
+   * @appsink: the appsink element that emitted the signal
    *
-   * Signal that the end-of-stream has been reached. This signal is emited from
+   * Signal that the end-of-stream has been reached. This signal is emitted from
    * the steaming thread.
    */
   gst_app_sink_signals[SIGNAL_EOS] =
@@ -301,18 +287,18 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
       NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0, G_TYPE_NONE);
   /**
    * GstAppSink::new-preroll:
-   * @appsink: the appsink element that emited the signal
+   * @appsink: the appsink element that emitted the signal
    *
-   * Signal that a new preroll buffer is available. 
+   * Signal that a new preroll buffer is available.
    *
-   * This signal is emited from the steaming thread and only when the
-   * "emit-signals" property is %TRUE. 
+   * This signal is emitted from the steaming thread and only when the
+   * "emit-signals" property is %TRUE.
    *
    * The new preroll buffer can be retrieved with the "pull-preroll" action
    * signal or gst_app_sink_pull_preroll() either from this signal callback
    * or from any other thread.
    *
-   * Note that this signal is only emited when the "emit-signals" property is
+   * Note that this signal is only emitted when the "emit-signals" property is
    * set to %TRUE, which it is not by default for performance reasons.
    */
   gst_app_sink_signals[SIGNAL_NEW_PREROLL] =
@@ -321,18 +307,18 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
       NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0, G_TYPE_NONE);
   /**
    * GstAppSink::new-buffer:
-   * @appsink: the appsink element that emited the signal
+   * @appsink: the appsink element that emitted the signal
    *
    * Signal that a new buffer is available.
    *
-   * This signal is emited from the steaming thread and only when the
-   * "emit-signals" property is %TRUE. 
+   * This signal is emitted from the steaming thread and only when the
+   * "emit-signals" property is %TRUE.
    *
    * The new buffer can be retrieved with the "pull-buffer" action
    * signal or gst_app_sink_pull_buffer() either from this signal callback
    * or from any other thread.
    *
-   * Note that this signal is only emited when the "emit-signals" property is
+   * Note that this signal is only emitted when the "emit-signals" property is
    * set to %TRUE, which it is not by default for performance reasons.
    */
   gst_app_sink_signals[SIGNAL_NEW_BUFFER] =
@@ -341,18 +327,18 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
       NULL, NULL, g_cclosure_marshal_VOID__VOID, G_TYPE_NONE, 0, G_TYPE_NONE);
   /**
    * GstAppSink::new-buffer-list:
-   * @appsink: the appsink element that emited the signal
+   * @appsink: the appsink element that emitted the signal
    *
    * Signal that a new bufferlist is available.
    *
-   * This signal is emited from the steaming thread and only when the
-   * "emit-signals" property is %TRUE. 
+   * This signal is emitted from the steaming thread and only when the
+   * "emit-signals" property is %TRUE.
    *
    * The new buffer can be retrieved with the "pull-buffer-list" action
    * signal or gst_app_sink_pull_buffer_list() either from this signal callback
    * or from any other thread.
    *
-   * Note that this signal is only emited when the "emit-signals" property is
+   * Note that this signal is only emitted when the "emit-signals" property is
    * set to %TRUE, which it is not by default for performance reasons.
    */
   gst_app_sink_signals[SIGNAL_NEW_BUFFER_LIST] =
@@ -376,10 +362,10 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
    * when calling gst_app_sink_pull_buffer() or the "pull-buffer" action signal.
    *
    * If an EOS event was received before any buffers, this function returns
-   * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition. 
+   * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition.
    *
    * This function blocks until a preroll buffer or EOS is received or the appsink
-   * element is set to the READY/NULL state. 
+   * element is set to the READY/NULL state.
    *
    * Returns: a #GstBuffer or NULL when the appsink is stopped or EOS.
    */
@@ -393,11 +379,11 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
    * @appsink: the appsink element to emit this signal on
    *
    * This function blocks until a buffer or EOS becomes available or the appsink
-   * element is set to the READY/NULL state. 
+   * element is set to the READY/NULL state.
    *
    * This function will only return buffers when the appsink is in the PLAYING
    * state. All rendered buffers will be put in a queue so that the application
-   * can pull buffers at its own rate. 
+   * can pull buffers at its own rate.
    *
    * Note that when the application does not pull buffers fast enough, the
    * queued buffers could consume a lot of memory, especially when dealing with
@@ -405,7 +391,7 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
    * the "drop" and "max-buffers" properties.
    *
    * If an EOS event was received before any buffers, this function returns
-   * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition. 
+   * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition.
    *
    * Returns: a #GstBuffer or NULL when the appsink is stopped or EOS.
    */
@@ -419,11 +405,11 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
    * @appsink: the appsink element to emit this signal on
    *
    * This function blocks until a buffer list or EOS becomes available or the appsink
-   * element is set to the READY/NULL state. 
+   * element is set to the READY/NULL state.
    *
    * This function will only return bufferlists when the appsink is in the PLAYING
    * state. All rendered bufferlists will be put in a queue so that the application
-   * can pull bufferlists at its own rate. 
+   * can pull bufferlists at its own rate.
    *
    * Note that when the application does not pull bufferlists fast enough, the
    * queued bufferlists could consume a lot of memory, especially when dealing with
@@ -431,7 +417,7 @@ gst_app_sink_class_init (GstAppSinkClass * klass)
    * the "drop" and "max-buffers" properties.
    *
    * If an EOS event was received before any buffers, this function returns
-   * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition. 
+   * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition.
    *
    * Returns: a #GstBufferList or NULL when the appsink is stopped or EOS.
    */
@@ -948,7 +934,7 @@ not_started:
  * Set the capabilities on the appsink element.  This function takes
  * a copy of the caps structure. After calling this method, the sink will only
  * accept caps that match @caps. If @caps is non-fixed, you must check the caps
- * on the buffers to get the actual used caps. 
+ * on the buffers to get the actual used caps.
  *
  * Since: 0.10.22
  */
@@ -1082,7 +1068,7 @@ gst_app_sink_set_emit_signals (GstAppSink * appsink, gboolean emit)
  *
  * Check if appsink will emit the "new-preroll" and "new-buffer" signals.
  *
- * Returns: %TRUE if @appsink is emiting the "new-preroll" and "new-buffer"
+ * Returns: %TRUE if @appsink is emitting the "new-preroll" and "new-buffer"
  * signals.
  *
  * Since: 0.10.22
@@ -1233,10 +1219,10 @@ gst_app_sink_get_drop (GstAppSink * appsink)
  * when calling gst_app_sink_pull_buffer().
  *
  * If an EOS event was received before any buffers, this function returns
- * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition. 
+ * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition.
  *
  * This function blocks until a preroll buffer or EOS is received or the appsink
- * element is set to the READY/NULL state. 
+ * element is set to the READY/NULL state.
  *
  * Returns: a #GstBuffer or NULL when the appsink is stopped or EOS.
  *
@@ -1295,7 +1281,7 @@ not_started:
  * @appsink: a #GstAppSink
  *
  * This function blocks until a buffer or EOS becomes available or the appsink
- * element is set to the READY/NULL state. 
+ * element is set to the READY/NULL state.
  *
  * This function will only return buffers when the appsink is in the PLAYING
  * state. All rendered buffers will be put in a queue so that the application
@@ -1304,7 +1290,7 @@ not_started:
  * especially when dealing with raw video frames.
  *
  * If an EOS event was received before any buffers, this function returns
- * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition. 
+ * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition.
  *
  * Returns: a #GstBuffer or NULL when the appsink is stopped or EOS.
  *
@@ -1323,7 +1309,7 @@ gst_app_sink_pull_buffer (GstAppSink * appsink)
  * @appsink: a #GstAppSink
  *
  * This function blocks until a buffer list or EOS becomes available or the
- * appsink element is set to the READY/NULL state. 
+ * appsink element is set to the READY/NULL state.
  *
  * This function will only return buffer lists when the appsink is in the
  * PLAYING state. All rendered buffer lists will be put in a queue so that
@@ -1333,7 +1319,7 @@ gst_app_sink_pull_buffer (GstAppSink * appsink)
  * video frames.
  *
  * If an EOS event was received before any buffer lists, this function returns
- * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition. 
+ * %NULL. Use gst_app_sink_is_eos () to check for the EOS condition.
  *
  * Returns: a #GstBufferList or NULL when the appsink is stopped or EOS.
  */
@@ -1355,7 +1341,7 @@ gst_app_sink_pull_buffer_list (GstAppSink * appsink)
  * This is an alternative to using the signals, it has lower overhead and is thus
  * less expensive, but also less flexible.
  *
- * If callbacks are installed, no signals will be emited for performance
+ * If callbacks are installed, no signals will be emitted for performance
  * reasons.
  *
  * Since: 0.10.23

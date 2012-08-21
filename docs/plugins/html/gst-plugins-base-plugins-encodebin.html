@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>encodebin</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-base Elements">
 <link rel="prev" href="gst-plugins-base-plugins-decodebin2.html" title="decodebin2">
 <link rel="next" href="gst-plugins-base-plugins-ffmpegcolorspace.html" title="ffmpegcolorspace">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -67,12 +67,13 @@ GstEncodeBin implements
 <div class="refsect1">
 <a name="gst-plugins-base-plugins-encodebin.properties"></a><h2>Properties</h2>
 <pre class="synopsis">
-  "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--audio-jitter-tolerance" title='The "audio-jitter-tolerance" property'>audio-jitter-tolerance</a>"   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a>               : Read / Write
+  "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--audio-jitter-tolerance" title='The "audio-jitter-tolerance" property'>audio-jitter-tolerance</a>"   <span class="type">guint64</span>               : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--avoid-reencoding" title='The "avoid-reencoding" property'>avoid-reencoding</a>"         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--profile" title='The "profile" property'>profile</a>"                  <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a>*   : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--queue-buffers-max" title='The "queue-buffers-max" property'>queue-buffers-max</a>"        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--queue-bytes-max" title='The "queue-bytes-max" property'>queue-bytes-max</a>"          <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a>                 : Read / Write
-  "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--queue-time-max" title='The "queue-time-max" property'>queue-time-max</a>"           <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a>               : Read / Write
+  "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--queue-time-max" title='The "queue-time-max" property'>queue-time-max</a>"           <span class="type">guint64</span>               : Read / Write
+  "<a class="link" href="gst-plugins-base-plugins-encodebin.html#GstEncodeBin--flags" title='The "flags" property'>flags</a>"                    <span class="type">GstEncFlags</span>           : Read / Write
 </pre>
 </div>
 <div class="refsect1">
@@ -97,7 +98,7 @@ encoded/muxed/converted stream in output.
 <p>
 </p>
 <div class="refsect2">
-<a name="idp6809216"></a><h3>Features</h3>
+<a name="idp7547488"></a><h3>Features</h3>
 <div class="itemizedlist"><ul class="itemizedlist" type="disc">
 <li class="listitem">
 Automatic encoder and muxer selection based on elements available on the
@@ -162,7 +163,7 @@ user a way to install the missing element.
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp11211984"></a><h3>Element Information</h3>
+<a name="idp5633232"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -185,7 +186,7 @@ user a way to install the missing element.
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp11219392"></a><h3>Element Pads</h3>
+<a name="idp5640640"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -288,7 +289,7 @@ user a way to install the missing element.
 <a name="gst-plugins-base-plugins-encodebin.property-details"></a><h2>Property Details</h2>
 <div class="refsect2">
 <a name="GstEncodeBin--audio-jitter-tolerance"></a><h3>The <code class="literal">"audio-jitter-tolerance"</code> property</h3>
-<pre class="programlisting">  "audio-jitter-tolerance"   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a>               : Read / Write</pre>
+<pre class="programlisting">  "audio-jitter-tolerance"   <span class="type">guint64</span>               : Read / Write</pre>
 <p>Amount of timestamp jitter/imperfection to allow on audio streams before inserting/dropping samples (ns).</p>
 <p>Default value: 20000000</p>
 </div>
@@ -325,9 +326,17 @@ to <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/h
 <hr>
 <div class="refsect2">
 <a name="GstEncodeBin--queue-time-max"></a><h3>The <code class="literal">"queue-time-max"</code> property</h3>
-<pre class="programlisting">  "queue-time-max"           <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a>               : Read / Write</pre>
+<pre class="programlisting">  "queue-time-max"           <span class="type">guint64</span>               : Read / Write</pre>
 <p>Max. amount of data in the queue (in ns, 0=disable).</p>
 <p>Default value: 1000000000</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GstEncodeBin--flags"></a><h3>The <code class="literal">"flags"</code> property</h3>
+<pre class="programlisting">  "flags"                    <span class="type">GstEncFlags</span>           : Read / Write</pre>
+<p>
+Control the behaviour of encodebin.
+</p>
 </div>
 </div>
 <div class="refsect1">
@@ -370,6 +379,6 @@ created or is available.</td>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

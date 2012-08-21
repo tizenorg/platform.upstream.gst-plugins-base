@@ -105,10 +105,10 @@ gst_theora_parse_base_init (gpointer g_class)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&theora_parse_src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&theora_parse_sink_factory));
+  gst_element_class_add_static_pad_template (element_class,
+      &theora_parse_src_factory);
+  gst_element_class_add_static_pad_template (element_class,
+      &theora_parse_sink_factory);
   gst_element_class_set_details_simple (element_class,
       "Theora video parser", "Codec/Parser/Video",
       "parse raw theora streams", "Andy Wingo <wingo@pobox.com>");
@@ -241,7 +241,7 @@ theora_parse_get_property (GObject * object, guint prop_id,
         g_value_unset (&v);
       }
 
-      g_value_set_boxed (value, array);
+      g_value_take_boxed (value, array);
     }
       break;
     default:
@@ -328,7 +328,7 @@ theora_parse_set_streamheader (GstTheoraParse * parse)
   parse->shift = parse->info.keyframe_granule_shift;
 
   /* With libtheora-1.0beta1 the granulepos scheme was changed:
-   * where earlier the granulepos refered to the index/beginning
+   * where earlier the granulepos referred to the index/beginning
    * of a frame, it now refers to the end, which matches the use
    * in vorbis/speex. We check the bitstream version from the header so
    * we know which way to interpret the incoming granuepos

@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gstbasertpdepayload</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-rtp.html" title="RTP Library">
 <link rel="prev" href="gst-plugins-base-libs-gstbasertpaudiopayload.html" title="gstbasertpaudiopayload">
 <link rel="next" href="gst-plugins-base-libs-gstbasertppayload.html" title="gstbasertppayload">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -51,7 +51,7 @@ struct              <a class="link" href="gst-plugins-base-libs-gstbasertpdepayl
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>       <a class="link" href="gst-plugins-base-libs-gstbasertpdepayload.html#gst-base-rtp-depayload-push" title="gst_base_rtp_depayload_push ()">gst_base_rtp_depayload_push</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstbasertpdepayload.html#GstBaseRTPDepayload"><span class="type">GstBaseRTPDepayload</span></a> *filter</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> *out_buf</code></em>);
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>       <a class="link" href="gst-plugins-base-libs-gstbasertpdepayload.html#gst-base-rtp-depayload-push-ts" title="gst_base_rtp_depayload_push_ts ()">gst_base_rtp_depayload_push_ts</a>      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstbasertpdepayload.html#GstBaseRTPDepayload"><span class="type">GstBaseRTPDepayload</span></a> *filter</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> timestamp</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> timestamp</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> *out_buf</code></em>);
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>       <a class="link" href="gst-plugins-base-libs-gstbasertpdepayload.html#gst-base-rtp-depayload-push-list" title="gst_base_rtp_depayload_push_list ()">gst_base_rtp_depayload_push_list</a>    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstbasertpdepayload.html#GstBaseRTPDepayload"><span class="type">GstBaseRTPDepayload</span></a> *filter</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBufferList.html#GstBufferList"><span class="type">GstBufferList</span></a> *out_list</code></em>);
@@ -75,13 +75,7 @@ struct              <a class="link" href="gst-plugins-base-libs-gstbasertpdepayl
 <div class="refsect1">
 <a name="gst-plugins-base-libs-gstbasertpdepayload.description"></a><h2>Description</h2>
 <p>
-</p>
-<div class="refsect2">
-<a name="idp15451472"></a><p>
 Provides a base class for RTP depayloaders
-</p>
-</div>
-<p>
 </p>
 </div>
 <div class="refsect1">
@@ -125,6 +119,42 @@ Provides a base class for RTP depayloaders
   gboolean (*handle_event) (GstBaseRTPDepayload * filter, GstEvent * event);
 };
 </pre>
+<p>
+Base class for audio RTP payloader.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html#GstElementClass"><span class="type">GstElementClass</span></a> <em class="structfield"><code><a name="GstBaseRTPDepayloadClass.parent-class"></a>parent_class</code></em>;</span></p></td>
+<td>the parent class</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstBaseRTPDepayloadClass.set-caps"></a>set_caps</code></em> ()</span></p></td>
+<td>configure the depayloader</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstBaseRTPDepayloadClass.add-to-queue"></a>add_to_queue</code></em> ()</span></p></td>
+<td>(deprecated)</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstBaseRTPDepayloadClass.process"></a>process</code></em> ()</span></p></td>
+<td>process incoming rtp packets</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstBaseRTPDepayloadClass.set-gst-timestamp"></a>set_gst_timestamp</code></em> ()</span></p></td>
+<td>convert from RTP timestamp to GST timestamp</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstBaseRTPDepayloadClass.packet-lost"></a>packet_lost</code></em> ()</span></p></td>
+<td>signal the depayloader about packet loss</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstBaseRTPDepayloadClass.handle-event"></a>handle_event</code></em> ()</span></p></td>
+<td>custom event handling</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
@@ -176,7 +206,7 @@ outgoing buffers themselves.
 <div class="refsect2">
 <a name="gst-base-rtp-depayload-push-ts"></a><h3>gst_base_rtp_depayload_push_ts ()</h3>
 <pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstPad.html#GstFlowReturn"><span class="returnvalue">GstFlowReturn</span></a>       gst_base_rtp_depayload_push_ts      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstbasertpdepayload.html#GstBaseRTPDepayload"><span class="type">GstBaseRTPDepayload</span></a> *filter</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> timestamp</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> timestamp</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> *out_buf</code></em>);</pre>
 <p>
 Push <em class="parameter"><code>out_buf</code></em> to the peer of <em class="parameter"><code>filter</code></em>. This function takes ownership of
@@ -255,6 +285,6 @@ Push <em class="parameter"><code>out_list</code></em> to the peer of <em class="
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

@@ -48,6 +48,7 @@
 
 #include "gstalsasrc.h"
 #include "gstalsadeviceprobe.h"
+#include "gst/glib-compat-private.h"
 
 #include <gst/gst-i18n-plugin.h>
 
@@ -191,8 +192,8 @@ gst_alsasrc_base_init (gpointer g_class)
       "Audio source (ALSA)", "Source/Audio",
       "Read from a sound card via ALSA", "Wim Taymans <wim@fluendo.com>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&alsasrc_src_factory));
+  gst_element_class_add_static_pad_template (element_class,
+      &alsasrc_src_factory);
 }
 
 static void

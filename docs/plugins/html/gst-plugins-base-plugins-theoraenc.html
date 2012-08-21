@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>theoraenc</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-base Elements">
 <link rel="prev" href="gst-plugins-base-plugins-theoradec.html" title="theoradec">
 <link rel="next" href="gst-plugins-base-plugins-theoraparse.html" title="theoraparse">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -89,54 +89,10 @@ GstTheoraEnc implements
 </div>
 <div class="refsect1">
 <a name="gst-plugins-base-plugins-theoraenc.description"></a><h2>Description</h2>
-<p>
-This element encodes raw video into a Theora stream.
-<a class="ulink" href="http://www.theora.org/" target="_top">Theora</a> is a royalty-free
-video codec maintained by the <a class="ulink" href="http://www.xiph.org/" target="_top">Xiph.org
-Foundation</a>, based on the VP3 codec.
-</p>
-<p>
-The theora codec internally only supports encoding of images that are a
-multiple of 16 pixels in both X and Y direction. It is however perfectly
-possible to encode images with other dimensions because an arbitrary
-rectangular cropping region can be set up. This element will automatically
-set up a correct cropping region if the dimensions are not multiples of 16
-pixels.
-</p>
-<p>
-To control the quality of the encoding, the <span class="type">"bitrate"</span> and
-<span class="type">"quality"</span> properties can be used. These two properties are
-mutualy exclusive. Setting the bitrate property will produce a constant
-bitrate (CBR) stream while setting the quality property will produce a
-variable bitrate (VBR) stream.
-</p>
-<p>
-</p>
-<div class="refsect2">
-<a name="idp14365920"></a><h3>Example pipeline</h3>
-<div class="informalexample">
-  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-      <tr>
-        <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch <span class="gtkdoc opt">-</span>v videotestsrc num<span class="gtkdoc opt">-</span>buffers<span class="gtkdoc opt">=</span><span class="number">1000</span> <span class="gtkdoc opt">!</span> theoraenc <span class="gtkdoc opt">!</span> oggmux <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>videotestsrc<span class="gtkdoc opt">.</span>ogg</pre></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
- This example pipeline will encode a test video source to theora muxed in an
-ogg container. Refer to the theoradec documentation to decode the create
-stream.
-</div>
-<p>
-</p>
-<p>
-Last reviewed on 2006-03-01 (0.10.4)
-</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp14369280"></a><h3>Element Information</h3>
+<a name="idp14220288"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -159,7 +115,7 @@ Last reviewed on 2006-03-01 (0.10.4)
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp14376736"></a><h3>Element Pads</h3>
+<a name="idp14227744"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -213,43 +169,19 @@ Last reviewed on 2006-03-01 (0.10.4)
 <a name="GstTheoraEnc-struct"></a><h3>struct GstTheoraEnc</h3>
 <pre class="programlisting">struct GstTheoraEnc;</pre>
 <p>
-Opaque data structure.
 </p>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstTheoraEncBorderMode"></a><h3>enum GstTheoraEncBorderMode</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   BORDER_NONE,
   BORDER_BLACK,
   BORDER_MIRROR
-}
-GstTheoraEncBorderMode;
+} GstTheoraEncBorderMode;
 </pre>
 <p>
-Border color to add when sizes not multiple of 16.
 </p>
-<div class="variablelist"><table border="0">
-<col align="left" valign="top">
-<tbody>
-<tr>
-<td><p><a name="BORDER-NONE:CAPS"></a><span class="term"><code class="literal">BORDER_NONE</code></span></p></td>
-<td>no border
-</td>
-</tr>
-<tr>
-<td><p><a name="BORDER-BLACK:CAPS"></a><span class="term"><code class="literal">BORDER_BLACK</code></span></p></td>
-<td>black border
-</td>
-</tr>
-<tr>
-<td><p><a name="BORDER-MIRROR:CAPS"></a><span class="term"><code class="literal">BORDER_MIRROR</code></span></p></td>
-<td>Mirror image in border
-</td>
-</tr>
-</tbody>
-</table></div>
 </div>
 </div>
 <div class="refsect1">
@@ -404,13 +336,9 @@ Border color to add when sizes not multiple of 16.
 <p>Default value: Single pass</p>
 </div>
 </div>
-<div class="refsect1">
-<a name="gst-plugins-base-plugins-theoraenc.see-also"></a><h2>See Also</h2>
-theoradec, oggmux
-</div>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

@@ -52,6 +52,7 @@
 #include "gstalsadeviceprobe.h"
 
 #include <gst/gst-i18n-plugin.h>
+#include "gst/glib-compat-private.h"
 
 #define DEFAULT_DEVICE		"default"
 #define DEFAULT_DEVICE_NAME	""
@@ -172,8 +173,8 @@ gst_alsasink_base_init (gpointer g_class)
       "Audio sink (ALSA)", "Sink/Audio",
       "Output to a sound card via ALSA", "Wim Taymans <wim@fluendo.com>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&alsasink_sink_factory));
+  gst_element_class_add_static_pad_template (element_class,
+      &alsasink_sink_factory);
 }
 
 static void
@@ -373,8 +374,6 @@ retry:
   rrate = alsa->rate;
   CHECK (snd_pcm_hw_params_set_rate_near (alsa->handle, params, &rrate, NULL),
       no_rate);
-  if (rrate != alsa->rate)
-    goto rate_match;
 
 #ifndef GST_DISABLE_GST_DEBUG
   /* get and dump some limits */
@@ -503,13 +502,6 @@ no_rate:
         ("Rate %iHz not available for playback: %s",
             alsa->rate, snd_strerror (err)));
     return err;
-  }
-rate_match:
-  {
-    GST_ELEMENT_ERROR (alsa, RESOURCE, SETTINGS, (NULL),
-        ("Rate doesn't match (requested %iHz, get %iHz)", alsa->rate, err));
-    snd_pcm_hw_params_free (params);
-    return -EINVAL;
   }
 buffer_size:
   {

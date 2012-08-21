@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>vorbisenc</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-base Elements">
 <link rel="prev" href="gst-plugins-base-plugins-vorbisdec.html" title="vorbisdec">
 <link rel="next" href="gst-plugins-base-plugins-vorbisparse.html" title="vorbisparse">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -52,7 +52,8 @@
   <a href="http://library.gnome.org/devel/gobject/unstable/gobject-The-Base-Object-Type.html#GObject">GObject</a>
    +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstObject.html">GstObject</a>
          +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/GstElement.html">GstElement</a>
-               +----GstVorbisEnc
+               +----<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-gstaudioencoder.html#GstAudioEncoder">GstAudioEncoder</a>
+                     +----GstVorbisEnc
 </pre>
 </div>
 <div class="refsect1">
@@ -74,49 +75,10 @@ GstVorbisEnc implements
 </div>
 <div class="refsect1">
 <a name="gst-plugins-base-plugins-vorbisenc.description"></a><h2>Description</h2>
-<p>
-This element encodes raw float audio into a Vorbis stream.
-<a class="ulink" href="http://www.vorbis.com/" target="_top">Vorbis</a> is a royalty-free
-audio codec maintained by the <a class="ulink" href="http://www.xiph.org/" target="_top">Xiph.org
-Foundation</a>.
-</p>
-<p>
-</p>
-<div class="refsect2">
-<a name="idp15009216"></a><h3>Example pipelines</h3>
-<div class="informalexample">
-  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-      <tr>
-        <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch <span class="gtkdoc opt">-</span>v audiotestsrc wave<span class="gtkdoc opt">=</span>sine num<span class="gtkdoc opt">-</span>buffers<span class="gtkdoc opt">=</span><span class="number">100</span> <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> vorbisenc <span class="gtkdoc opt">!</span> oggmux <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>sine<span class="gtkdoc opt">.</span>ogg</pre></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
- Encode a test sine signal to Ogg/Vorbis.  Note that the resulting file
-will be really small because a sine signal compresses very well.
-<div class="informalexample">
-  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-      <tr>
-        <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch <span class="gtkdoc opt">-</span>v alsasrc <span class="gtkdoc opt">!</span> audioconvert <span class="gtkdoc opt">!</span> vorbisenc <span class="gtkdoc opt">!</span> oggmux <span class="gtkdoc opt">!</span> filesink location<span class="gtkdoc opt">=</span>alsasrc<span class="gtkdoc opt">.</span>ogg</pre></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
- Record from a sound card using ALSA and encode to Ogg/Vorbis.
-</div>
-<p>
-</p>
-<p>
-Last reviewed on 2006-03-01 (0.10.4)
-</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp15013472"></a><h3>Element Information</h3>
+<a name="idp15533792"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -139,7 +101,7 @@ Last reviewed on 2006-03-01 (0.10.4)
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp15020880"></a><h3>Element Pads</h3>
+<a name="idp15550768"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -157,7 +119,7 @@ Last reviewed on 2006-03-01 (0.10.4)
 </tr>
 <tr>
 <td><p><span class="term">details</span></p></td>
-<td>audio/x-raw-float, rate=(int)[ 1, 200000 ], channels=(int)[ 1, 256 ], endianness=(int)1234, width=(int)32</td>
+<td>audio/x-raw-float, rate=(int)[ 1, 200000 ], channels=(int)[ 1, 255 ], endianness=(int)1234, width=(int)32</td>
 </tr>
 </tbody>
 </table></div>
@@ -193,7 +155,6 @@ Last reviewed on 2006-03-01 (0.10.4)
 <a name="GstVorbisEnc-struct"></a><h3>struct GstVorbisEnc</h3>
 <pre class="programlisting">struct GstVorbisEnc;</pre>
 <p>
-Opaque data structure.
 </p>
 </div>
 </div>
@@ -245,13 +206,9 @@ Opaque data structure.
 <p>Default value: 0.3</p>
 </div>
 </div>
-<div class="refsect1">
-<a name="gst-plugins-base-plugins-vorbisenc.see-also"></a><h2>See Also</h2>
-vorbisdec, oggmux
-</div>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

@@ -113,10 +113,10 @@ gst_theora_dec_base_init (gpointer g_class)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&theora_dec_src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&theora_dec_sink_factory));
+  gst_element_class_add_static_pad_template (element_class,
+      &theora_dec_src_factory);
+  gst_element_class_add_static_pad_template (element_class,
+      &theora_dec_sink_factory);
   gst_element_class_set_details_simple (element_class,
       "Theora video decoder", "Codec/Decoder/Video",
       "decode raw theora streams to raw YUV video",
@@ -1411,7 +1411,7 @@ theora_dec_flush_decode (GstTheoraDec * dec)
   while (dec->queued) {
     GstBuffer *buf = GST_BUFFER_CAST (dec->queued->data);
 
-    /* iterate ouput queue an push downstream */
+    /* iterate output queue an push downstream */
     res = gst_pad_push (dec->srcpad, buf);
 
     dec->queued = g_list_delete_link (dec->queued, dec->queued);
@@ -1440,7 +1440,7 @@ theora_dec_chain_reverse (GstTheoraDec * dec, gboolean discont, GstBuffer * buf)
 
       /* if we copied a keyframe, flush and decode the decode queue */
       data = GST_BUFFER_DATA (gbuf);
-      if ((data[0] & 0x40) == 0) {
+      if (data && (data[0] & 0x40) == 0) {
         GST_DEBUG_OBJECT (dec, "copied keyframe");
         res = theora_dec_flush_decode (dec);
       }

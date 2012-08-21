@@ -44,10 +44,11 @@
 #include "config.h"
 #endif
 
-#include <gst/video/video.h>
 #include "pbutils.h"
 #include "pbutils-marshal.h"
 #include "pbutils-private.h"
+
+#include "gst/glib-compat-private.h"
 
 GST_DEBUG_CATEGORY_STATIC (discoverer_debug);
 #define GST_CAT_DEFAULT discoverer_debug
@@ -437,6 +438,24 @@ _event_probe (GstPad * pad, GstEvent * event, PrivateStream * ps)
   return TRUE;
 }
 
+static GstStaticCaps subtitle_caps = GST_STATIC_CAPS ("text/plain; "
+    "text/x-pango-markup; subpicture/x-pgs; subpicture/x-dvb; "
+    "application/x-subtitle-unknown; application/x-ssa; application/x-ass; "
+    "subtitle/x-kate; application/x-kate; video/x-dvd-subpicture");
+
+static gboolean
+is_subtitle_caps (const GstCaps * caps)
+{
+  GstCaps *subs_caps;
+  gboolean ret;
+
+  subs_caps = gst_static_caps_get (&subtitle_caps);
+  ret = gst_caps_can_intersect (caps, subs_caps);
+  gst_caps_unref (subs_caps);
+
+  return ret;
+}
+
 static void
 uridecodebin_pad_added_cb (GstElement * uridecodebin, GstPad * pad,
     GstDiscoverer * dc)
@@ -444,14 +463,6 @@ uridecodebin_pad_added_cb (GstElement * uridecodebin, GstPad * pad,
   PrivateStream *ps;
   GstPad *sinkpad = NULL;
   GstCaps *caps;
-  static GstCaps *subs_caps = NULL;
-
-  if (!subs_caps) {
-    subs_caps = gst_caps_from_string ("text/plain; text/x-pango-markup; "
-        "subpicture/x-pgs; subpicture/x-dvb; application/x-subtitle-unknown; "
-        "application/x-ssa; application/x-ass; subtitle/x-kate; "
-        "video/x-dvd-subpicture; ");
-  }
 
   GST_DEBUG_OBJECT (dc, "pad %s:%s", GST_DEBUG_PAD_NAME (pad));
 
@@ -470,8 +481,8 @@ uridecodebin_pad_added_cb (GstElement * uridecodebin, GstPad * pad,
 
   caps = gst_pad_get_caps_reffed (pad);
 
-  if (gst_caps_can_intersect (caps, subs_caps)) {
-    /* Subtitle streams are sparse and don't provide any information - don't
+  if (is_subtitle_caps (caps)) {
+    /* Subtitle streams are sparse and may not provide any information - don't
      * wait for data to preroll */
     g_object_set (ps->sink, "async", FALSE, NULL);
   }
@@ -591,9 +602,26 @@ collect_stream_information (GstDiscoverer * dc, PrivateStream * ps, guint idx)
     gst_caps_unref (caps);
   }
   if (ps->tags)
-    gst_structure_id_set (st, _TAGS_QUARK, GST_TYPE_STRUCTURE, ps->tags, NULL);
+    gst_structure_id_set (st, _TAGS_QUARK, GST_TYPE_TAG_LIST, ps->tags, NULL);
 
   return st;
+}
+
+/* takes ownership of new_tags, may replace *taglist with a new one */
+static void
+gst_discoverer_merge_and_replace_tags (GstTagList ** taglist,
+    GstTagList * new_tags)
+{
+  if (new_tags == NULL)
+    return;
+
+  if (*taglist == NULL) {
+    *taglist = new_tags;
+    return;
+  }
+
+  gst_tag_list_insert (*taglist, new_tags, GST_TAG_MERGE_REPLACE);
+  gst_tag_list_free (new_tags);
 }
 
 /* Parses a set of caps and tags in st and populates a GstDiscovererStreamInfo
@@ -604,16 +632,16 @@ collect_information (GstDiscoverer * dc, const GstStructure * st,
     GstDiscovererStreamInfo * parent)
 {
   GstCaps *caps;
-  GstStructure *caps_st, *tags_st;
+  GstStructure *caps_st;
+  GstTagList *tags_st;
   const gchar *name;
   int tmp, tmp2;
   guint utmp;
-  gboolean btmp;
 
   if (!st || !gst_structure_id_has_field (st, _CAPS_QUARK)) {
     GST_WARNING ("Couldn't find caps !");
     if (parent)
-      return parent;
+      return gst_discoverer_stream_info_ref (parent);
     else
       return (GstDiscovererStreamInfo *)
           gst_mini_object_new (GST_TYPE_DISCOVERER_STREAM_INFO);
@@ -627,11 +655,11 @@ collect_information (GstDiscoverer * dc, const GstStructure * st,
     GstDiscovererAudioInfo *info;
 
     if (parent)
-      info = (GstDiscovererAudioInfo *) parent;
+      info = (GstDiscovererAudioInfo *) gst_discoverer_stream_info_ref (parent);
     else {
       info = (GstDiscovererAudioInfo *)
           gst_mini_object_new (GST_TYPE_DISCOVERER_AUDIO_INFO);
-      info->parent.caps = caps;
+      info->parent.caps = gst_caps_ref (caps);
     }
 
     if (gst_structure_get_int (caps_st, "rate", &tmp))
@@ -644,8 +672,7 @@ collect_information (GstDiscoverer * dc, const GstStructure * st,
       info->depth = (guint) tmp;
 
     if (gst_structure_id_has_field (st, _TAGS_QUARK)) {
-      gst_structure_id_get (st, _TAGS_QUARK,
-          GST_TYPE_STRUCTURE, &tags_st, NULL);
+      gst_structure_id_get (st, _TAGS_QUARK, GST_TYPE_TAG_LIST, &tags_st, NULL);
       if (gst_structure_get_uint (tags_st, GST_TAG_BITRATE, &utmp) ||
           gst_structure_get_uint (tags_st, GST_TAG_NOMINAL_BITRATE, &utmp))
         info->bitrate = utmp;
@@ -654,28 +681,34 @@ collect_information (GstDiscoverer * dc, const GstStructure * st,
         info->max_bitrate = utmp;
 
       /* FIXME: Is it worth it to remove the tags we've parsed? */
-      info->parent.tags = gst_tag_list_merge (info->parent.tags,
-          (GstTagList *) tags_st, GST_TAG_MERGE_REPLACE);
-
-      gst_structure_free (tags_st);
+      gst_discoverer_merge_and_replace_tags (&info->parent.tags, tags_st);
     }
 
+    if (!info->language && ((GstDiscovererStreamInfo *) info)->tags) {
+      gchar *language;
+      if (gst_tag_list_get_string (((GstDiscovererStreamInfo *) info)->tags,
+              GST_TAG_LANGUAGE_CODE, &language)) {
+        info->language = language;
+      }
+    }
+
+    gst_caps_unref (caps);
     return (GstDiscovererStreamInfo *) info;
 
   } else if (g_str_has_prefix (name, "video/") ||
       g_str_has_prefix (name, "image/")) {
     GstDiscovererVideoInfo *info;
-    GstVideoFormat format;
 
     if (parent)
-      info = (GstDiscovererVideoInfo *) parent;
+      info = (GstDiscovererVideoInfo *) gst_discoverer_stream_info_ref (parent);
     else {
       info = (GstDiscovererVideoInfo *)
           gst_mini_object_new (GST_TYPE_DISCOVERER_VIDEO_INFO);
-      info->parent.caps = caps;
+      info->parent.caps = gst_caps_ref (caps);
     }
 
-    if (gst_video_format_parse_caps (caps, &format, &tmp, &tmp2)) {
+    if (gst_structure_get_int (caps_st, "width", &tmp) &&
+        gst_structure_get_int (caps_st, "height", &tmp2)) {
       info->width = (guint) tmp;
       info->height = (guint) tmp2;
     }
@@ -683,22 +716,24 @@ collect_information (GstDiscoverer * dc, const GstStructure * st,
     if (gst_structure_get_int (caps_st, "depth", &tmp))
       info->depth = (guint) tmp;
 
-    if (gst_video_parse_caps_pixel_aspect_ratio (caps, &tmp, &tmp2)) {
+    if (gst_structure_get_fraction (caps_st, "pixel-aspect-ratio", &tmp, &tmp2)) {
       info->par_num = tmp;
       info->par_denom = tmp2;
+    } else {
+      info->par_num = 1;
+      info->par_denom = 1;
     }
 
-    if (gst_video_parse_caps_framerate (caps, &tmp, &tmp2)) {
+    if (gst_structure_get_fraction (caps_st, "framerate", &tmp, &tmp2)) {
       info->framerate_num = tmp;
       info->framerate_denom = tmp2;
     }
 
-    if (gst_video_format_parse_caps_interlaced (caps, &btmp))
-      info->interlaced = btmp;
+    if (!gst_structure_get_boolean (caps_st, "interlaced", &info->interlaced))
+      info->interlaced = FALSE;
 
     if (gst_structure_id_has_field (st, _TAGS_QUARK)) {
-      gst_structure_id_get (st, _TAGS_QUARK,
-          GST_TYPE_STRUCTURE, &tags_st, NULL);
+      gst_structure_id_get (st, _TAGS_QUARK, GST_TYPE_TAG_LIST, &tags_st, NULL);
       if (gst_structure_get_uint (tags_st, GST_TAG_BITRATE, &utmp) ||
           gst_structure_get_uint (tags_st, GST_TAG_NOMINAL_BITRATE, &utmp))
         info->bitrate = utmp;
@@ -707,11 +742,47 @@ collect_information (GstDiscoverer * dc, const GstStructure * st,
         info->max_bitrate = utmp;
 
       /* FIXME: Is it worth it to remove the tags we've parsed? */
-      info->parent.tags = gst_tag_list_merge (info->parent.tags,
-          (GstTagList *) tags_st, GST_TAG_MERGE_REPLACE);
-      gst_structure_free (tags_st);
+      gst_discoverer_merge_and_replace_tags (&info->parent.tags,
+          (GstTagList *) tags_st);
     }
 
+    gst_caps_unref (caps);
+    return (GstDiscovererStreamInfo *) info;
+
+  } else if (is_subtitle_caps (caps)) {
+    GstDiscovererSubtitleInfo *info;
+
+    if (parent)
+      info =
+          (GstDiscovererSubtitleInfo *) gst_discoverer_stream_info_ref (parent);
+    else {
+      info = (GstDiscovererSubtitleInfo *)
+          gst_mini_object_new (GST_TYPE_DISCOVERER_SUBTITLE_INFO);
+      info->parent.caps = gst_caps_ref (caps);
+    }
+
+    if (gst_structure_id_has_field (st, _TAGS_QUARK)) {
+      const gchar *language;
+
+      gst_structure_id_get (st, _TAGS_QUARK, GST_TYPE_TAG_LIST, &tags_st, NULL);
+
+      language = gst_structure_get_string (caps_st, GST_TAG_LANGUAGE_CODE);
+      if (language)
+        info->language = g_strdup (language);
+
+      /* FIXME: Is it worth it to remove the tags we've parsed? */
+      gst_discoverer_merge_and_replace_tags (&info->parent.tags, tags_st);
+    }
+
+    if (!info->language && ((GstDiscovererStreamInfo *) info)->tags) {
+      gchar *language;
+      if (gst_tag_list_get_string (((GstDiscovererStreamInfo *) info)->tags,
+              GST_TAG_LANGUAGE_CODE, &language)) {
+        info->language = language;
+      }
+    }
+
+    gst_caps_unref (caps);
     return (GstDiscovererStreamInfo *) info;
 
   } else {
@@ -719,20 +790,19 @@ collect_information (GstDiscoverer * dc, const GstStructure * st,
     GstDiscovererStreamInfo *info;
 
     if (parent)
-      info = parent;
+      info = gst_discoverer_stream_info_ref (parent);
     else {
       info = (GstDiscovererStreamInfo *)
           gst_mini_object_new (GST_TYPE_DISCOVERER_STREAM_INFO);
-      info->caps = caps;
+      info->caps = gst_caps_ref (caps);
     }
 
     if (gst_structure_id_get (st, _TAGS_QUARK,
-            GST_TYPE_STRUCTURE, &tags_st, NULL)) {
-      info->tags = gst_tag_list_merge (info->tags, (GstTagList *) tags_st,
-          GST_TAG_MERGE_REPLACE);
-      gst_structure_free (tags_st);
+            GST_TYPE_TAG_LIST, &tags_st, NULL)) {
+      gst_discoverer_merge_and_replace_tags (&info->tags, tags_st);
     }
 
+    gst_caps_unref (caps);
     return info;
   }
 
@@ -756,8 +826,10 @@ find_stream_for_node (GstDiscoverer * dc, const GstStructure * topology)
   gst_structure_id_get (topology, _TOPOLOGY_PAD_QUARK,
       GST_TYPE_PAD, &pad, NULL);
 
-  if (!dc->priv->streams)
+  if (!dc->priv->streams) {
+    gst_object_unref (pad);
     return NULL;
+  }
 
   for (i = 0, tmp = dc->priv->streams; tmp; tmp = tmp->next, i++) {
     ps = (PrivateStream *) tmp->data;
@@ -778,9 +850,9 @@ find_stream_for_node (GstDiscoverer * dc, const GstStructure * topology)
 }
 
 static gboolean
-child_is_raw_stream (GstCaps * parent, GstCaps * child)
+child_is_raw_stream (const GstCaps * parent, const GstCaps * child)
 {
-  GstStructure *st1, *st2;
+  const GstStructure *st1, *st2;
   const gchar *name1, *name2;
 
   st1 = gst_caps_get_structure (parent, 0);
@@ -796,6 +868,9 @@ child_is_raw_stream (GstCaps * parent, GstCaps * child)
     /* child is the "raw" sub-stream corresponding to parent */
     return TRUE;
   }
+
+  if (is_subtitle_caps (parent))
+    return TRUE;
 
   return FALSE;
 }
@@ -846,30 +921,29 @@ parse_stream_topology (GstDiscoverer * dc, const GstStructure * topology,
           /* We sometimes get an extra sub-stream from the parser. If this is
            * the case, we just replace the parent caps with this stream's caps
            * since they might contain more information */
-          gst_caps_unref (parent->caps);
-          parent->caps = caps;
+          gst_caps_replace (&parent->caps, caps);
 
           parse_stream_topology (dc, st, parent);
           add_to_list = FALSE;
-
         } else if (child_is_raw_stream (parent->caps, caps)) {
           /* This is the "raw" stream corresponding to the parent. This
            * contains more information than the parent, tags etc. */
           parse_stream_topology (dc, st, parent);
           add_to_list = FALSE;
-          gst_caps_unref (caps);
-
         } else {
           GstDiscovererStreamInfo *next = parse_stream_topology (dc, st, NULL);
           res->next = next;
           next->previous = res;
         }
+        gst_caps_unref (caps);
       }
     }
 
     if (add_to_list) {
       dc->priv->current_info->stream_list =
           g_list_append (dc->priv->current_info->stream_list, res);
+    } else {
+      gst_discoverer_stream_info_unref (res);
     }
 
   } else if (GST_VALUE_HOLDS_LIST (nval)) {
@@ -893,7 +967,7 @@ parse_stream_topology (GstDiscoverer * dc, const GstStructure * topology,
       GstTagList *tmp;
 
       gst_structure_id_get (topology, _TAGS_QUARK,
-          GST_TYPE_STRUCTURE, &tags, NULL);
+          GST_TYPE_TAG_LIST, &tags, NULL);
 
       GST_DEBUG ("Merge tags %" GST_PTR_FORMAT, tags);
 
@@ -952,6 +1026,31 @@ discoverer_collect (GstDiscoverer * dc)
           GST_DEBUG ("Got duration %" GST_TIME_FORMAT, GST_TIME_ARGS (dur));
           dc->priv->current_info->duration = (guint64) dur;
         }
+      } else {
+        GstStateChangeReturn sret;
+
+        /* Some parsers may not even return a rough estimate right away, e.g.
+         * because they've only processed a single frame so far, so if we
+         * didn't get a duration the first time, spin a bit and try again.
+         * Ugly, but still better than making parsers or other elements return
+         * completely bogus values. We need some API extensions to solve this
+         * better. */
+        GST_INFO ("No duration yet, try a bit harder..");
+        sret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
+        if (sret != GST_STATE_CHANGE_FAILURE) {
+          int i;
+
+          for (i = 0; i < 2; ++i) {
+            g_usleep (G_USEC_PER_SEC / 20);
+            if (gst_element_query_duration (pipeline, &format, &dur) &&
+                format == GST_FORMAT_TIME && dur > 0) {
+              GST_DEBUG ("Got duration %" GST_TIME_FORMAT, GST_TIME_ARGS (dur));
+              dc->priv->current_info->duration = (guint64) dur;
+              break;
+            }
+          }
+          gst_element_set_state (pipeline, GST_STATE_PAUSED);
+        }
       }
 
       if (dc->priv->seeking_query) {
@@ -977,7 +1076,7 @@ discoverer_collect (GstDiscoverer * dc)
      * caps named image/<foo> (th exception being MJPEG video which is also
      * type image/jpeg), and should consist of precisely one stream (actually
      * initially there are 2, the image and raw stream, but we squash these
-     * while parsing the stream topology). At some ponit, if we find that these
+     * while parsing the stream topology). At some point, if we find that these
      * conditions are not sufficient, we can count the number of decoders and
      * parsers in the chain, and if there's more than one decoder, or any
      * parser at all, we should not mark this as an image.
@@ -989,8 +1088,8 @@ discoverer_collect (GstDiscoverer * dc)
           gst_caps_get_structure (dc->priv->current_info->stream_info->caps, 0);
 
       if (g_str_has_prefix (gst_structure_get_name (st), "image/"))
-        ((GstDiscovererVideoInfo *) dc->priv->current_info->
-            stream_info)->is_image = TRUE;
+        ((GstDiscovererVideoInfo *) dc->priv->current_info->stream_info)->
+            is_image = TRUE;
     }
   }
 
@@ -1023,9 +1122,9 @@ handle_current_async (GstDiscoverer * dc)
 {
   GSource *source;
   static GSourceCallbackFuncs cb_funcs = {
-    .ref = _void_g_object_ref,
-    .unref = g_object_unref,
-    .get = get_async_cb,
+    _void_g_object_ref,
+    g_object_unref,
+    get_async_cb,
   };
 
   /* Attach a timeout to the main context */
@@ -1086,8 +1185,12 @@ handle_message (GstDiscoverer * dc, GstMessage * msg)
         GST_DEBUG_OBJECT (GST_MESSAGE_SRC (msg),
             "Setting result to MISSING_PLUGINS");
         dc->priv->current_info->result = GST_DISCOVERER_MISSING_PLUGINS;
+        if (dc->priv->current_info->misc)
+          gst_structure_free (dc->priv->current_info->misc);
         dc->priv->current_info->misc = gst_structure_copy (msg->structure);
       } else if (sttype == _STREAM_TOPOLOGY_QUARK) {
+        if (dc->priv->current_topology)
+          gst_structure_free (dc->priv->current_topology);
         dc->priv->current_topology = gst_structure_copy (msg->structure);
       }
     }
@@ -1138,7 +1241,6 @@ handle_current_sync (GstDiscoverer * dc)
       done = handle_message (dc, msg);
       gst_message_unref (msg);
     }
-
   } while (!done && (g_timer_elapsed (timer, NULL) < deadline));
 
   /* return result */
@@ -1410,7 +1512,7 @@ gst_discoverer_stop (GstDiscoverer * discoverer)
  * A copy of @uri will be made internally, so the caller can safely g_free()
  * afterwards.
  *
- * Returns: %TRUE if the @uri was succesfully appended to the list of pending
+ * Returns: %TRUE if the @uri was successfully appended to the list of pending
  * uris, else %FALSE
  *
  * Since: 0.10.31
@@ -1441,7 +1543,7 @@ gst_discoverer_discover_uri_async (GstDiscoverer * discoverer,
  * gst_discoverer_discover_uri:
  * @discoverer: A #GstDiscoverer
  * @uri: The URI to run on.
- * @err: If an error occurred, this field will be filled in.
+ * @err: (out) (allow-none): If an error occurred, this field will be filled in.
  *
  * Synchronously discovers the given @uri.
  *
@@ -1477,10 +1579,12 @@ gst_discoverer_discover_uri (GstDiscoverer * discoverer, const gchar * uri,
   discoverer_collect (discoverer);
 
   /* Get results */
-  if (discoverer->priv->current_error)
-    *err = g_error_copy (discoverer->priv->current_error);
-  else
-    *err = NULL;
+  if (err) {
+    if (discoverer->priv->current_error)
+      *err = g_error_copy (discoverer->priv->current_error);
+    else
+      *err = NULL;
+  }
   if (res != GST_DISCOVERER_OK) {
     GST_DEBUG ("Setting result to %d (was %d)", res,
         discoverer->priv->current_info->result);

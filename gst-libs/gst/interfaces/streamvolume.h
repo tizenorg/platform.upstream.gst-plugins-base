@@ -27,11 +27,11 @@ G_BEGIN_DECLS
 #define GST_TYPE_STREAM_VOLUME \
   (gst_stream_volume_get_type ())
 #define GST_STREAM_VOLUME(obj) \
-  (GST_IMPLEMENTS_INTERFACE_CHECK_INSTANCE_CAST ((obj), GST_TYPE_STREAM_VOLUME, GstStreamVolume))
+  (G_TYPE_CHECK_INSTANCE_CAST ((obj), GST_TYPE_STREAM_VOLUME, GstStreamVolume))
 #define GST_STREAM_VOLUME_INTERFACE(iface) \
   (G_TYPE_CHECK_INTERFACE_CAST ((iface), GST_TYPE_STREAM_VOLUME, GstStreamVolumeInterface))
 #define GST_IS_STREAM_VOLUME(obj) \
-  (GST_IMPLEMENTS_INTERFACE_CHECK_INSTANCE_TYPE ((obj), GST_TYPE_STREAM_VOLUME))
+  (G_TYPE_CHECK_INSTANCE_TYPE ((obj), GST_TYPE_STREAM_VOLUME))
 #define GST_IS_STREAM_VOLUME_INTERFACE(iface) \
   (G_TYPE_CHECK_INTERFACE_TYPE ((iface), GST_TYPE_STREAM_VOLUME))
 #define GST_STREAM_VOLUME_GET_INTERFACE(inst) \
@@ -53,7 +53,7 @@ struct _GstStreamVolumeInterface {
  * @GST_STREAM_VOLUME_FORMAT_CUBIC: Cubic volume scale
  * @GST_STREAM_VOLUME_FORMAT_DB: Logarithmic volume scale (dB, amplitude not power)
  *
- * Different representations of a stream volume. gst_stream_volume_convert()
+ * Different representations of a stream volume. gst_stream_volume_convert_volume()
  * allows to convert between the different representations.
  *
  * Formulas to convert from a linear to a cubic or dB volume are

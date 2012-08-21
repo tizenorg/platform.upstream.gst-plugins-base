@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gsttag</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-tag.html" title="Tag Support Library">
 <link rel="prev" href="gstreamer-tag.html" title="Tag Support Library">
 <link rel="next" href="gst-plugins-base-libs-gsttagvorbis.html" title="gsttagvorbis">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -71,8 +71,10 @@
 #define             <a class="link" href="gst-plugins-base-libs-gsttag.html#GST-TAG-CAPTURING-FLASH-MODE:CAPS" title="GST_TAG_CAPTURING_FLASH_MODE">GST_TAG_CAPTURING_FLASH_MODE</a>
 #define             <a class="link" href="gst-plugins-base-libs-gsttag.html#GST-TAG-CAPTURING-METERING-MODE:CAPS" title="GST_TAG_CAPTURING_METERING_MODE">GST_TAG_CAPTURING_METERING_MODE</a>
 #define             <a class="link" href="gst-plugins-base-libs-gsttag.html#GST-TAG-CAPTURING-SOURCE:CAPS" title="GST_TAG_CAPTURING_SOURCE">GST_TAG_CAPTURING_SOURCE</a>
+#define             <a class="link" href="gst-plugins-base-libs-gsttag.html#GST-TAG-CAPTURING-EXPOSURE-COMPENSATION:CAPS" title="GST_TAG_CAPTURING_EXPOSURE_COMPENSATION">GST_TAG_CAPTURING_EXPOSURE_COMPENSATION</a>
 #define             <a class="link" href="gst-plugins-base-libs-gsttag.html#GST-TAG-IMAGE-HORIZONTAL-PPI:CAPS" title="GST_TAG_IMAGE_HORIZONTAL_PPI">GST_TAG_IMAGE_HORIZONTAL_PPI</a>
 #define             <a class="link" href="gst-plugins-base-libs-gsttag.html#GST-TAG-IMAGE-VERTICAL-PPI:CAPS" title="GST_TAG_IMAGE_VERTICAL_PPI">GST_TAG_IMAGE_VERTICAL_PPI</a>
+#define             <a class="link" href="gst-plugins-base-libs-gsttag.html#GST-TAG-ID3V2-HEADER-SIZE:CAPS" title="GST_TAG_ID3V2_HEADER_SIZE">GST_TAG_ID3V2_HEADER_SIZE</a>
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gsttag.html#gst-tag-register-musicbrainz-tags" title="gst_tag_register_musicbrainz_tags ()">gst_tag_register_musicbrainz_tags</a>   (<em class="parameter"><code><span class="type">void</span></code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="gst-plugins-base-libs-gsttag.html#gst-tag-freeform-string-to-utf8" title="gst_tag_freeform_string_to_utf8 ()">gst_tag_freeform_string_to_utf8</a>     (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> size</code></em>,
@@ -82,7 +84,7 @@
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **lang</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> **value</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> fail_if_no_key</code></em>);
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="returnvalue">GstBuffer</span></a> *         <a class="link" href="gst-plugins-base-libs-gsttag.html#gst-tag-image-data-to-image-buffer" title="gst_tag_image_data_to_image_buffer ()">gst_tag_image_data_to_image_buffer</a>  (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *image_data</code></em>,
+<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="returnvalue">GstBuffer</span></a> *         <a class="link" href="gst-plugins-base-libs-gsttag.html#gst-tag-image-data-to-image-buffer" title="gst_tag_image_data_to_image_buffer ()">gst_tag_image_data_to_image_buffer</a>  (<em class="parameter"><code>const <span class="type">guint8</span> *image_data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> image_data_len</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gsttag.html#GstTagImageType" title="enum GstTagImageType"><span class="type">GstTagImageType</span></a> image_type</code></em>);
 enum                <a class="link" href="gst-plugins-base-libs-gsttag.html#GstTagImageType" title="enum GstTagImageType">GstTagImageType</a>;
@@ -93,7 +95,7 @@ enum                <a class="link" href="gst-plugins-base-libs-gsttag.html#GstT
 <p>
 </p>
 <div class="refsect2">
-<a name="idp24834784"></a><p>
+<a name="idp26027584"></a><p>
 Contains additional standardized GStreamer tag definitions for plugins
 and applications, and functions to register them with the GStreamer
 tag system.
@@ -500,6 +502,16 @@ Allowed values are:
 </div>
 <hr>
 <div class="refsect2">
+<a name="GST-TAG-CAPTURING-EXPOSURE-COMPENSATION:CAPS"></a><h3>GST_TAG_CAPTURING_EXPOSURE_COMPENSATION</h3>
+<pre class="programlisting">#define GST_TAG_CAPTURING_EXPOSURE_COMPENSATION "capturing-exposure-compensation"
+</pre>
+<p>
+Exposure compensation using when capturing an image in EV. (double)
+</p>
+<p class="since">Since 0.10.33</p>
+</div>
+<hr>
+<div class="refsect2">
 <a name="GST-TAG-IMAGE-HORIZONTAL-PPI:CAPS"></a><h3>GST_TAG_IMAGE_HORIZONTAL_PPI</h3>
 <pre class="programlisting">#define GST_TAG_IMAGE_HORIZONTAL_PPI         "image-horizontal-ppi"
 </pre>
@@ -517,6 +529,17 @@ Media (image/video) intended horizontal pixel density in ppi. (double)
 Media (image/video) intended vertical pixel density in ppi. (double)
 </p>
 <p class="since">Since 0.10.31</p>
+</div>
+<hr>
+<div class="refsect2">
+<a name="GST-TAG-ID3V2-HEADER-SIZE:CAPS"></a><h3>GST_TAG_ID3V2_HEADER_SIZE</h3>
+<pre class="programlisting">#define GST_TAG_ID3V2_HEADER_SIZE            10
+</pre>
+<p>
+ID3V2 header size considered minimum input for some functions such as
+<a class="link" href="gst-plugins-base-libs-gsttagid3.html#gst-tag-list-from-id3v2-tag" title="gst_tag_list_from_id3v2_tag ()"><code class="function">gst_tag_list_from_id3v2_tag()</code></a> and <a class="link" href="gst-plugins-base-libs-gsttagid3.html#gst-tag-get-id3v2-tag-size" title="gst_tag_get_id3v2_tag_size ()"><code class="function">gst_tag_get_id3v2_tag_size()</code></a> for example.
+</p>
+<p class="since">Since 0.10.36</p>
 </div>
 <hr>
 <div class="refsect2">
@@ -621,7 +644,7 @@ code in the extended comment string.
 <hr>
 <div class="refsect2">
 <a name="gst-tag-image-data-to-image-buffer"></a><h3>gst_tag_image_data_to_image_buffer ()</h3>
-<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="returnvalue">GstBuffer</span></a> *         gst_tag_image_data_to_image_buffer  (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *image_data</code></em>,
+<pre class="programlisting"><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="returnvalue">GstBuffer</span></a> *         gst_tag_image_data_to_image_buffer  (<em class="parameter"><code>const <span class="type">guint8</span> *image_data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> image_data_len</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gsttag.html#GstTagImageType" title="enum GstTagImageType"><span class="type">GstTagImageType</span></a> image_type</code></em>);</pre>
 <p>
@@ -824,6 +847,6 @@ the image buffer's caps structure)
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

@@ -67,7 +67,7 @@
  * prefer a minimum burst size even if it requires not starting with a keyframe.
  *
  * Multifdsink can be instructed to keep at least a minimum amount of data
- * expressed in time or byte units in its internal queues with the the 
+ * expressed in time or byte units in its internal queues with the 
  * #GstMultiFdSink:time-min and #GstMultiFdSink:bytes-min properties respectively.
  * These properties are useful if the application adds clients with the 
  * #GstMultiFdSink::add-full signal to make sure that a burst connect can
@@ -101,6 +101,11 @@
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
+
+/* FIXME 0.11: suppress warnings for deprecated API such as GStaticRecMutex
+ * with newer GLib versions (>= 2.31.0) */
+#define GLIB_DISABLE_DEPRECATION_WARNINGS
+
 #include <gst/gst-i18n-plugin.h>
 
 #include <sys/ioctl.h>
@@ -355,8 +360,7 @@ gst_multi_fd_sink_base_init (gpointer g_class)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sinktemplate));
+  gst_element_class_add_static_pad_template (element_class, &sinktemplate);
 
   gst_element_class_set_details_simple (element_class,
       "Multi filedescriptor sink", "Sink/Network",
@@ -928,7 +932,7 @@ duplicate:
   }
 }
 
-/* "add" signal implemntation */
+/* "add" signal implementation */
 void
 gst_multi_fd_sink_add (GstMultiFdSink * sink, int fd)
 {
@@ -2249,7 +2253,7 @@ gst_multi_fd_sink_recover_client (GstMultiFdSink * sink, GstTCPClient * client)
  *
  * Special care is taken of clients that were waiting for a new buffer (they
  * had a position of -1) because they can proceed after adding this new buffer.
- * This is done by adding the client back into the write fd_set and signalling
+ * This is done by adding the client back into the write fd_set and signaling
  * the select thread that the fd_set changed.
  */
 static void
@@ -2453,7 +2457,7 @@ gst_multi_fd_sink_handle_clients (GstMultiFdSink * sink)
         GST_CLOCK_TIME_NONE);
 
     /* Handle the special case in which the sink is not receiving more buffers
-     * and will not disconnect innactive client in the streaming thread. */
+     * and will not disconnect inactive client in the streaming thread. */
     if (G_UNLIKELY (result == 0)) {
       GstClockTime now;
       GTimeVal nowtv;
@@ -2884,8 +2888,14 @@ gst_multi_fd_sink_start (GstBaseSink * bsink)
   }
 
   this->running = TRUE;
+
+#if !GLIB_CHECK_VERSION (2, 31, 0)
   this->thread = g_thread_create ((GThreadFunc) gst_multi_fd_sink_thread,
       this, TRUE, NULL);
+#else
+  this->thread = g_thread_new ("multifdsink",
+      (GThreadFunc) gst_multi_fd_sink_thread, this);
+#endif
 
   GST_OBJECT_FLAG_SET (this, GST_MULTI_FD_SINK_OPEN);
 

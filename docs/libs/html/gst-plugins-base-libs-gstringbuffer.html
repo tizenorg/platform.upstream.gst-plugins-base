@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gstringbuffer</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-audio.html" title="Audio Library">
 <link rel="prev" href="gst-plugins-base-libs-gstmultichannel.html" title="gstmultichannel">
-<link rel="next" href="gstreamer-cdda.html" title="CDDA Library">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<link rel="next" href="gst-plugins-base-libs-gstaudioiec61937.html" title="gstaudioiec61937">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -18,7 +18,7 @@
 <td><a accesskey="u" href="gstreamer-audio.html"><img src="up.png" width="24" height="24" border="0" alt="Up"></a></td>
 <td><a accesskey="h" href="index.html"><img src="home.png" width="24" height="24" border="0" alt="Home"></a></td>
 <th width="100%" align="center">GStreamer Base Plugins 0.10 Library Reference Manual</th>
-<td><a accesskey="n" href="gstreamer-cdda.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
+<td><a accesskey="n" href="gst-plugins-base-libs-gstaudioiec61937.html"><img src="right.png" width="24" height="24" border="0" alt="Next"></a></td>
 </tr>
 <tr><td colspan="5" class="shortcuts">
 <a href="#gst-plugins-base-libs-gstringbuffer.synopsis" class="shortcut">Top</a>
@@ -46,7 +46,7 @@ struct              <a class="link" href="gst-plugins-base-libs-gstringbuffer.ht
 struct              <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBufferClass" title="struct GstRingBufferClass">GstRingBufferClass</a>;
 struct              <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBufferSpec" title="struct GstRingBufferSpec">GstRingBufferSpec</a>;
 <span class="returnvalue">void</span>                (<a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBufferCallback" title="GstRingBufferCallback ()">*GstRingBufferCallback</a>)            (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *rbuf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);
 enum                <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBufferSegState" title="enum GstRingBufferSegState">GstRingBufferSegState</a>;
@@ -71,30 +71,30 @@ enum                <a class="link" href="gst-plugins-base-libs-gstringbuffer.ht
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-pause" title="gst_ring_buffer_pause ()">gst_ring_buffer_pause</a>               (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-stop" title="gst_ring_buffer_stop ()">gst_ring_buffer_stop</a>                (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-delay" title="gst_ring_buffer_delay ()">gst_ring_buffer_delay</a>               (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="returnvalue">guint64</span></a>             <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-samples-done" title="gst_ring_buffer_samples_done ()">gst_ring_buffer_samples_done</a>        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>);
+<span class="returnvalue">guint64</span>             <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-samples-done" title="gst_ring_buffer_samples_done ()">gst_ring_buffer_samples_done</a>        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-set-sample" title="gst_ring_buffer_set_sample ()">gst_ring_buffer_set_sample</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> sample</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint64</span> sample</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-commit" title="gst_ring_buffer_commit ()">gst_ring_buffer_commit</a>              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> sample</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> sample</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guchar"><span class="type">guchar</span></a> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-commit-full" title="gst_ring_buffer_commit_full ()">gst_ring_buffer_commit_full</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> *sample</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> *sample</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guchar"><span class="type">guchar</span></a> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> in_samples</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> out_samples</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *accum</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-convert" title="gst_ring_buffer_convert ()">gst_ring_buffer_convert</a>             (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstFormat.html#GstFormat"><span class="type">GstFormat</span></a> src_fmt</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a> src_val</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint64</span> src_val</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstFormat.html#GstFormat"><span class="type">GstFormat</span></a> dest_fmt</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a> *dest_val</code></em>);
+                                                         <em class="parameter"><code><span class="type">gint64</span> *dest_val</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-prepare-read" title="gst_ring_buffer_prepare_read ()">gst_ring_buffer_prepare_read</a>        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *segment</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **readptr</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> **readptr</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *len</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-read" title="gst_ring_buffer_read ()">gst_ring_buffer_read</a>                (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> sample</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> sample</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guchar"><span class="type">guchar</span></a> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstringbuffer.html#gst-ring-buffer-clear" title="gst_ring_buffer_clear ()">gst_ring_buffer_clear</a>               (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
@@ -126,7 +126,7 @@ enum                <a class="link" href="gst-plugins-base-libs-gstringbuffer.ht
 <p>
 </p>
 <div class="refsect2">
-<a name="idp11277488"></a><p>
+<a name="idp12967152"></a><p>
 This object is the base class for audio ringbuffers used by the base
 audio source and sink classes.
 </p>
@@ -199,7 +199,7 @@ The ringbuffer base class structure.
 <td>number of samples in one segment</td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *<em class="structfield"><code><a name="GstRingBuffer-struct.empty-seg"></a>empty_seg</code></em>;</span></p></td>
+<td><p><span class="term"><span class="type">guint8</span> *<em class="structfield"><code><a name="GstRingBuffer-struct.empty-seg"></a>empty_seg</code></em>;</span></p></td>
 <td>pointer to memory holding one segment of silence samples</td>
 </tr>
 <tr>
@@ -393,11 +393,11 @@ The structure containing the format specification of the ringbuffer.
 <td>the number of channels</td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> <em class="structfield"><code><a name="GstRingBufferSpec.latency-time"></a>latency_time</code></em>;</span></p></td>
+<td><p><span class="term"><span class="type">guint64</span> <em class="structfield"><code><a name="GstRingBufferSpec.latency-time"></a>latency_time</code></em>;</span></p></td>
 <td>the latency in microseconds</td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> <em class="structfield"><code><a name="GstRingBufferSpec.buffer-time"></a>buffer_time</code></em>;</span></p></td>
+<td><p><span class="term"><span class="type">guint64</span> <em class="structfield"><code><a name="GstRingBufferSpec.buffer-time"></a>buffer_time</code></em>;</span></p></td>
 <td>the total buffer size in microseconds</td>
 </tr>
 <tr>
@@ -413,7 +413,7 @@ The structure containing the format specification of the ringbuffer.
 <td>number of bytes in one sample</td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> <em class="structfield"><code><a name="GstRingBufferSpec.silence-sample"></a>silence_sample</code></em>[32];</span></p></td>
+<td><p><span class="term"><span class="type">guint8</span> <em class="structfield"><code><a name="GstRingBufferSpec.silence-sample"></a>silence_sample</code></em>[32];</span></p></td>
 <td>bytes representing one sample of silence</td>
 </tr>
 <tr>
@@ -428,7 +428,7 @@ defaults to segtotal</td>
 <div class="refsect2">
 <a name="GstRingBufferCallback"></a><h3>GstRingBufferCallback ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                (*GstRingBufferCallback)            (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *rbuf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> user_data</code></em>);</pre>
 <p>
@@ -533,8 +533,7 @@ The state of the ringbuffer.
 <hr>
 <div class="refsect2">
 <a name="GstBufferFormat"></a><h3>enum GstBufferFormat</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   GST_UNKNOWN,
 
   GST_S8,
@@ -582,15 +581,234 @@ The state of the ringbuffer.
   GST_IEC958,
   GST_AC3,
   GST_EAC3,
-  GST_DTS
+  GST_DTS,
+  GST_MPEG2_AAC,
+  GST_MPEG4_AAC,
 } GstBufferFormat;
 </pre>
+<p>
+The detailed format of the samples in the ringbuffer.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><a name="GST-UNKNOWN:CAPS"></a><span class="term"><code class="literal">GST_UNKNOWN</code></span></p></td>
+<td>unspecified
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S8:CAPS"></a><span class="term"><code class="literal">GST_S8</code></span></p></td>
+<td>integer signed 8 bit
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U8:CAPS"></a><span class="term"><code class="literal">GST_U8</code></span></p></td>
+<td>integer unsigned 8 bit
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S16-LE:CAPS"></a><span class="term"><code class="literal">GST_S16_LE</code></span></p></td>
+<td>integer signed 16 bit little endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S16-BE:CAPS"></a><span class="term"><code class="literal">GST_S16_BE</code></span></p></td>
+<td>integer signed 16 bit big endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U16-LE:CAPS"></a><span class="term"><code class="literal">GST_U16_LE</code></span></p></td>
+<td>integer unsigned 16 bit little endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U16-BE:CAPS"></a><span class="term"><code class="literal">GST_U16_BE</code></span></p></td>
+<td>integer unsigned 16 bit big endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S24-LE:CAPS"></a><span class="term"><code class="literal">GST_S24_LE</code></span></p></td>
+<td>integer signed 24 bit little endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S24-BE:CAPS"></a><span class="term"><code class="literal">GST_S24_BE</code></span></p></td>
+<td>integer signed 24 bit big endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U24-LE:CAPS"></a><span class="term"><code class="literal">GST_U24_LE</code></span></p></td>
+<td>integer unsigned 24 bit little endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U24-BE:CAPS"></a><span class="term"><code class="literal">GST_U24_BE</code></span></p></td>
+<td>integer unsigned 24 bit big endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S32-LE:CAPS"></a><span class="term"><code class="literal">GST_S32_LE</code></span></p></td>
+<td>integer signed 32 bit little endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S32-BE:CAPS"></a><span class="term"><code class="literal">GST_S32_BE</code></span></p></td>
+<td>integer signed 32 bit big endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U32-LE:CAPS"></a><span class="term"><code class="literal">GST_U32_LE</code></span></p></td>
+<td>integer unsigned 32 bit little endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U32-BE:CAPS"></a><span class="term"><code class="literal">GST_U32_BE</code></span></p></td>
+<td>integer unsigned 32 bit big endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S24-3LE:CAPS"></a><span class="term"><code class="literal">GST_S24_3LE</code></span></p></td>
+<td>integer signed 24 bit little endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S24-3BE:CAPS"></a><span class="term"><code class="literal">GST_S24_3BE</code></span></p></td>
+<td>integer signed 24 bit big endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U24-3LE:CAPS"></a><span class="term"><code class="literal">GST_U24_3LE</code></span></p></td>
+<td>integer unsigned 24 bit little endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U24-3BE:CAPS"></a><span class="term"><code class="literal">GST_U24_3BE</code></span></p></td>
+<td>integer unsigned 24 bit big endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S20-3LE:CAPS"></a><span class="term"><code class="literal">GST_S20_3LE</code></span></p></td>
+<td>integer signed 20 bit little endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S20-3BE:CAPS"></a><span class="term"><code class="literal">GST_S20_3BE</code></span></p></td>
+<td>integer signed 20 bit big endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U20-3LE:CAPS"></a><span class="term"><code class="literal">GST_U20_3LE</code></span></p></td>
+<td>integer unsigned 20 bit little endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U20-3BE:CAPS"></a><span class="term"><code class="literal">GST_U20_3BE</code></span></p></td>
+<td>integer unsigned 20 bit big endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S18-3LE:CAPS"></a><span class="term"><code class="literal">GST_S18_3LE</code></span></p></td>
+<td>integer signed 18 bit little endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-S18-3BE:CAPS"></a><span class="term"><code class="literal">GST_S18_3BE</code></span></p></td>
+<td>integer signed 18 bit big endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U18-3LE:CAPS"></a><span class="term"><code class="literal">GST_U18_3LE</code></span></p></td>
+<td>integer unsigned 18 bit little endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-U18-3BE:CAPS"></a><span class="term"><code class="literal">GST_U18_3BE</code></span></p></td>
+<td>integer unsigned 18 bit big endian packed in 3 bytes
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-FLOAT32-LE:CAPS"></a><span class="term"><code class="literal">GST_FLOAT32_LE</code></span></p></td>
+<td>floating 32 bit little endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-FLOAT32-BE:CAPS"></a><span class="term"><code class="literal">GST_FLOAT32_BE</code></span></p></td>
+<td>floating 32 bit big endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-FLOAT64-LE:CAPS"></a><span class="term"><code class="literal">GST_FLOAT64_LE</code></span></p></td>
+<td>floating 64 bit little endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-FLOAT64-BE:CAPS"></a><span class="term"><code class="literal">GST_FLOAT64_BE</code></span></p></td>
+<td>floating 64 bit big endian
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-MU-LAW:CAPS"></a><span class="term"><code class="literal">GST_MU_LAW</code></span></p></td>
+<td>mu-law
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-A-LAW:CAPS"></a><span class="term"><code class="literal">GST_A_LAW</code></span></p></td>
+<td>a-law
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-IMA-ADPCM:CAPS"></a><span class="term"><code class="literal">GST_IMA_ADPCM</code></span></p></td>
+<td>ima adpcm
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG:CAPS"></a><span class="term"><code class="literal">GST_MPEG</code></span></p></td>
+<td>mpeg audio (but not aac)
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-GSM:CAPS"></a><span class="term"><code class="literal">GST_GSM</code></span></p></td>
+<td>gsm
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-IEC958:CAPS"></a><span class="term"><code class="literal">GST_IEC958</code></span></p></td>
+<td>IEC958 frames
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-AC3:CAPS"></a><span class="term"><code class="literal">GST_AC3</code></span></p></td>
+<td>ac3
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-EAC3:CAPS"></a><span class="term"><code class="literal">GST_EAC3</code></span></p></td>
+<td>eac3
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-DTS:CAPS"></a><span class="term"><code class="literal">GST_DTS</code></span></p></td>
+<td>dts
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG2-AAC:CAPS"></a><span class="term"><code class="literal">GST_MPEG2_AAC</code></span></p></td>
+<td>mpeg-2 aac
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-MPEG4-AAC:CAPS"></a><span class="term"><code class="literal">GST_MPEG4_AAC</code></span></p></td>
+<td>mpeg-4 aac
+</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstBufferFormatType"></a><h3>enum GstBufferFormatType</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   GST_BUFTYPE_LINEAR,
   GST_BUFTYPE_FLOAT,
   GST_BUFTYPE_MU_LAW,
@@ -601,7 +819,9 @@ The state of the ringbuffer.
   GST_BUFTYPE_IEC958,
   GST_BUFTYPE_AC3,
   GST_BUFTYPE_EAC3,
-  GST_BUFTYPE_DTS
+  GST_BUFTYPE_DTS,
+  GST_BUFTYPE_MPEG2_AAC,
+  GST_BUFTYPE_MPEG4_AAC,
 } GstBufferFormatType;
 </pre>
 <p>
@@ -637,7 +857,7 @@ The format of the samples in the ringbuffer.
 </tr>
 <tr>
 <td><p><a name="GST-BUFTYPE-MPEG:CAPS"></a><span class="term"><code class="literal">GST_BUFTYPE_MPEG</code></span></p></td>
-<td>samples in mpeg audio format
+<td>samples in mpeg audio (but not AAC) format
 </td>
 </tr>
 <tr>
@@ -663,6 +883,16 @@ The format of the samples in the ringbuffer.
 <tr>
 <td><p><a name="GST-BUFTYPE-DTS:CAPS"></a><span class="term"><code class="literal">GST_BUFTYPE_DTS</code></span></p></td>
 <td>samples in DTS format
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-BUFTYPE-MPEG2-AAC:CAPS"></a><span class="term"><code class="literal">GST_BUFTYPE_MPEG2_AAC</code></span></p></td>
+<td>samples in MPEG-2 AAC format
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-BUFTYPE-MPEG4-AAC:CAPS"></a><span class="term"><code class="literal">GST_BUFTYPE_MPEG4_AAC</code></span></p></td>
+<td>samples in MPEG-4 AAC format
 </td>
 </tr>
 </tbody>
@@ -955,7 +1185,7 @@ MT safe.</td>
 <hr>
 <div class="refsect2">
 <a name="gst-ring-buffer-samples-done"></a><h3>gst_ring_buffer_samples_done ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="returnvalue">guint64</span></a>             gst_ring_buffer_samples_done        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint64</span>             gst_ring_buffer_samples_done        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>);</pre>
 <p>
 Get the number of samples that were processed by the ringbuffer
 since it was last started. This does not include the number of samples not
@@ -980,7 +1210,7 @@ MT safe.</td>
 <div class="refsect2">
 <a name="gst-ring-buffer-set-sample"></a><h3>gst_ring_buffer_set_sample ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_ring_buffer_set_sample          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> sample</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint64</span> sample</code></em>);</pre>
 <p>
 Make sure that the next sample written to the device is
 accounted for as being the <em class="parameter"><code>sample</code></em> sample written to the
@@ -1011,7 +1241,7 @@ MT safe.
 <div class="refsect2">
 <a name="gst-ring-buffer-commit"></a><h3>gst_ring_buffer_commit ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               gst_ring_buffer_commit              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> sample</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> sample</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guchar"><span class="type">guchar</span></a> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);</pre>
 <p>
@@ -1050,7 +1280,7 @@ MT safe.</td>
 <div class="refsect2">
 <a name="gst-ring-buffer-commit-full"></a><h3>gst_ring_buffer_commit_full ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               gst_ring_buffer_commit_full         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> *sample</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> *sample</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guchar"><span class="type">guchar</span></a> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> in_samples</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> out_samples</code></em>,
@@ -1059,7 +1289,7 @@ MT safe.</td>
 Commit <em class="parameter"><code>in_samples</code></em> samples pointed to by <em class="parameter"><code>data</code></em> to the ringbuffer <em class="parameter"><code>buf</code></em>. 
 </p>
 <p>
-<em class="parameter"><code>in_samples</code></em> and <em class="parameter"><code>out_samples</code></em> define the rate conversion to perform on the the
+<em class="parameter"><code>in_samples</code></em> and <em class="parameter"><code>out_samples</code></em> define the rate conversion to perform on the
 samples in <em class="parameter"><code>data</code></em>. For negative rates, <em class="parameter"><code>out_samples</code></em> must be negative and
 <em class="parameter"><code>in_samples</code></em> positive.
 </p>
@@ -1123,9 +1353,9 @@ with a flush or stop.</td>
 <a name="gst-ring-buffer-convert"></a><h3>gst_ring_buffer_convert ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_ring_buffer_convert             (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstFormat.html#GstFormat"><span class="type">GstFormat</span></a> src_fmt</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a> src_val</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint64</span> src_val</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstFormat.html#GstFormat"><span class="type">GstFormat</span></a> dest_fmt</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a> *dest_val</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gint64</span> *dest_val</code></em>);</pre>
 <p>
 Convert <em class="parameter"><code>src_val</code></em> in <em class="parameter"><code>src_fmt</code></em> to the equivalent value in <em class="parameter"><code>dest_fmt</code></em>. The result
 will be put in <em class="parameter"><code>dest_val</code></em>.
@@ -1167,7 +1397,7 @@ will be put in <em class="parameter"><code>dest_val</code></em>.
 <a name="gst-ring-buffer-prepare-read"></a><h3>gst_ring_buffer_prepare_read ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_ring_buffer_prepare_read        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *segment</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **readptr</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> **readptr</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> *len</code></em>);</pre>
 <p>
 Returns a pointer to memory where the data from segment <em class="parameter"><code>segment</code></em>
@@ -1204,7 +1434,7 @@ MT safe.</td>
 <div class="refsect2">
 <a name="gst-ring-buffer-read"></a><h3>gst_ring_buffer_read ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               gst_ring_buffer_read                (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstringbuffer.html#GstRingBuffer"><span class="type">GstRingBuffer</span></a> *buf</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> sample</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> sample</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guchar"><span class="type">guchar</span></a> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);</pre>
 <p>
@@ -1475,6 +1705,6 @@ MT safe.
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

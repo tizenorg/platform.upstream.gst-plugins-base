@@ -9,28 +9,28 @@ DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
 DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 DEB_HOST_ARCH       ?= $(shell dpkg-architecture -qDEB_HOST_ARCH)
 
-CONFIGURE_OPTION +=--prefix=/usr 	\
-	--disable-static 				\
-	--disable-nls 				\
-	--with-html-dir=/tmp/dump 		\
-	--disable-examples 			\
-	--disable-audiorate 			\
-	--disable-gdp 				\
-	--disable-cdparanoia 			\
-	--disable-gnome_vfs 			\
-	--disable-libvisual 			\
-	--disable-freetypetest 			\
-	--disable-rpath 				\
-	--disable-valgrind 			\
-	--disable-gcov 				\
-	--disable-gtk-doc 			\
-	--disable-debug 				\
-	--disable-pango				\
-	--with-audioresample-format=int 
+CONFIGURE_OPTION +=--prefix=/usr		\
+		--disable-static		\
+		--disable-nls			\
+		--with-html-dir=/tmp/dump	\
+		--disable-examples		\
+		--disable-audiorate		\
+		--disable-gdp			\
+		--disable-cdparanoia		\
+		--disable-gnome_vfs		\
+		--disable-libvisual		\
+		--disable-freetypetest		\
+		--disable-rpath			\
+		--disable-valgrind		\
+		--disable-gcov			\
+		--disable-gtk-doc		\
+		--disable-debug			\
+		--with-audioresample-format=int
 
-CFLAGS += -Wall -g -fPIC \
-	-DGST_EXT_TEXTRENDER_ENHANCEMENT \
-	-DGST_EXT_XV_ENHANCEMENT
+CFLAGS += -Wall -g -fPIC			\
+		-DGST_EXT_XV_ENHANCEMENT	\
+		-DGST_EXT_LINK_FIMCCONVERT	\
+		-DGST_EXT_MIME_TYPES
 
 ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -O0

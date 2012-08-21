@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gstcolorbalance</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-interfaces.html" title="Interfaces Library">
 <link rel="prev" href="gstreamer-interfaces.html" title="Interfaces Library">
 <link rel="next" href="gst-plugins-base-libs-gstcolorbalancechannel.html" title="gstcolorbalancechannel">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -58,7 +58,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-L
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#gst-color-balance-value-changed" title="gst_color_balance_value_changed ()">gst_color_balance_value_changed</a>     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalance"><span class="type">GstColorBalance</span></a> *balance</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstcolorbalancechannel.html#GstColorBalanceChannel"><span class="type">GstColorBalanceChannel</span></a> *channel</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> value</code></em>);
-<a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalanceType" title="enum GstColorBalanceType"><span class="returnvalue">GstColorBalanceType</span></a>  <a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#gst-color-balance-get-balance-type" title="gst_color_balance_get_balance_type ()">gst_color_balance_get_balance_type</a> (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalance"><span class="type">GstColorBalance</span></a> *balance</code></em>);
+<a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalanceType" title="enum GstColorBalanceType"><span class="returnvalue">GstColorBalanceType</span></a> <a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#gst-color-balance-get-balance-type" title="gst_color_balance_get_balance_type ()">gst_color_balance_get_balance_type</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalance"><span class="type">GstColorBalance</span></a> *balance</code></em>);
 </pre>
 </div>
 <div class="refsect1">
@@ -85,7 +85,7 @@ GstColorBalance requires
 <p>
 </p>
 <div class="refsect2">
-<a name="idp11606512"></a><p>
+<a name="idp13682272"></a><p>
 This interface is implemented by elements which can perform some color
 balance operation on video frames they process. For example, modifying
 the brightness, contrast, hue or saturation.
@@ -124,16 +124,45 @@ Example elements are 'xvimagesink' and 'colorbalance'
   void (* value_changed) (GstColorBalance        *balance,
                           GstColorBalanceChannel *channel,
                           gint                    value);
-
-  gpointer _gst_reserved[GST_PADDING];
 };
 </pre>
+<p>
+Color-balance interface.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><a href="http://library.gnome.org/devel/gobject/unstable/gobject-Type-Information.html#GTypeInterface"><span class="type">GTypeInterface</span></a> <em class="structfield"><code><a name="GstColorBalanceClass.klass"></a>klass</code></em>;</span></p></td>
+<td>the parent interface</td>
+</tr>
+<tr>
+<td><p><span class="term"><a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalanceType" title="enum GstColorBalanceType"><span class="type">GstColorBalanceType</span></a> <em class="structfield"><code><a name="GstColorBalanceClass.balance-type"></a>balance_type</code></em>;</span></p></td>
+<td>implementation type</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstColorBalanceClass.list-channels"></a>list_channels</code></em> ()</span></p></td>
+<td>list handled channels</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstColorBalanceClass.set-value"></a>set_value</code></em> ()</span></p></td>
+<td>set a channel value</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstColorBalanceClass.get-value"></a>get_value</code></em> ()</span></p></td>
+<td>get a channel value</td>
+</tr>
+<tr>
+<td><p><span class="term"><em class="structfield"><code><a name="GstColorBalanceClass.value-changed"></a>value_changed</code></em> ()</span></p></td>
+<td>default handler for value changed notification</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstColorBalanceType"></a><h3>enum GstColorBalanceType</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   GST_COLOR_BALANCE_HARDWARE,
   GST_COLOR_BALANCE_SOFTWARE
 } GstColorBalanceType;
@@ -195,8 +224,8 @@ Retrieve the current value of the indicated channel, between min_value
 and max_value.
 </p>
 <p>
-See Also: The <span class="type">"min_value"</span> and
-        <span class="type">"max_value"</span> members of the
+See Also: The <span class="type">GstColorBalanceChannel.min_value</span> and
+        <span class="type">GstColorBalanceChannel.max_value</span> members of the
         <a class="link" href="gst-plugins-base-libs-gstcolorbalancechannel.html#GstColorBalanceChannel"><span class="type">GstColorBalanceChannel</span></a> object.
 </p>
 <div class="variablelist"><table border="0">
@@ -228,8 +257,8 @@ Sets the current value of the channel to the passed value, which must
 be between min_value and max_value.
 </p>
 <p>
-See Also: The <span class="type">"min_value"</span> and
-        <span class="type">"max_value"</span> members of the
+See Also: The <span class="type">GstColorBalanceChannel.min_value</span> and
+        <span class="type">GstColorBalanceChannel.max_value</span> members of the
         <a class="link" href="gst-plugins-base-libs-gstcolorbalancechannel.html#GstColorBalanceChannel"><span class="type">GstColorBalanceChannel</span></a> object.
 </p>
 <div class="variablelist"><table border="0">
@@ -283,7 +312,7 @@ channel object.
 <hr>
 <div class="refsect2">
 <a name="gst-color-balance-get-balance-type"></a><h3>gst_color_balance_get_balance_type ()</h3>
-<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalanceType" title="enum GstColorBalanceType"><span class="returnvalue">GstColorBalanceType</span></a>  gst_color_balance_get_balance_type (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalance"><span class="type">GstColorBalance</span></a> *balance</code></em>);</pre>
+<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalanceType" title="enum GstColorBalanceType"><span class="returnvalue">GstColorBalanceType</span></a> gst_color_balance_get_balance_type  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalance"><span class="type">GstColorBalance</span></a> *balance</code></em>);</pre>
 <p>
 Get the <a class="link" href="gst-plugins-base-libs-gstcolorbalance.html#GstColorBalanceType" title="enum GstColorBalanceType"><span class="type">GstColorBalanceType</span></a> of this implementation.
 </p>
@@ -341,6 +370,6 @@ Fired when the value of the indicated channel has changed.
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

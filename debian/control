@@ -2,8 +2,8 @@ Source: gst-plugins-base0.10
 Section: libs
 Priority: optional
 Maintainer: Shin Seung Bae <seungbae.shin@samsung.com>, JongHyuk Choi <jhchoi.choi@samsung.com>
-Uploaders: Cho Ye Jin <cho.yejin@samsung.com>, Kum Jun Seung <junseung.kum@samsung.com>, Wonhyung Cho <wh01.cho@samsung.com>, Heungsoon Rim <hs06.rim@samsung.com>, Prashanth Kumar D <prashanth.kd@samsung.com>, Ranjit Reddy B <b.ranjit@samsung.com>, Naveen Ch <naveen.ch@samsung.com>, Jeongmo Yang <jm80.yang@samsung.com>
-Build-Depends: libgstreamer0.10-dev (>= 0.10.22), libasound2-dev (>= 0.9.0) [alpha amd64 arm armeb armel hppa i386 ia64 lpia m32r m68k mips mipsel powerpc ppc64 s390 s390x sh3 sh3eb sh4 sh4eb sparc], autotools-dev, debhelper (>= 5), pkg-config (>= 0.11.0), libxv-dev (>= 6.8.2), libxt-dev,liboil0.3-dev (>= 0.3.14), libglib2.0-dev (>= 2.15.2), libxml2-dev (>= 2.4.23), zlib1g-dev (>= 1:1.1.4), gstreamer0.10-tools (>= 0.10.14), libvorbis-dev, libogg-dev, libtheora-dev
+Uploaders: Cho Ye Jin <cho.yejin@samsung.com>, Hyunseok Lee <hs7388.lee@samsung.com>, Ranjit Reddy B <b.ranjit@samsung.com>, Naveen Ch <naveen.ch@samsung.com>, Jeongmo Yang <jm80.yang@samsung.com>
+Build-Depends: libgstreamer0.10-dev (>= 0.10.22), libasound2-dev (>= 0.9.0) [alpha amd64 arm armeb armel hppa i386 ia64 lpia m32r m68k mips mipsel powerpc ppc64 s390 s390x sh3 sh3eb sh4 sh4eb sparc], autotools-dev, debhelper (>= 5), pkg-config (>= 0.11.0), libxv-dev (>= 6.8.2), libxt-dev,liboil0.3-dev (>= 0.3.14), libglib2.0-dev (>= 2.15.2), libxml2-dev (>= 2.4.23), zlib1g-dev (>= 1:1.1.4), gstreamer0.10-tools (>= 0.10.14), libvorbis-dev, libogg-dev, libtheora-dev, libpango1.0-dev
 Standards-Version: 3.8.0
 
 Package: gstreamer0.10-plugins-base-apps

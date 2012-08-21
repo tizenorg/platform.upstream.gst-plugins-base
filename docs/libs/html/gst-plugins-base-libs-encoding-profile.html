@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>encoding-profile</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-base-utils.html" title="Base Utils Library">
 <link rel="prev" href="gst-plugins-base-libs-gstdiscoverer.html" title="gstdiscoverer">
 <link rel="next" href="gstreamer-video.html" title="Video Library">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -45,16 +45,18 @@
                     <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile-struct" title="GstEncodingProfile">GstEncodingProfile</a>;
 #define             <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-unref" title="gst_encoding_profile_unref()">gst_encoding_profile_unref</a>          (profile)
 #define             <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-ref" title="gst_encoding_profile_ref()">gst_encoding_profile_ref</a>            (profile)
-<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="returnvalue">GstEncodingProfile</span></a> *  <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-find" title="gst_encoding_profile_find ()">gst_encoding_profile_find</a>         (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *targetname</code></em>,
+<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="returnvalue">GstEncodingProfile</span></a> * <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-find" title="gst_encoding_profile_find ()">gst_encoding_profile_find</a>          (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *targetname</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *profilename</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *category</code></em>);
-const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *	      <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-name" title="gst_encoding_profile_get_name ()">gst_encoding_profile_get_name</a>       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
-const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *	      <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-description" title="gst_encoding_profile_get_description ()">gst_encoding_profile_get_description</a>
+<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="returnvalue">GstEncodingProfile</span></a> * <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-from-discoverer" title="gst_encoding_profile_from_discoverer ()">gst_encoding_profile_from_discoverer</a>
+                                                        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstdiscoverer.html#GstDiscovererInfo"><span class="type">GstDiscovererInfo</span></a> *info</code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-name" title="gst_encoding_profile_get_name ()">gst_encoding_profile_get_name</a>       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-description" title="gst_encoding_profile_get_description ()">gst_encoding_profile_get_description</a>
                                                         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
-const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="returnvalue">GstCaps</span></a> *	    <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-format" title="gst_encoding_profile_get_format ()">gst_encoding_profile_get_format</a>     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
-const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *	      <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-preset" title="gst_encoding_profile_get_preset ()">gst_encoding_profile_get_preset</a>     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
+const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="returnvalue">GstCaps</span></a> *     <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-format" title="gst_encoding_profile_get_format ()">gst_encoding_profile_get_format</a>     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
+const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-preset" title="gst_encoding_profile_get_preset ()">gst_encoding_profile_get_preset</a>     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-presence" title="gst_encoding_profile_get_presence ()">gst_encoding_profile_get_presence</a>   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
-const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="returnvalue">GstCaps</span></a> *	    <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-restriction" title="gst_encoding_profile_get_restriction ()">gst_encoding_profile_get_restriction</a>
+const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="returnvalue">GstCaps</span></a> *     <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-restriction" title="gst_encoding_profile_get_restriction ()">gst_encoding_profile_get_restriction</a>
                                                         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-set-name" title="gst_encoding_profile_set_name ()">gst_encoding_profile_set_name</a>       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>);
@@ -76,7 +78,7 @@ const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreame
 const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-profile-get-type-nick" title="gst_encoding_profile_get_type_nick ()">gst_encoding_profile_get_type_nick</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);
 
                     <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingContainerProfile-struct" title="GstEncodingContainerProfile">GstEncodingContainerProfile</a>;
-<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingContainerProfile"><span class="returnvalue">GstEncodingContainerProfile</span></a> *   <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-container-profile-new" title="gst_encoding_container_profile_new ()">gst_encoding_container_profile_new</a>
+<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingContainerProfile"><span class="returnvalue">GstEncodingContainerProfile</span></a> * <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-container-profile-new" title="gst_encoding_container_profile_new ()">gst_encoding_container_profile_new</a>
                                                         (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *description</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *format</code></em>,
@@ -91,14 +93,14 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-L
                                                         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingContainerProfile"><span class="type">GstEncodingContainerProfile</span></a> *profile</code></em>);
 
                     <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingAudioProfile-struct" title="GstEncodingAudioProfile">GstEncodingAudioProfile</a>;
-<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingAudioProfile"><span class="returnvalue">GstEncodingAudioProfile</span></a> *  <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-audio-profile-new" title="gst_encoding_audio_profile_new ()">gst_encoding_audio_profile_new</a>
+<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingAudioProfile"><span class="returnvalue">GstEncodingAudioProfile</span></a> * <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-audio-profile-new" title="gst_encoding_audio_profile_new ()">gst_encoding_audio_profile_new</a>
                                                         (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *format</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *preset</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *restriction</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> presence</code></em>);
 
                     <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingVideoProfile-struct" title="GstEncodingVideoProfile">GstEncodingVideoProfile</a>;
-<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingVideoProfile"><span class="returnvalue">GstEncodingVideoProfile</span></a> *  <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-video-profile-new" title="gst_encoding_video_profile_new ()">gst_encoding_video_profile_new</a>
+<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingVideoProfile"><span class="returnvalue">GstEncodingVideoProfile</span></a> * <a class="link" href="gst-plugins-base-libs-encoding-profile.html#gst-encoding-video-profile-new" title="gst_encoding_video_profile_new ()">gst_encoding_video_profile_new</a>
                                                         (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *format</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *preset</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *restriction</code></em>,
@@ -180,7 +182,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Doubly-Linked-L
 <p>
 </p>
 <div class="refsect2">
-<a name="idp27641072"></a><p>
+<a name="idp29241168"></a><p>
 Functions to create and handle encoding profiles.
 </p>
 <p>
@@ -210,7 +212,7 @@ to) file using the <a class="link" href="gst-plugins-base-libs-encoding-profile.
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp27648640"></a><h3>Example: Creating a profile</h3>
+<a name="idp29248736"></a><h3>Example: Creating a profile</h3>
 <p>
 </p>
 <div class="informalexample">
@@ -281,7 +283,7 @@ GstEncodingProfile <span class="gtkdoc opt">*</span>
 </p>
 <hr>
 <div class="refsect2">
-<a name="idp27651632"></a><h3>Example: Listing categories, targets and profiles</h3>
+<a name="idp29251728"></a><h3>Example: Listing categories, targets and profiles</h3>
 <p>
 </p>
 <div class="informalexample">
@@ -403,7 +405,7 @@ Increases the reference count of the <em class="parameter"><code>profile</code><
 <hr>
 <div class="refsect2">
 <a name="gst-encoding-profile-find"></a><h3>gst_encoding_profile_find ()</h3>
-<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="returnvalue">GstEncodingProfile</span></a> *  gst_encoding_profile_find         (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *targetname</code></em>,
+<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="returnvalue">GstEncodingProfile</span></a> * gst_encoding_profile_find          (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *targetname</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *profilename</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *category</code></em>);</pre>
 <p>
@@ -438,8 +440,35 @@ Find the <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEn
 </div>
 <hr>
 <div class="refsect2">
+<a name="gst-encoding-profile-from-discoverer"></a><h3>gst_encoding_profile_from_discoverer ()</h3>
+<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="returnvalue">GstEncodingProfile</span></a> * gst_encoding_profile_from_discoverer
+                                                        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstdiscoverer.html#GstDiscovererInfo"><span class="type">GstDiscovererInfo</span></a> *info</code></em>);</pre>
+<p>
+Creates a <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> matching the formats from the given
+<a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a>. Streams other than audio or video (eg,
+subtitles), are currently ignored.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><span class="term"><em class="parameter"><code>info</code></em> :</span></p></td>
+<td>The <a class="link" href="gst-plugins-base-libs-gstdiscoverer.html#GstDiscovererInfo"><span class="type">GstDiscovererInfo</span></a> to read from. <span class="annotation">[<acronym title="Don't free data after the code is done."><span class="acronym">transfer none</span></acronym>]</span>
+</td>
+</tr>
+<tr>
+<td><p><span class="term"><span class="emphasis"><em>Returns</em></span> :</span></p></td>
+<td>The new <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> or <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#NULL:CAPS"><code class="literal">NULL</code></a>. <span class="annotation">[<acronym title="Free data after the code is done."><span class="acronym">transfer full</span></acronym>]</span>
+</td>
+</tr>
+</tbody>
+</table></div>
+<p class="since">Since 0.10.36</p>
+</div>
+<hr>
+<div class="refsect2">
 <a name="gst-encoding-profile-get-name"></a><h3>gst_encoding_profile_get_name ()</h3>
-<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *	      gst_encoding_profile_get_name       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);</pre>
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       gst_encoding_profile_get_name       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -459,7 +488,7 @@ Find the <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEn
 <hr>
 <div class="refsect2">
 <a name="gst-encoding-profile-get-description"></a><h3>gst_encoding_profile_get_description ()</h3>
-<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *	      gst_encoding_profile_get_description
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       gst_encoding_profile_get_description
                                                         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -480,7 +509,7 @@ Find the <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEn
 <hr>
 <div class="refsect2">
 <a name="gst-encoding-profile-get-format"></a><h3>gst_encoding_profile_get_format ()</h3>
-<pre class="programlisting">const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="returnvalue">GstCaps</span></a> *	    gst_encoding_profile_get_format     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);</pre>
+<pre class="programlisting">const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="returnvalue">GstCaps</span></a> *     gst_encoding_profile_get_format     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -500,7 +529,7 @@ Find the <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEn
 <hr>
 <div class="refsect2">
 <a name="gst-encoding-profile-get-preset"></a><h3>gst_encoding_profile_get_preset ()</h3>
-<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *	      gst_encoding_profile_get_preset     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);</pre>
+<pre class="programlisting">const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       gst_encoding_profile_get_preset     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -541,7 +570,7 @@ container profile. If 0, it is not a mandatory stream.</td>
 <hr>
 <div class="refsect2">
 <a name="gst-encoding-profile-get-restriction"></a><h3>gst_encoding_profile_get_restriction ()</h3>
-<pre class="programlisting">const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="returnvalue">GstCaps</span></a> *	    gst_encoding_profile_get_restriction
+<pre class="programlisting">const <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="returnvalue">GstCaps</span></a> *     gst_encoding_profile_get_restriction
                                                         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfile</span></a> *profile</code></em>);</pre>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -801,7 +830,7 @@ Encoding profiles for containers. Keeps track of a list of <a class="link" href=
 <hr>
 <div class="refsect2">
 <a name="gst-encoding-container-profile-new"></a><h3>gst_encoding_container_profile_new ()</h3>
-<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingContainerProfile"><span class="returnvalue">GstEncodingContainerProfile</span></a> *   gst_encoding_container_profile_new
+<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingContainerProfile"><span class="returnvalue">GstEncodingContainerProfile</span></a> * gst_encoding_container_profile_new
                                                         (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *description</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *format</code></em>,
@@ -922,7 +951,7 @@ Variant of <a class="link" href="gst-plugins-base-libs-encoding-profile.html#Gst
 <hr>
 <div class="refsect2">
 <a name="gst-encoding-audio-profile-new"></a><h3>gst_encoding_audio_profile_new ()</h3>
-<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingAudioProfile"><span class="returnvalue">GstEncodingAudioProfile</span></a> *  gst_encoding_audio_profile_new
+<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingAudioProfile"><span class="returnvalue">GstEncodingAudioProfile</span></a> * gst_encoding_audio_profile_new
                                                         (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *format</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *preset</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *restriction</code></em>,
@@ -977,7 +1006,7 @@ Variant of <a class="link" href="gst-plugins-base-libs-encoding-profile.html#Gst
 <hr>
 <div class="refsect2">
 <a name="gst-encoding-video-profile-new"></a><h3>gst_encoding_video_profile_new ()</h3>
-<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingVideoProfile"><span class="returnvalue">GstEncodingVideoProfile</span></a> *  gst_encoding_video_profile_new
+<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingVideoProfile"><span class="returnvalue">GstEncodingVideoProfile</span></a> * gst_encoding_video_profile_new
                                                         (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *format</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *preset</code></em>,
                                                          <em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a> *restriction</code></em>,
@@ -1103,7 +1132,7 @@ you may set it to 0 (the default value).
                                                         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingVideoProfile"><span class="type">GstEncodingVideoProfile</span></a> *prof</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> variableframerate</code></em>);</pre>
 <p>
-If set to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>, then the incoming streamm will be allowed to have non-constant
+If set to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#TRUE:CAPS"><code class="literal">TRUE</code></a>, then the incoming stream will be allowed to have non-constant
 framerate. If set to <a href="http://library.gnome.org/devel/glib/unstable/glib-Standard-Macros.html#FALSE:CAPS"><code class="literal">FALSE</code></a> (default value), then the incoming stream will
 be normalized by dropping/duplicating frames in order to produce a
 constance framerate.
@@ -1131,7 +1160,7 @@ constance framerate.
 </pre>
 <p>
 <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncodingTarget"><span class="type">GstEncodingTarget</span></a> category for device-specific targets.
-The name of the target will usually be the contructor and model of the device,
+The name of the target will usually be the constructor and model of the device,
 and that target will contain <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gst-plugins-base-libs/html/gst-plugins-base-libs-encoding-profile.html#GstEncodingProfile"><span class="type">GstEncodingProfiles</span></a> suitable for that device.
 </p>
 </div>
@@ -1601,6 +1630,6 @@ of <a class="link" href="gst-plugins-base-libs-encoding-profile.html#GstEncoding
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

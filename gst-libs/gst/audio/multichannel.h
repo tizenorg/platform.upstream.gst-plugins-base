@@ -17,11 +17,11 @@
  * Boston, MA 02111-1307, USA.
  */
 
-#ifndef __GST_AUDIO_MULTICHANNEL_H__
-#define __GST_AUDIO_MULTICHANNEL_H__
-
 #include <gst/audio/audio.h>
 #include <gst/audio/audio-enumtypes.h>
+
+#ifndef __GST_AUDIO_MULTICHANNEL_H__
+#define __GST_AUDIO_MULTICHANNEL_H__
 
 G_BEGIN_DECLS
 
@@ -42,6 +42,9 @@ G_BEGIN_DECLS
  * @GST_AUDIO_CHANNEL_POSITION_NONE: used for position-less channels, e.g.
  *     from a sound card that records 1024 channels; mutually exclusive with
  *     any other channel position
+ * @GST_AUDIO_CHANNEL_POSITION_INVALID: invalid position
+ *
+ * Audio channel positions.
  */
 typedef enum {
   GST_AUDIO_CHANNEL_POSITION_INVALID = -1,
@@ -74,6 +77,7 @@ typedef enum {
    * are defined or all positions are undefined, but can't mix'n'match  */
   GST_AUDIO_CHANNEL_POSITION_NONE,
 
+  /*< private >*/
   /* don't use - counter */
   GST_AUDIO_CHANNEL_POSITION_NUM
 } GstAudioChannelPosition;
@@ -100,7 +104,7 @@ void    gst_audio_set_caps_channel_positions_list
                                          gint          num_positions);
 
 /* Custom fixate function. Elements that implement some sort of
- * channel conversion algorhithm should use this function for
+ * channel conversion algorithm should use this function for
  * fixating on GstAudioChannelPosition properties. It will take
  * care of equal channel positioning (left/right). Caller g_free()s
  * the return value. The input properties may be (and are supposed

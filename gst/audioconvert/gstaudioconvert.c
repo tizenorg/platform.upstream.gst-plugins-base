@@ -221,10 +221,10 @@ gst_audio_convert_base_init (gpointer g_class)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_audio_convert_src_template));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_audio_convert_sink_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_audio_convert_src_template);
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_audio_convert_sink_template);
   gst_element_class_set_details_simple (element_class,
       "Audio converter", "Filter/Converter/Audio",
       "Convert audio to different formats", "Benjamin Otte <otte@gnome.org>");
@@ -503,15 +503,15 @@ append_with_other_format (GstCaps * caps, GstStructure * s, gboolean isfloat)
   if (isfloat) {
     s2 = gst_structure_copy (s);
     gst_structure_set_name (s2, "audio/x-raw-int");
-    s = make_lossless_changes (s2, FALSE);
+    make_lossless_changes (s2, FALSE);
     /* If 64 bit float was allowed; remove width 64: we don't support it for 
      * integer*/
-    strip_width_64 (s);
+    strip_width_64 (s2);
     gst_caps_append_structure (caps, s2);
   } else {
     s2 = gst_structure_copy (s);
     gst_structure_set_name (s2, "audio/x-raw-float");
-    s = make_lossless_changes (s2, TRUE);
+    make_lossless_changes (s2, TRUE);
     gst_caps_append_structure (caps, s2);
   }
 }

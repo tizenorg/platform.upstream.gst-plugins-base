@@ -124,10 +124,8 @@ gst_sub_parse_base_init (GstSubParseClass * klass)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (klass);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_templ));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_templ));
+  gst_element_class_add_static_pad_template (element_class, &sink_templ);
+  gst_element_class_add_static_pad_template (element_class, &src_templ);
   gst_element_class_set_details_simple (element_class,
       "Subtitle parser", "Codec/Parser/Subtitle",
       "Parses subtitle (.sub) files into text streams",
@@ -263,6 +261,7 @@ gst_sub_parse_src_query (GstPad * pad, GstQuery * query)
         gst_query_set_position (query, GST_FORMAT_TIME,
             self->segment.last_stop);
       }
+      break;
     }
     case GST_QUERY_SEEKING:
     {
@@ -282,7 +281,6 @@ gst_sub_parse_src_query (GstPad * pad, GstQuery * query)
       }
 
       gst_query_set_seeking (query, fmt, seekable, seekable ? 0 : -1, -1);
-
       break;
     }
     default:
@@ -1238,17 +1236,18 @@ gst_sub_parse_data_format_autodetect_regex_once (GstSubParseRegex regtype)
   switch (regtype) {
     case GST_SUB_PARSE_REGEX_MDVDSUB:
       result =
-          (gpointer) g_regex_new ("^\\{[0-9]+\\}\\{[0-9]+\\}", 0, 0, &gerr);
+          (gpointer) g_regex_new ("^\\{[0-9]+\\}\\{[0-9]+\\}",
+          G_REGEX_RAW | G_REGEX_OPTIMIZE, 0, &gerr);
       if (result == NULL) {
         g_warning ("Compilation of mdvd regex failed: %s", gerr->message);
         g_error_free (gerr);
       }
       break;
     case GST_SUB_PARSE_REGEX_SUBRIP:
-      result = (gpointer) g_regex_new ("^([ 0-9]){0,3}[0-9]\\s*(\x0d)?\x0a"
-          "[ 0-9][0-9]:[ 0-9][0-9]:[ 0-9][0-9][,.][ 0-9]{0,2}[0-9]"
-          " +--> +([ 0-9])?[0-9]:[ 0-9][0-9]:[ 0-9][0-9][,.][ 0-9]{0,2}[0-9]",
-          0, 0, &gerr);
+      result = (gpointer) g_regex_new ("^ {0,3}[ 0-9]{1,4}\\s*(\x0d)?\x0a"
+          " ?[0-9]{1,2}: ?[0-9]{1,2}: ?[0-9]{1,2}[,.] {0,2}[0-9]{1,3}"
+          " +--> +[0-9]{1,2}: ?[0-9]{1,2}: ?[0-9]{1,2}[,.] {0,2}[0-9]{1,2}",
+          G_REGEX_RAW | G_REGEX_OPTIMIZE, 0, &gerr);
       if (result == NULL) {
         g_warning ("Compilation of subrip regex failed: %s", gerr->message);
         g_error_free (gerr);
@@ -1256,7 +1255,7 @@ gst_sub_parse_data_format_autodetect_regex_once (GstSubParseRegex regtype)
       break;
     case GST_SUB_PARSE_REGEX_DKS:
       result = (gpointer) g_regex_new ("^\\[[0-9]+:[0-9]+:[0-9]+\\].*",
-          0, 0, &gerr);
+          G_REGEX_RAW | G_REGEX_OPTIMIZE, 0, &gerr);
       if (result == NULL) {
         g_warning ("Compilation of dks regex failed: %s", gerr->message);
         g_error_free (gerr);
@@ -1790,12 +1789,7 @@ gst_subparse_type_find (GstTypeFind * tf, gpointer private)
       }
     }
     converted_str = gst_convert_to_utf8 (str, 128, enc, &tmp, &err);
-    if (converted_str == NULL) {
-      GST_DEBUG ("Charset conversion failed: %s", err->message);
-      g_error_free (err);
-      g_free (str);
-      return;
-    } else {
+    if (converted_str != NULL) {
       g_free (str);
       str = converted_str;
     }

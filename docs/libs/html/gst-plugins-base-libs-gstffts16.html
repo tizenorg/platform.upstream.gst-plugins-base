@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gstffts16</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-ffft.html" title="FFT Library">
 <link rel="prev" href="gst-plugins-base-libs-gstfft.html" title="gstfft">
 <link rel="next" href="gst-plugins-base-libs-gstffts32.html" title="gstffts32">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -45,13 +45,13 @@ struct              <a class="link" href="gst-plugins-base-libs-gstffts16.html#G
 <a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="returnvalue">GstFFTS16</span></a> *         <a class="link" href="gst-plugins-base-libs-gstffts16.html#gst-fft-s16-new" title="gst_fft_s16_new ()">gst_fft_s16_new</a>                     (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a> len</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a> inverse</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstffts16.html#gst-fft-s16-fft" title="gst_fft_s16_fft ()">gst_fft_s16_fft</a>                     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> *self</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint16"><span class="type">gint16</span></a> *timedata</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gint16</span> *timedata</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16Complex" title="struct GstFFTS16Complex"><span class="type">GstFFTS16Complex</span></a> *freqdata</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstffts16.html#gst-fft-s16-inverse-fft" title="gst_fft_s16_inverse_fft ()">gst_fft_s16_inverse_fft</a>             (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> *self</code></em>,
                                                          <em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16Complex" title="struct GstFFTS16Complex"><span class="type">GstFFTS16Complex</span></a> *freqdata</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint16"><span class="type">gint16</span></a> *timedata</code></em>);
+                                                         <em class="parameter"><code><span class="type">gint16</span> *timedata</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstffts16.html#gst-fft-s16-window" title="gst_fft_s16_window ()">gst_fft_s16_window</a>                  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> *self</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint16"><span class="type">gint16</span></a> *timedata</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint16</span> *timedata</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstfft.html#GstFFTWindow" title="enum GstFFTWindow"><span class="type">GstFFTWindow</span></a> window</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstffts16.html#gst-fft-s16-free" title="gst_fft_s16_free ()">gst_fft_s16_free</a>                    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> *self</code></em>);
 </pre>
@@ -61,7 +61,7 @@ struct              <a class="link" href="gst-plugins-base-libs-gstffts16.html#G
 <p>
 <a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> provides a FFT implementation and related functions for
 signed 16 bit integer samples. To use this call <a class="link" href="gst-plugins-base-libs-gstffts16.html#gst-fft-s16-new" title="gst_fft_s16_new ()"><code class="function">gst_fft_s16_new()</code></a> for
-allocating a <a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> instance with the appropiate parameters and
+allocating a <a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> instance with the appropriate parameters and
 then call <a class="link" href="gst-plugins-base-libs-gstffts16.html#gst-fft-s16-fft" title="gst_fft_s16_fft ()"><code class="function">gst_fft_s16_fft()</code></a> or <a class="link" href="gst-plugins-base-libs-gstffts16.html#gst-fft-s16-inverse-fft" title="gst_fft_s16_inverse_fft ()"><code class="function">gst_fft_s16_inverse_fft()</code></a> to perform the
 FFT or inverse FFT on a buffer of samples.
 </p>
@@ -118,11 +118,11 @@ signed 16 bit integers.
 <col align="left" valign="top">
 <tbody>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint16"><span class="type">gint16</span></a> <em class="structfield"><code><a name="GstFFTS16Complex.r"></a>r</code></em>;</span></p></td>
+<td><p><span class="term"><span class="type">gint16</span> <em class="structfield"><code><a name="GstFFTS16Complex.r"></a>r</code></em>;</span></p></td>
 <td>Real part</td>
 </tr>
 <tr>
-<td><p><span class="term"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint16"><span class="type">gint16</span></a> <em class="structfield"><code><a name="GstFFTS16Complex.i"></a>i</code></em>;</span></p></td>
+<td><p><span class="term"><span class="type">gint16</span> <em class="structfield"><code><a name="GstFFTS16Complex.i"></a>i</code></em>;</span></p></td>
 <td>Imaginary part</td>
 </tr>
 </tbody>
@@ -165,7 +165,7 @@ sense to keep one instance for several calls for speed reasons.
 <div class="refsect2">
 <a name="gst-fft-s16-fft"></a><h3>gst_fft_s16_fft ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_fft_s16_fft                     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> *self</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint16"><span class="type">gint16</span></a> *timedata</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">gint16</span> *timedata</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16Complex" title="struct GstFFTS16Complex"><span class="type">GstFFTS16Complex</span></a> *freqdata</code></em>);</pre>
 <p>
 This performs the FFT on <em class="parameter"><code>timedata</code></em> and puts the result in <em class="parameter"><code>freqdata</code></em>.
@@ -202,7 +202,7 @@ domain samples.
 <a name="gst-fft-s16-inverse-fft"></a><h3>gst_fft_s16_inverse_fft ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_fft_s16_inverse_fft             (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> *self</code></em>,
                                                          <em class="parameter"><code>const <a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16Complex" title="struct GstFFTS16Complex"><span class="type">GstFFTS16Complex</span></a> *freqdata</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint16"><span class="type">gint16</span></a> *timedata</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">gint16</span> *timedata</code></em>);</pre>
 <p>
 This performs the inverse FFT on <em class="parameter"><code>freqdata</code></em> and puts the result in <em class="parameter"><code>timedata</code></em>.
 </p>
@@ -236,7 +236,7 @@ while allocating the <a class="link" href="gst-plugins-base-libs-gstffts16.html#
 <div class="refsect2">
 <a name="gst-fft-s16-window"></a><h3>gst_fft_s16_window ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_fft_s16_window                  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstffts16.html#GstFFTS16" title="struct GstFFTS16"><span class="type">GstFFTS16</span></a> *self</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint16"><span class="type">gint16</span></a> *timedata</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint16</span> *timedata</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstfft.html#GstFFTWindow" title="enum GstFFTWindow"><span class="type">GstFFTWindow</span></a> window</code></em>);</pre>
 <p>
 This calls the window function <em class="parameter"><code>window</code></em> on the <em class="parameter"><code>timedata</code></em> sample buffer.
@@ -280,6 +280,6 @@ This frees the memory allocated for <em class="parameter"><code>self</code></em>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

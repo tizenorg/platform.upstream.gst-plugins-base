@@ -24,7 +24,7 @@
 #include <ogg/ogg.h>
 
 #include <gst/gst.h>
-#include <gst/base/gstcollectpads.h>
+#include <gst/base/gstcollectpads2.h>
 #include "gstoggstream.h"
 
 G_BEGIN_DECLS
@@ -48,17 +48,14 @@ GstOggPadState;
 /* all information needed for one ogg stream */
 typedef struct
 {
-  GstCollectData collect;       /* we extend the CollectData */
+  GstCollectData2 collect;       /* we extend the CollectData */
 
   GstOggStream map;
   gboolean have_type;
 
   GstSegment segment;
 
-  /* These two buffers make a very simple queue - they enter as 'next_buffer'
-   * and (usually) leave as 'buffer', except at EOS, when buffer will be NULL */
   GstBuffer *buffer;            /* the first waiting buffer for the pad */
-  GstBuffer *next_buffer;       /* the second waiting buffer for the pad */
 
   gint64 packetno;              /* number of next packet */
   gint64 pageno;                /* number of next page */
@@ -82,9 +79,12 @@ typedef struct
   gboolean prev_delta;          /* was the previous buffer a delta frame */
   gboolean data_pushed;         /* whether we pushed data already */
 
+  gint64  next_granule;         /* expected granule of next buffer ts */
+  gint64  keyframe_granule;     /* granule of last preceding keyframe */
+
   GstPadEventFunction collect_event;
 
-  gboolean always_flush_page;
+  GstTagList *tags;
 }
 GstOggPadData;
 
@@ -101,7 +101,7 @@ struct _GstOggMux
   GstPad *srcpad;
 
   /* sinkpads */
-  GstCollectPads *collect;
+  GstCollectPads2 *collect;
 
   /* number of pads which have not received EOS */
   gint active_pads;
@@ -123,11 +123,15 @@ struct _GstOggMux
 
   guint64 max_delay;
   guint64 max_page_delay;
+  guint64 max_tolerance;
 
   GstOggPadData *delta_pad;     /* when a delta frame is detected on a stream, we mark
                                    pages as delta frames up to the page that has the
                                    keyframe */
 
+
+  /* whether to create a skeleton track */
+  gboolean use_skeleton;
 };
 
 struct _GstOggMuxClass

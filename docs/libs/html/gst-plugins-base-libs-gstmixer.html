@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gstmixer</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-interfaces.html" title="Interfaces Library">
 <link rel="prev" href="gst-plugins-base-libs-gstcolorbalancechannel.html" title="gstcolorbalancechannel">
 <link rel="next" href="gst-plugins-base-libs-gstmixeroptions.html" title="gstmixeroptions">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -85,7 +85,7 @@ const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.htm
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstmixer.html#gst-mixer-mixer-changed" title="gst_mixer_mixer_changed ()">gst_mixer_mixer_changed</a>             (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixer"><span class="type">GstMixer</span></a> *mixer</code></em>);
 <a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixerFlags" title="enum GstMixerFlags"><span class="returnvalue">GstMixerFlags</span></a>       <a class="link" href="gst-plugins-base-libs-gstmixer.html#gst-mixer-get-mixer-flags" title="gst_mixer_get_mixer_flags ()">gst_mixer_get_mixer_flags</a>           (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixer"><span class="type">GstMixer</span></a> *mixer</code></em>);
 <a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixerType" title="enum GstMixerType"><span class="returnvalue">GstMixerType</span></a>        <a class="link" href="gst-plugins-base-libs-gstmixer.html#gst-mixer-get-mixer-type" title="gst_mixer_get_mixer_type ()">gst_mixer_get_mixer_type</a>            (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixer"><span class="type">GstMixer</span></a> *mixer</code></em>);
-<a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixerMessageType" title="enum GstMixerMessageType"><span class="returnvalue">GstMixerMessageType</span></a>  <a class="link" href="gst-plugins-base-libs-gstmixer.html#gst-mixer-message-get-type" title="gst_mixer_message_get_type ()">gst_mixer_message_get_type</a>         (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a> *message</code></em>);
+<a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixerMessageType" title="enum GstMixerMessageType"><span class="returnvalue">GstMixerMessageType</span></a> <a class="link" href="gst-plugins-base-libs-gstmixer.html#gst-mixer-message-get-type" title="gst_mixer_message_get_type ()">gst_mixer_message_get_type</a>          (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a> *message</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstmixer.html#gst-mixer-message-parse-mute-toggled" title="gst_mixer_message_parse_mute_toggled ()">gst_mixer_message_parse_mute_toggled</a>
                                                         (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a> *message</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstmixertrack.html#GstMixerTrack"><span class="type">GstMixerTrack</span></a> **track</code></em>,
@@ -161,18 +161,34 @@ macro (in C) and the mixer API can be used.
 <hr>
 <div class="refsect2">
 <a name="GstMixerType"></a><h3>enum GstMixerType</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   GST_MIXER_HARDWARE,
   GST_MIXER_SOFTWARE
 } GstMixerType;
 </pre>
+<p>
+Mixer classification.
+</p>
+<div class="variablelist"><table border="0">
+<col align="left" valign="top">
+<tbody>
+<tr>
+<td><p><a name="GST-MIXER-HARDWARE:CAPS"></a><span class="term"><code class="literal">GST_MIXER_HARDWARE</code></span></p></td>
+<td>mixing is implemented with dedicated hardware.
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-MIXER-SOFTWARE:CAPS"></a><span class="term"><code class="literal">GST_MIXER_SOFTWARE</code></span></p></td>
+<td>mixing is implemented via software processing.
+</td>
+</tr>
+</tbody>
+</table></div>
 </div>
 <hr>
 <div class="refsect2">
 <a name="GstMixerFlags"></a><h3>enum GstMixerFlags</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   GST_MIXER_FLAG_NONE                = 0,
   GST_MIXER_FLAG_AUTO_NOTIFICATIONS  = (1&lt;&lt;0),
   GST_MIXER_FLAG_HAS_WHITELIST       = (1&lt;&lt;1),
@@ -218,8 +234,7 @@ implementation.
 <hr>
 <div class="refsect2">
 <a name="GstMixerMessageType"></a><h3>enum GstMixerMessageType</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   GST_MIXER_MESSAGE_INVALID,
   GST_MIXER_MESSAGE_MUTE_TOGGLED,
   GST_MIXER_MESSAGE_RECORD_TOGGLED,
@@ -597,7 +612,7 @@ options of a given options object has changed.
 </p>
 <p>
 The new options are not contained in the message on purpose. Applications
-should call <code class="function">gst_mixer_option_get_values()</code> on <em class="parameter"><code>opts</code></em> to make <em class="parameter"><code>opts</code></em> update
+should call <a class="link" href="gst-plugins-base-libs-gstmixeroptions.html#gst-mixer-options-get-values" title="gst_mixer_options_get_values ()"><code class="function">gst_mixer_options_get_values()</code></a> on <em class="parameter"><code>opts</code></em> to make <em class="parameter"><code>opts</code></em> update
 its internal state and obtain the new list of values.
 </p>
 <p>
@@ -715,7 +730,7 @@ Get the <a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixerType" 
 <hr>
 <div class="refsect2">
 <a name="gst-mixer-message-get-type"></a><h3>gst_mixer_message_get_type ()</h3>
-<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixerMessageType" title="enum GstMixerMessageType"><span class="returnvalue">GstMixerMessageType</span></a>  gst_mixer_message_get_type         (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a> *message</code></em>);</pre>
+<pre class="programlisting"><a class="link" href="gst-plugins-base-libs-gstmixer.html#GstMixerMessageType" title="enum GstMixerMessageType"><span class="returnvalue">GstMixerMessageType</span></a> gst_mixer_message_get_type          (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstMessage.html#GstMessage"><span class="type">GstMessage</span></a> *message</code></em>);</pre>
 <p>
 Check a bus message to see if it is a GstMixer notification
 message and return the GstMixerMessageType identifying which
@@ -951,6 +966,6 @@ alsamixer, oss4mixer, sunaudiomixer
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

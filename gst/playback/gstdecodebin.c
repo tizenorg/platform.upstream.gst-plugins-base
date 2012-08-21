@@ -1,5 +1,6 @@
 /* GStreamer
  * Copyright (C) <2004> Wim Taymans <wim.taymans@gmail.com>
+ * Copyright (C) 2011 Hewlett-Packard Development Company, L.P.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -39,11 +40,16 @@
 #include "config.h"
 #endif
 
+/* FIXME 0.11: suppress warnings for deprecated API such as GStaticRecMutex
+ * with newer GLib versions (>= 2.31.0) */
+#define GLIB_DISABLE_DEPRECATION_WARNINGS
+
 #include <gst/gst-i18n-plugin.h>
 
 #include <string.h>
 #include <gst/gst.h>
 #include <gst/pbutils/pbutils.h>
+#include "gst/glib-compat-private.h"
 
 #include "gstplay-marshal.h"
 
@@ -286,10 +292,10 @@ gst_decode_bin_class_init (GstDecodeBinClass * klass)
           "The caps of the input data. (NULL = use typefind element)",
           GST_TYPE_CAPS, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
-  gst_element_class_add_pad_template (gstelement_klass,
-      gst_static_pad_template_get (&decoder_bin_sink_template));
-  gst_element_class_add_pad_template (gstelement_klass,
-      gst_static_pad_template_get (&decoder_bin_src_template));
+  gst_element_class_add_static_pad_template (gstelement_klass,
+      &decoder_bin_sink_template);
+  gst_element_class_add_static_pad_template (gstelement_klass,
+      &decoder_bin_src_template);
 
   gst_element_class_set_details_simple (gstelement_klass,
       "Decoder Bin", "Generic/Bin/Decoder",
@@ -1115,12 +1121,26 @@ try_to_link_1 (GstDecodeBin * decode_bin, GstElement * srcelement, GstPad * pad,
   /* loop over the factories */
   for (walk = factories; walk; walk = g_list_next (walk)) {
     GstElementFactory *factory = GST_ELEMENT_FACTORY (walk->data);
+    GstElementFactory *src_factory;
     GstElement *element;
     GstPadLinkReturn ret;
     GstPad *sinkpad;
 
-    GST_DEBUG_OBJECT (decode_bin, "trying to link %s",
-        gst_plugin_feature_get_name (GST_PLUGIN_FEATURE (factory)));
+    GST_DEBUG_OBJECT (decode_bin, "trying to link %s to %s",
+        gst_plugin_feature_get_name (GST_PLUGIN_FEATURE (factory)),
+        GST_OBJECT_NAME (srcelement));
+
+    /* don't plug the same parser twice, but allow multiple
+     * instances of other elements (e.g. id3demux) in a row */
+    src_factory = gst_element_get_factory (srcelement);
+    if (src_factory == factory
+        && gst_element_factory_list_is_type (factory,
+            GST_ELEMENT_FACTORY_TYPE_PARSER)) {
+      GST_DEBUG_OBJECT (decode_bin,
+          "not inserting parser element %s twice in a row, skipping",
+          GST_PLUGIN_FEATURE_NAME (factory));
+      continue;
+    }
 
     /* make an element from the factory first */
     if ((element = gst_element_factory_create (factory, NULL)) == NULL) {
@@ -1426,7 +1446,7 @@ queue_underrun_cb (GstElement * queue, GstDecodeBin * decode_bin)
   /* FIXME: we don't really do anything here for now. Ideally we should
    * see if some of the queues are filled and increase their values
    * in that case.
-   * Note: be very carefull with thread safety here as this underrun
+   * Note: be very careful with thread safety here as this underrun
    * signal is done from the streaming thread of queue srcpad which
    * is different from the pad_added (where we add the queue to the
    * list) and the overrun signals that are signalled from the
@@ -1758,7 +1778,7 @@ close_link (GstElement * element, GstDecodeBin * decode_bin)
   }
 
   /* Check if this is an element with more than 1 pad. If this element
-   * has more than 1 pad, we need to be carefull not to signal the
+   * has more than 1 pad, we need to be careful not to signal the
    * no_more_pads signal after connecting the first pad. */
   more = g_list_length (to_connect) > 1;
 

@@ -17,21 +17,6 @@
  * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
  */
-
-/**
- * SECTION:element-appsrc
- *
- * The appsrc element can be used by applications to insert data into a
- * GStreamer pipeline. Unlike most GStreamer elements, Appsrc provides
- * external API functions.
- *
- * For the documentation of the API, please see the
- * <link linkend="gst-plugins-base-libs-appsrc">libgstapp</link> section in the
- * GStreamer Plugins Base Libraries documentation.
- * 
- * Since: 0.10.22
- */
-
 /**
  * SECTION:gstappsrc
  * @short_description: Easy way for applications to inject buffers into a
@@ -52,7 +37,7 @@
  * byte buffers.
  *
  * The main way of handing data to the appsrc element is by calling the
- * gst_app_src_push_buffer() method or by emiting the push-buffer action signal.
+ * gst_app_src_push_buffer() method or by emitting the push-buffer action signal.
  * This will put the buffer onto a queue from which appsrc will read from in its
  * streaming thread. It is important to note that data transport will not happen
  * from the thread that performed the push-buffer call.
@@ -64,7 +49,7 @@
  * block the push-buffer method until free data becomes available again.
  *
  * When the internal queue is running out of data, the "need-data" signal is
- * emited, which signals the application that it should start pushing more data
+ * emitted, which signals the application that it should start pushing more data
  * into appsrc.
  *
  * In addition to the "need-data" and "enough-data" signals, appsrc can emit the
@@ -77,7 +62,7 @@
  * These signals allow the application to operate the appsrc in two different
  * ways:
  *
- * The push model, in which the application repeadedly calls the push-buffer method
+ * The push model, in which the application repeatedly calls the push-buffer method
  * with a new buffer. Optionally, the queue size in the appsrc can be controlled
  * with the enough-data and need-data signals by respectively stopping/starting
  * the push-buffer calls. This is a typical mode of operation for the
@@ -95,7 +80,7 @@
  * For the stream and seekable modes, setting this property is optional but
  * recommended.
  *
- * When the application is finished pushing data into appsrc, it should call 
+ * When the application is finished pushing data into appsrc, it should call
  * gst_app_src_end_of_stream() or emit the end-of-stream action signal. After
  * this call, no more buffers can be pushed into appsrc until a flushing seek
  * happened or the state of the appsrc has gone through READY.
@@ -116,6 +101,8 @@
 
 #include "gstapp-marshal.h"
 #include "gstappsrc.h"
+
+#include "gst/glib-compat-private.h"
 
 struct _GstAppSrcPrivate
 {
@@ -232,6 +219,7 @@ static void gst_app_src_get_property (GObject * object, guint prop_id,
 static void gst_app_src_set_latencies (GstAppSrc * appsrc,
     gboolean do_min, guint64 min, gboolean do_max, guint64 max);
 
+static GstCaps *gst_app_src_internal_get_caps (GstBaseSrc * bsrc);
 static GstFlowReturn gst_app_src_create (GstBaseSrc * bsrc,
     guint64 offset, guint size, GstBuffer ** buf);
 static gboolean gst_app_src_start (GstBaseSrc * bsrc);
@@ -275,8 +263,8 @@ gst_app_src_base_init (gpointer g_class)
       "Generic/Source", "Allow the application to feed buffers to a pipeline",
       "David Schleef <ds@schleef.org>, Wim Taymans <wim.taymans@gmail.com>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&gst_app_src_template));
+  gst_element_class_add_static_pad_template (element_class,
+      &gst_app_src_template);
 }
 
 static void
@@ -348,7 +336,7 @@ gst_app_src_class_init (GstAppSrcClass * klass)
   /**
    * GstAppSrc::block
    *
-   * When max-bytes are queued and after the enough-data signal has been emited,
+   * When max-bytes are queued and after the enough-data signal has been emitted,
    * block any further push-buffer calls until the amount of queued bytes drops
    * below the max-bytes limit.
    */
@@ -421,7 +409,7 @@ gst_app_src_class_init (GstAppSrcClass * klass)
 
   /**
    * GstAppSrc::need-data:
-   * @appsrc: the appsrc element that emited the signal
+   * @appsrc: the appsrc element that emitted the signal
    * @length: the amount of bytes needed.
    *
    * Signal that the source needs more data. In the callback or from another
@@ -440,11 +428,11 @@ gst_app_src_class_init (GstAppSrcClass * klass)
 
   /**
    * GstAppSrc::enough-data:
-   * @appsrc: the appsrc element that emited the signal
+   * @appsrc: the appsrc element that emitted the signal
    *
    * Signal that the source has enough data. It is recommended that the
    * application stops calling push-buffer until the need-data signal is
-   * emited again to avoid excessive buffer queueing.
+   * emitted again to avoid excessive buffer queueing.
    */
   gst_app_src_signals[SIGNAL_ENOUGH_DATA] =
       g_signal_new ("enough-data", G_TYPE_FROM_CLASS (klass), G_SIGNAL_RUN_LAST,
@@ -453,7 +441,7 @@ gst_app_src_class_init (GstAppSrcClass * klass)
 
   /**
    * GstAppSrc::seek-data:
-   * @appsrc: the appsrc element that emited the signal
+   * @appsrc: the appsrc element that emitted the signal
    * @offset: the offset to seek to
    *
    * Seek to the given offset. The next push-buffer should produce buffers from
@@ -490,7 +478,7 @@ gst_app_src_class_init (GstAppSrcClass * klass)
     * GstAppSrc::end-of-stream:
     * @appsrc: the appsrc
     *
-    * Notify @appsrc that no more buffer are available. 
+    * Notify @appsrc that no more buffer are available.
     */
   gst_app_src_signals[SIGNAL_END_OF_STREAM] =
       g_signal_new ("end-of-stream", G_TYPE_FROM_CLASS (klass),
@@ -498,6 +486,7 @@ gst_app_src_class_init (GstAppSrcClass * klass)
           end_of_stream), NULL, NULL, __gst_app_marshal_ENUM__VOID,
       GST_TYPE_FLOW_RETURN, 0, G_TYPE_NONE);
 
+  basesrc_class->get_caps = gst_app_src_internal_get_caps;
   basesrc_class->create = gst_app_src_create;
   basesrc_class->start = gst_app_src_start;
   basesrc_class->stop = gst_app_src_stop;
@@ -578,6 +567,12 @@ gst_app_src_finalize (GObject * obj)
   g_queue_free (priv->queue);
 
   G_OBJECT_CLASS (parent_class)->finalize (obj);
+}
+
+static GstCaps *
+gst_app_src_internal_get_caps (GstBaseSrc * bsrc)
+{
+  return gst_app_src_get_caps (GST_APP_SRC_CAST (bsrc));
 }
 
 static void
@@ -1025,7 +1020,7 @@ gst_app_src_create (GstBaseSrc * bsrc, guint64 offset, guint size,
        * random-access mode (where a buffer is normally pushed in the above
        * signal) we can still be empty because the pushed buffer got flushed or
        * when the application pushes the requested buffer later, we support both
-       * possiblities. */
+       * possibilities. */
       if (!g_queue_is_empty (priv->queue))
         continue;
 
@@ -1083,7 +1078,7 @@ seek_error:
  * a copy of the caps structure. After calling this method, the source will
  * only produce caps that match @caps. @caps must be fixed and the caps on the
  * buffers must match the caps or left NULL.
- * 
+ *
  * Since: 0.10.22
  */
 void
@@ -1116,7 +1111,7 @@ gst_app_src_set_caps (GstAppSrc * appsrc, const GstCaps * caps)
  * Get the configured caps on @appsrc.
  *
  * Returns: the #GstCaps produced by the source. gst_caps_unref() after usage.
- * 
+ *
  * Since: 0.10.22
  */
 GstCaps *
@@ -1144,8 +1139,8 @@ gst_app_src_get_caps (GstAppSrc * appsrc)
  * @size: the size to set
  *
  * Set the size of the stream in bytes. A value of -1 means that the size is
- * not known. 
- * 
+ * not known.
+ *
  * Since: 0.10.22
  */
 void
@@ -1168,10 +1163,10 @@ gst_app_src_set_size (GstAppSrc * appsrc, gint64 size)
  * @appsrc: a #GstAppSrc
  *
  * Get the size of the stream in bytes. A value of -1 means that the size is
- * not known. 
+ * not known.
  *
  * Returns: the size of the stream previously set with gst_app_src_set_size();
- * 
+ *
  * Since: 0.10.22
  */
 gint64
@@ -1200,8 +1195,8 @@ gst_app_src_get_size (GstAppSrc * appsrc)
  * Set the stream type on @appsrc. For seekable streams, the "seek" signal must
  * be connected to.
  *
- * A stream_type stream 
- * 
+ * A stream_type stream
+ *
  * Since: 0.10.22
  */
 void
@@ -1227,7 +1222,7 @@ gst_app_src_set_stream_type (GstAppSrc * appsrc, GstAppStreamType type)
  * with gst_app_src_set_stream_type().
  *
  * Returns: the stream type.
- * 
+ *
  * Since: 0.10.22
  */
 GstAppStreamType
@@ -1256,7 +1251,7 @@ gst_app_src_get_stream_type (GstAppSrc * appsrc)
  * Set the maximum amount of bytes that can be queued in @appsrc.
  * After the maximum amount of bytes are queued, @appsrc will emit the
  * "enough-data" signal.
- * 
+ *
  * Since: 0.10.22
  */
 void
@@ -1285,7 +1280,7 @@ gst_app_src_set_max_bytes (GstAppSrc * appsrc, guint64 max)
  * Get the maximum amount of bytes that can be queued in @appsrc.
  *
  * Returns: The maximum amount of bytes that can be queued.
- * 
+ *
  * Since: 0.10.22
  */
 guint64
@@ -1339,7 +1334,7 @@ gst_app_src_set_latencies (GstAppSrc * appsrc, gboolean do_min, guint64 min,
  *
  * Configure the @min and @max latency in @src. If @min is set to -1, the
  * default latency calculations for pseudo-live sources will be used.
- * 
+ *
  * Since: 0.10.22
  */
 void
@@ -1355,7 +1350,7 @@ gst_app_src_set_latency (GstAppSrc * appsrc, guint64 min, guint64 max)
  * @max: the min latency
  *
  * Retrieve the min and max latencies in @min and @max respectively.
- * 
+ *
  * Since: 0.10.22
  */
 void
@@ -1406,7 +1401,7 @@ gst_app_src_set_emit_signals (GstAppSrc * appsrc, gboolean emit)
  *
  * Check if appsrc will emit the "new-preroll" and "new-buffer" signals.
  *
- * Returns: %TRUE if @appsrc is emiting the "new-preroll" and "new-buffer"
+ * Returns: %TRUE if @appsrc is emitting the "new-preroll" and "new-buffer"
  * signals.
  *
  * Since: 0.10.23
@@ -1531,7 +1526,7 @@ eos:
  * Returns: #GST_FLOW_OK when the buffer was successfuly queued.
  * #GST_FLOW_WRONG_STATE when @appsrc is not PAUSED or PLAYING.
  * #GST_FLOW_UNEXPECTED when EOS occured.
- * 
+ *
  * Since: 0.10.22
  */
 GstFlowReturn
@@ -1557,7 +1552,7 @@ gst_app_src_push_buffer_action (GstAppSrc * appsrc, GstBuffer * buffer)
  *
  * Returns: #GST_FLOW_OK when the EOS was successfuly queued.
  * #GST_FLOW_WRONG_STATE when @appsrc is not PAUSED or PLAYING.
- * 
+ *
  * Since: 0.10.22
  */
 GstFlowReturn
@@ -1570,7 +1565,7 @@ gst_app_src_end_of_stream (GstAppSrc * appsrc)
   priv = appsrc->priv;
 
   g_mutex_lock (priv->mutex);
-  /* can't accept buffers when we are flushing. We can accept them when we are 
+  /* can't accept buffers when we are flushing. We can accept them when we are
    * EOS although it will not do anything. */
   if (priv->flushing)
     goto flushing;
@@ -1603,7 +1598,7 @@ flushing:
  * This is an alternative to using the signals, it has lower overhead and is thus
  * less expensive, but also less flexible.
  *
- * If callbacks are installed, no signals will be emited for performance
+ * If callbacks are installed, no signals will be emitted for performance
  * reasons.
  *
  * Since: 0.10.23

@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gnomevfssrc</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-base Elements">
 <link rel="prev" href="gst-plugins-base-plugins-gnomevfssink.html" title="gnomevfssink">
 <link rel="next" href="gst-plugins-base-plugins-multifdsink.html" title="multifdsink">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -77,70 +77,10 @@ GstGnomeVFSSrc implements
 </div>
 <div class="refsect1">
 <a name="gst-plugins-base-plugins-gnomevfssrc.description"></a><h2>Description</h2>
-<p>
-This plugin reads data from a local or remote location specified
-by an URI. This location can be specified using any protocol supported by
-the GnomeVFS library. Common protocols are 'file', 'http', 'ftp', or 'smb'.
-</p>
-<p>
-In case the <a class="link" href="gst-plugins-base-plugins-gnomevfssrc.html#GstGnomeVFSSrc--iradio-mode" title='The "iradio-mode" property'><span class="type">"iradio-mode"</span></a> property is set and the
-location is a http resource, gnomevfssrc will send special icecast http
-headers to the server to request additional icecast metainformation. If
-the server is not an icecast server, it will display the same behaviour
-as if the <a class="link" href="gst-plugins-base-plugins-gnomevfssrc.html#GstGnomeVFSSrc--iradio-mode" title='The "iradio-mode" property'><span class="type">"iradio-mode"</span></a> property was not set. However,
-if the server is in fact an icecast server, gnomevfssrc will output
-data with a media type of application/x-icy, in which case you will
-need to use the <span class="type">GstICYDemux</span> element as follow-up element to extract
-the icecast meta data and to determine the underlying media type.
-</p>
-<p>
-</p>
-<div class="refsect2">
-<a name="idp11778080"></a><h3>Example launch lines</h3>
-<div class="informalexample">
-  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-      <tr>
-        <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch <span class="gtkdoc opt">-</span>v gnomevfssrc location<span class="gtkdoc opt">=</span>file<span class="gtkdoc opt">:</span><span class="gtkdoc slc">///home/joe/foo.xyz ! fakesink</span></pre></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
- The above pipeline will simply read a local file and do nothing with the
-data read. Instead of gnomevfssrc, we could just as well have used the
-filesrc element here.
-<div class="informalexample">
-  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-      <tr>
-        <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch <span class="gtkdoc opt">-</span>v gnomevfssrc location<span class="gtkdoc opt">=</span>smb<span class="gtkdoc opt">:</span><span class="gtkdoc slc">//othercomputer/foo.xyz ! filesink location=/home/joe/foo.xyz</span></pre></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
- The above pipeline will copy a file from a remote host to the local file
-system using the Samba protocol.
-<div class="informalexample">
-  <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
-    <tbody>
-      <tr>
-        <td class="listing_lines" align="right"><pre>1</pre></td>
-        <td class="listing_code"><pre class="programlisting">gst<span class="gtkdoc opt">-</span>launch <span class="gtkdoc opt">-</span>v gnomevfssrc location<span class="gtkdoc opt">=</span>http<span class="gtkdoc opt">:</span><span class="gtkdoc slc">//music.foobar.com/demo.mp3 ! mad ! audioconvert ! audioresample ! alsasink</span></pre></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
- The above pipeline will read and decode and play an mp3 file from a
-web server using the http protocol.
-</div>
-<p>
-</p>
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp11782928"></a><h3>Element Information</h3>
+<a name="idp11375920"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -163,7 +103,7 @@ web server using the http protocol.
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp11790448"></a><h3>Element Pads</h3>
+<a name="idp11650544"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -196,7 +136,6 @@ web server using the http protocol.
 <a name="GstGnomeVFSSrc-struct"></a><h3>struct GstGnomeVFSSrc</h3>
 <pre class="programlisting">struct GstGnomeVFSSrc;</pre>
 <p>
-Opaque data structure.
 </p>
 </div>
 </div>
@@ -257,13 +196,9 @@ Opaque data structure.
 <p>Default value: FALSE</p>
 </div>
 </div>
-<div class="refsect1">
-<a name="gst-plugins-base-plugins-gnomevfssrc.see-also"></a><h2>See Also</h2>
-<a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer-plugins/html/gstreamer-plugins-filesrc.html#GstFileSrc"><span class="type">GstFileSrc</span></a>, <a class="link" href="gst-plugins-base-plugins-gnomevfssink.html#GstGnomeVFSSink"><span class="type">GstGnomeVFSSink</span></a>
-</div>
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

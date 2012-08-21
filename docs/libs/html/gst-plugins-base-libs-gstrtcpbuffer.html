@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>gstrtcpbuffer</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Library Reference Manual">
 <link rel="up" href="gstreamer-rtp.html" title="RTP Library">
 <link rel="prev" href="gst-plugins-base-libs-gstrtpbuffer.html" title="gstrtpbuffer">
 <link rel="next" href="gst-plugins-base-libs-gstrtppayloads.html" title="gstrtppayloads">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -55,7 +55,7 @@ enum                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.ht
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="returnvalue">GstBuffer</span></a> *         <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-buffer-new-copy-data" title="gst_rtcp_buffer_new_copy_data ()">gst_rtcp_buffer_new_copy_data</a>       (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gpointer"><span class="type">gpointer</span></a> data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-buffer-validate-data" title="gst_rtcp_buffer_validate_data ()">gst_rtcp_buffer_validate_data</a>       (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-buffer-validate-data" title="gst_rtcp_buffer_validate_data ()">gst_rtcp_buffer_validate_data</a>       (<em class="parameter"><code><span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-buffer-validate" title="gst_rtcp_buffer_validate ()">gst_rtcp_buffer_validate</a>            (<em class="parameter"><code><a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> *buffer</code></em>);
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="returnvalue">GstBuffer</span></a> *         <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-buffer-new" title="gst_rtcp_buffer_new ()">gst_rtcp_buffer_new</a>                 (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> mtu</code></em>);
@@ -69,98 +69,98 @@ enum                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.ht
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-remove" title="gst_rtcp_packet_remove ()">gst_rtcp_packet_remove</a>              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-get-padding" title="gst_rtcp_packet_get_padding ()">gst_rtcp_packet_get_padding</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="returnvalue">guint8</span></a>              <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-get-count" title="gst_rtcp_packet_get_count ()">gst_rtcp_packet_get_count</a>           (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+<span class="returnvalue">guint8</span>              <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-get-count" title="gst_rtcp_packet_get_count ()">gst_rtcp_packet_get_count</a>           (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPType" title="enum GstRTCPType"><span class="returnvalue">GstRTCPType</span></a>         <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-get-type" title="gst_rtcp_packet_get_type ()">gst_rtcp_packet_get_type</a>            (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="returnvalue">guint16</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-get-length" title="gst_rtcp_packet_get_length ()">gst_rtcp_packet_get_length</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+<span class="returnvalue">guint16</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-get-length" title="gst_rtcp_packet_get_length ()">gst_rtcp_packet_get_length</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sr-get-sender-info" title="gst_rtcp_packet_sr_get_sender_info ()">gst_rtcp_packet_sr_get_sender_info</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> *ntptime</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *rtptime</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *packet_count</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *octet_count</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> *ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> *ntptime</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *rtptime</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *packet_count</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *octet_count</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sr-set-sender-info" title="gst_rtcp_packet_sr_set_sender_info ()">gst_rtcp_packet_sr_set_sender_info</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> ntptime</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> rtptime</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> packet_count</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> octet_count</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-rr-get-ssrc" title="gst_rtcp_packet_rr_get_ssrc ()">gst_rtcp_packet_rr_get_ssrc</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> ntptime</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> rtptime</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> packet_count</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> octet_count</code></em>);
+<span class="returnvalue">guint32</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-rr-get-ssrc" title="gst_rtcp_packet_rr_get_ssrc ()">gst_rtcp_packet_rr_get_ssrc</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-rr-set-ssrc" title="gst_rtcp_packet_rr_set_ssrc ()">gst_rtcp_packet_rr_set_ssrc</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-get-rb-count" title="gst_rtcp_packet_get_rb_count ()">gst_rtcp_packet_get_rb_count</a>        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-get-rb" title="gst_rtcp_packet_get_rb ()">gst_rtcp_packet_get_rb</a>              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> nth</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *fractionlost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> *packetslost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *exthighestseq</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *jitter</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *lsr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *dlsr</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> *ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> *fractionlost</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint32</span> *packetslost</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *exthighestseq</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *jitter</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *lsr</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *dlsr</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-add-rb" title="gst_rtcp_packet_add_rb ()">gst_rtcp_packet_add_rb</a>              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> fractionlost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> packetslost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> exthighestseq</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> jitter</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> lsr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> dlsr</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> fractionlost</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint32</span> packetslost</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> exthighestseq</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> jitter</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> lsr</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> dlsr</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-set-rb" title="gst_rtcp_packet_set_rb ()">gst_rtcp_packet_set_rb</a>              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> nth</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> fractionlost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> packetslost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> exthighestseq</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> jitter</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> lsr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> dlsr</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> fractionlost</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint32</span> packetslost</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> exthighestseq</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> jitter</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> lsr</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> dlsr</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-get-item-count" title="gst_rtcp_packet_sdes_get_item_count ()">gst_rtcp_packet_sdes_get_item_count</a> (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-first-item" title="gst_rtcp_packet_sdes_first_item ()">gst_rtcp_packet_sdes_first_item</a>     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-next-item" title="gst_rtcp_packet_sdes_next_item ()">gst_rtcp_packet_sdes_next_item</a>      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-get-ssrc" title="gst_rtcp_packet_sdes_get_ssrc ()">gst_rtcp_packet_sdes_get_ssrc</a>       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+<span class="returnvalue">guint32</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-get-ssrc" title="gst_rtcp_packet_sdes_get_ssrc ()">gst_rtcp_packet_sdes_get_ssrc</a>       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-first-entry" title="gst_rtcp_packet_sdes_first_entry ()">gst_rtcp_packet_sdes_first_entry</a>    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-next-entry" title="gst_rtcp_packet_sdes_next_entry ()">gst_rtcp_packet_sdes_next_entry</a>     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-get-entry" title="gst_rtcp_packet_sdes_get_entry ()">gst_rtcp_packet_sdes_get_entry</a>      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPSDESType" title="enum GstRTCPSDESType"><span class="type">GstRTCPSDESType</span></a> *type</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *len</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **data</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint8</span> *len</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> **data</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-copy-entry" title="gst_rtcp_packet_sdes_copy_entry ()">gst_rtcp_packet_sdes_copy_entry</a>     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPSDESType" title="enum GstRTCPSDESType"><span class="type">GstRTCPSDESType</span></a> *type</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *len</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **data</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint8</span> *len</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> **data</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-add-item" title="gst_rtcp_packet_sdes_add_item ()">gst_rtcp_packet_sdes_add_item</a>       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-add-entry" title="gst_rtcp_packet_sdes_add_entry ()">gst_rtcp_packet_sdes_add_entry</a>      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPSDESType" title="enum GstRTCPSDESType"><span class="type">GstRTCPSDESType</span></a> type</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> len</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint8</span> len</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="returnvalue">guint</span></a>               <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-get-ssrc-count" title="gst_rtcp_packet_bye_get_ssrc_count ()">gst_rtcp_packet_bye_get_ssrc_count</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-get-nth-ssrc" title="gst_rtcp_packet_bye_get_nth_ssrc ()">gst_rtcp_packet_bye_get_nth_ssrc</a>    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
+<span class="returnvalue">guint32</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-get-nth-ssrc" title="gst_rtcp_packet_bye_get_nth_ssrc ()">gst_rtcp_packet_bye_get_nth_ssrc</a>    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> nth</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-add-ssrc" title="gst_rtcp_packet_bye_add_ssrc ()">gst_rtcp_packet_bye_add_ssrc</a>        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-add-ssrcs" title="gst_rtcp_packet_bye_add_ssrcs ()">gst_rtcp_packet_bye_add_ssrcs</a>       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *ssrc</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="returnvalue">guint8</span></a>              <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-get-reason-len" title="gst_rtcp_packet_bye_get_reason_len ()">gst_rtcp_packet_bye_get_reason_len</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+<span class="returnvalue">guint8</span>              <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-get-reason-len" title="gst_rtcp_packet_bye_get_reason_len ()">gst_rtcp_packet_bye_get_reason_len</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-get-reason" title="gst_rtcp_packet_bye_get_reason ()">gst_rtcp_packet_bye_get_reason</a>      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-bye-set-reason" title="gst_rtcp_packet_bye_set_reason ()">gst_rtcp_packet_bye_set_reason</a>      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *reason</code></em>);
 <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPFBType" title="enum GstRTCPFBType"><span class="returnvalue">GstRTCPFBType</span></a>       <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-type" title="gst_rtcp_packet_fb_get_type ()">gst_rtcp_packet_fb_get_type</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-set-type" title="gst_rtcp_packet_fb_set_type ()">gst_rtcp_packet_fb_set_type</a>         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPFBType" title="enum GstRTCPFBType"><span class="type">GstRTCPFBType</span></a> type</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-sender-ssrc" title="gst_rtcp_packet_fb_get_sender_ssrc ()">gst_rtcp_packet_fb_get_sender_ssrc</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+<span class="returnvalue">guint32</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-sender-ssrc" title="gst_rtcp_packet_fb_get_sender_ssrc ()">gst_rtcp_packet_fb_get_sender_ssrc</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-set-sender-ssrc" title="gst_rtcp_packet_fb_set_sender_ssrc ()">gst_rtcp_packet_fb_set_sender_ssrc</a>  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-media-ssrc" title="gst_rtcp_packet_fb_get_media_ssrc ()">gst_rtcp_packet_fb_get_media_ssrc</a>   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);
+<span class="returnvalue">guint32</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-media-ssrc" title="gst_rtcp_packet_fb_get_media_ssrc ()">gst_rtcp_packet_fb_get_media_ssrc</a>   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <span class="returnvalue">void</span>                <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-set-media-ssrc" title="gst_rtcp_packet_fb_set_media_ssrc ()">gst_rtcp_packet_fb_set_media_ssrc</a>   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="returnvalue">guint16</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-fci-length" title="gst_rtcp_packet_fb_get_fci_length ()">gst_rtcp_packet_fb_get_fci_length</a>   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);
+<span class="returnvalue">guint16</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-fci-length" title="gst_rtcp_packet_fb_get_fci_length ()">gst_rtcp_packet_fb_get_fci_length</a>   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
 <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-set-fci-length" title="gst_rtcp_packet_fb_set_fci_length ()">gst_rtcp_packet_fb_set_fci_length</a>   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> wordlen</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="returnvalue">guint8</span></a> *            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-fci" title="gst_rtcp_packet_fb_get_fci ()">gst_rtcp_packet_fb_get_fci</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="returnvalue">guint64</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-ntp-to-unix" title="gst_rtcp_ntp_to_unix ()">gst_rtcp_ntp_to_unix</a>                (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> ntptime</code></em>);
-<a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="returnvalue">guint64</span></a>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-unix-to-ntp" title="gst_rtcp_unix_to_ntp ()">gst_rtcp_unix_to_ntp</a>                (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> unixtime</code></em>);
+                                                         <em class="parameter"><code><span class="type">guint16</span> wordlen</code></em>);
+<span class="returnvalue">guint8</span> *            <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-fb-get-fci" title="gst_rtcp_packet_fb_get_fci ()">gst_rtcp_packet_fb_get_fci</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);
+<span class="returnvalue">guint64</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-ntp-to-unix" title="gst_rtcp_ntp_to_unix ()">gst_rtcp_ntp_to_unix</a>                (<em class="parameter"><code><span class="type">guint64</span> ntptime</code></em>);
+<span class="returnvalue">guint64</span>             <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-unix-to-ntp" title="gst_rtcp_unix_to_ntp ()">gst_rtcp_unix_to_ntp</a>                (<em class="parameter"><code><span class="type">guint64</span> unixtime</code></em>);
 <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPSDESType" title="enum GstRTCPSDESType"><span class="returnvalue">GstRTCPSDESType</span></a>     <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-sdes-name-to-type" title="gst_rtcp_sdes_name_to_type ()">gst_rtcp_sdes_name_to_type</a>          (<em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="type">gchar</span></a> *name</code></em>);
 const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gchar"><span class="returnvalue">gchar</span></a> *       <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-sdes-type-to-name" title="gst_rtcp_sdes_type_to_name ()">gst_rtcp_sdes_type_to_name</a>          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPSDESType" title="enum GstRTCPSDESType"><span class="type">GstRTCPSDESType</span></a> type</code></em>);
 </pre>
@@ -173,7 +173,7 @@ Note: The API in this module is not yet declared stable.
 <p>
 </p>
 <div class="refsect2">
-<a name="idp18698800"></a><p>
+<a name="idp19709744"></a><p>
 The GstRTPCBuffer helper functions makes it easy to parse and create regular 
 <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstBuffer.html#GstBuffer"><span class="type">GstBuffer</span></a> objects that contain compound RTCP packets. These buffers are typically
 of 'application/x-rtcp' <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstreamer/html/gstreamer-GstCaps.html#GstCaps"><span class="type">GstCaps</span></a>.
@@ -259,8 +259,7 @@ Valid value for the first two bytes of an RTCP packet after applying
 <hr>
 <div class="refsect2">
 <a name="GstRTCPType"></a><h3>enum GstRTCPType</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   GST_RTCP_TYPE_INVALID = 0,
   GST_RTCP_TYPE_SR      = 200,
   GST_RTCP_TYPE_RR      = 201,
@@ -349,8 +348,7 @@ The size of the structure is made public to allow stack allocations.
 <hr>
 <div class="refsect2">
 <a name="GstRTCPSDESType"></a><h3>enum GstRTCPSDESType</h3>
-<pre class="programlisting">typedef enum 
-{
+<pre class="programlisting">typedef enum {
   GST_RTCP_SDES_INVALID  = -1,
   GST_RTCP_SDES_END      = 0,
   GST_RTCP_SDES_CNAME    = 1,
@@ -425,17 +423,24 @@ Different types of SDES content.
 <hr>
 <div class="refsect2">
 <a name="GstRTCPFBType"></a><h3>enum GstRTCPFBType</h3>
-<pre class="programlisting">typedef enum
-{
+<pre class="programlisting">typedef enum {
   /* generic */
   GST_RTCP_FB_TYPE_INVALID    = 0,
   /* RTPFB types */
   GST_RTCP_RTPFB_TYPE_NACK    = 1,
+  /* RTPFB types assigned in RFC 5104 */
+  GST_RTCP_RTPFB_TYPE_TMMBR   = 3,
+  GST_RTCP_RTPFB_TYPE_TMMBN   = 4,
   /* PSFB types */
   GST_RTCP_PSFB_TYPE_PLI      = 1,
   GST_RTCP_PSFB_TYPE_SLI      = 2,
   GST_RTCP_PSFB_TYPE_RPSI     = 3,
-  GST_RTCP_PSFB_TYPE_AFB      = 15
+  GST_RTCP_PSFB_TYPE_AFB      = 15,
+  /* PSFB types assigned in RFC 5104 */
+  GST_RTCP_PSFB_TYPE_FIR      = 4,
+  GST_RTCP_PSFB_TYPE_TSTR     = 5,
+  GST_RTCP_PSFB_TYPE_TSTN     = 6,
+  GST_RTCP_PSFB_TYPE_VBCN     = 7,
 } GstRTCPFBType;
 </pre>
 <p>
@@ -452,6 +457,17 @@ Different types of feedback messages.
 <tr>
 <td><p><a name="GST-RTCP-RTPFB-TYPE-NACK:CAPS"></a><span class="term"><code class="literal">GST_RTCP_RTPFB_TYPE_NACK</code></span></p></td>
 <td>Generic NACK
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-RTCP-RTPFB-TYPE-TMMBR:CAPS"></a><span class="term"><code class="literal">GST_RTCP_RTPFB_TYPE_TMMBR</code></span></p></td>
+<td>Temporary Maximum Media Stream Bit Rate Request
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-RTCP-RTPFB-TYPE-TMMBN:CAPS"></a><span class="term"><code class="literal">GST_RTCP_RTPFB_TYPE_TMMBN</code></span></p></td>
+<td>Temporary Maximum Media Stream Bit Rate
+   Notification
 </td>
 </tr>
 <tr>
@@ -472,6 +488,26 @@ Different types of feedback messages.
 <tr>
 <td><p><a name="GST-RTCP-PSFB-TYPE-AFB:CAPS"></a><span class="term"><code class="literal">GST_RTCP_PSFB_TYPE_AFB</code></span></p></td>
 <td>Application layer Feedback
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-RTCP-PSFB-TYPE-FIR:CAPS"></a><span class="term"><code class="literal">GST_RTCP_PSFB_TYPE_FIR</code></span></p></td>
+<td>Full Intra Request Command
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-RTCP-PSFB-TYPE-TSTR:CAPS"></a><span class="term"><code class="literal">GST_RTCP_PSFB_TYPE_TSTR</code></span></p></td>
+<td>Temporal-Spatial Trade-off Request
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-RTCP-PSFB-TYPE-TSTN:CAPS"></a><span class="term"><code class="literal">GST_RTCP_PSFB_TYPE_TSTN</code></span></p></td>
+<td>Temporal-Spatial Trade-off Notification
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-RTCP-PSFB-TYPE-VBCN:CAPS"></a><span class="term"><code class="literal">GST_RTCP_PSFB_TYPE_VBCN</code></span></p></td>
+<td>Video Back Channel Message
 </td>
 </tr>
 </tbody>
@@ -537,7 +573,7 @@ is freed.
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-buffer-validate-data"></a><h3>gst_rtcp_buffer_validate_data ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_buffer_validate_data       (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>,
+<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_buffer_validate_data       (<em class="parameter"><code><span class="type">guint8</span> *data</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);</pre>
 <p>
 Check if the <em class="parameter"><code>data</code></em> and <em class="parameter"><code>size</code></em> point to the data of a valid RTCP (compound)
@@ -782,7 +818,7 @@ Get the packet padding of the packet pointed to by <em class="parameter"><code>p
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-get-count"></a><h3>gst_rtcp_packet_get_count ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="returnvalue">guint8</span></a>              gst_rtcp_packet_get_count           (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint8</span>              gst_rtcp_packet_get_count           (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the count field in <em class="parameter"><code>packet</code></em>.
 </p>
@@ -828,7 +864,7 @@ pointing to a valid packet.</td>
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-get-length"></a><h3>gst_rtcp_packet_get_length ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="returnvalue">guint16</span></a>             gst_rtcp_packet_get_length          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint16</span>             gst_rtcp_packet_get_length          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the length field of <em class="parameter"><code>packet</code></em>. This is the length of the packet in 
 32-bit words minus one.
@@ -852,11 +888,11 @@ Get the length field of <em class="parameter"><code>packet</code></em>. This is 
 <div class="refsect2">
 <a name="gst-rtcp-packet-sr-get-sender-info"></a><h3>gst_rtcp_packet_sr_get_sender_info ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_rtcp_packet_sr_get_sender_info  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> *ntptime</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *rtptime</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *packet_count</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *octet_count</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> *ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> *ntptime</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *rtptime</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *packet_count</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *octet_count</code></em>);</pre>
 <p>
 Parse the SR sender info and store the values.
 </p>
@@ -886,7 +922,7 @@ Parse the SR sender info and store the values.
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>octet_count</code></em> :</span></p></td>
-<td>result octect count</td>
+<td>result octet count</td>
 </tr>
 </tbody>
 </table></div>
@@ -895,11 +931,11 @@ Parse the SR sender info and store the values.
 <div class="refsect2">
 <a name="gst-rtcp-packet-sr-set-sender-info"></a><h3>gst_rtcp_packet_sr_set_sender_info ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_rtcp_packet_sr_set_sender_info  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> ntptime</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> rtptime</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> packet_count</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> octet_count</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint64</span> ntptime</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> rtptime</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> packet_count</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> octet_count</code></em>);</pre>
 <p>
 Set the given values in the SR packet <em class="parameter"><code>packet</code></em>.
 </p>
@@ -929,7 +965,7 @@ Set the given values in the SR packet <em class="parameter"><code>packet</code><
 </tr>
 <tr>
 <td><p><span class="term"><em class="parameter"><code>octet_count</code></em> :</span></p></td>
-<td>the octect count</td>
+<td>the octet count</td>
 </tr>
 </tbody>
 </table></div>
@@ -937,7 +973,7 @@ Set the given values in the SR packet <em class="parameter"><code>packet</code><
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-rr-get-ssrc"></a><h3>gst_rtcp_packet_rr_get_ssrc ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             gst_rtcp_packet_rr_get_ssrc         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint32</span>             gst_rtcp_packet_rr_get_ssrc         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the ssrc field of the RR <em class="parameter"><code>packet</code></em>.
 </p>
@@ -960,7 +996,7 @@ Get the ssrc field of the RR <em class="parameter"><code>packet</code></em>.
 <div class="refsect2">
 <a name="gst-rtcp-packet-rr-set-ssrc"></a><h3>gst_rtcp_packet_rr_set_ssrc ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_rtcp_packet_rr_set_ssrc         (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);</pre>
 <p>
 Set the ssrc field of the RR <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1006,13 +1042,13 @@ Get the number of report blocks in <em class="parameter"><code>packet</code></em
 <a name="gst-rtcp-packet-get-rb"></a><h3>gst_rtcp_packet_get_rb ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_rtcp_packet_get_rb              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> nth</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *fractionlost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> *packetslost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *exthighestseq</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *jitter</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *lsr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *dlsr</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> *ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> *fractionlost</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint32</span> *packetslost</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *exthighestseq</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *jitter</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *lsr</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *dlsr</code></em>);</pre>
 <p>
 Parse the values of the <em class="parameter"><code>nth</code></em> report block in <em class="parameter"><code>packet</code></em> and store the result in
 the values.
@@ -1065,13 +1101,13 @@ the values.
 <div class="refsect2">
 <a name="gst-rtcp-packet-add-rb"></a><h3>gst_rtcp_packet_add_rb ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_packet_add_rb              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> fractionlost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> packetslost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> exthighestseq</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> jitter</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> lsr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> dlsr</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> fractionlost</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint32</span> packetslost</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> exthighestseq</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> jitter</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> lsr</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> dlsr</code></em>);</pre>
 <p>
 Add a new report block to <em class="parameter"><code>packet</code></em> with the given values.
 </p>
@@ -1126,13 +1162,13 @@ the max MTU is exceeded or the number of report blocks is greater than
 <a name="gst-rtcp-packet-set-rb"></a><h3>gst_rtcp_packet_set_rb ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_rtcp_packet_set_rb              (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> nth</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> fractionlost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint32"><span class="type">gint32</span></a> packetslost</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> exthighestseq</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> jitter</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> lsr</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> dlsr</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> fractionlost</code></em>,
+                                                         <em class="parameter"><code><span class="type">gint32</span> packetslost</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> exthighestseq</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> jitter</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> lsr</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> dlsr</code></em>);</pre>
 <p>
 Set the <em class="parameter"><code>nth</code></em> new report block in <em class="parameter"><code>packet</code></em> with the given values.
 </p>
@@ -1251,7 +1287,7 @@ Move to the next SDES item in <em class="parameter"><code>packet</code></em>.
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-sdes-get-ssrc"></a><h3>gst_rtcp_packet_sdes_get_ssrc ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             gst_rtcp_packet_sdes_get_ssrc       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint32</span>             gst_rtcp_packet_sdes_get_ssrc       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the SSRC of the current SDES item.
 </p>
@@ -1321,8 +1357,8 @@ Move to the next SDES entry in the current item.
 <a name="gst-rtcp-packet-sdes-get-entry"></a><h3>gst_rtcp_packet_sdes_get_entry ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_packet_sdes_get_entry      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPSDESType" title="enum GstRTCPSDESType"><span class="type">GstRTCPSDESType</span></a> *type</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *len</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint8</span> *len</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> **data</code></em>);</pre>
 <p>
 Get the data of the current SDES item entry. <em class="parameter"><code>type</code></em> (when not NULL) will
 contain the type of the entry. <em class="parameter"><code>data</code></em> (when not NULL) will point to <em class="parameter"><code>len</code></em>
@@ -1331,7 +1367,7 @@ bytes.
 <p>
 When <em class="parameter"><code>type</code></em> refers to a text item, <em class="parameter"><code>data</code></em> will point to a UTF8 string. Note
 that this UTF8 string is NOT null-terminated. Use
-<a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-copy-entry" title="gst_rtcp_packet_sdes_copy_entry ()"><code class="function">gst_rtcp_packet_sdes_copy_entry()</code></a> to get a null-termined copy of the entry.
+<a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-copy-entry" title="gst_rtcp_packet_sdes_copy_entry ()"><code class="function">gst_rtcp_packet_sdes_copy_entry()</code></a> to get a null-terminated copy of the entry.
 </p>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
@@ -1366,8 +1402,8 @@ that this UTF8 string is NOT null-terminated. Use
 <a name="gst-rtcp-packet-sdes-copy-entry"></a><h3>gst_rtcp_packet_sdes_copy_entry ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_packet_sdes_copy_entry     (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPSDESType" title="enum GstRTCPSDESType"><span class="type">GstRTCPSDESType</span></a> *type</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *len</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> **data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint8</span> *len</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint8</span> **data</code></em>);</pre>
 <p>
 This function is like <a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#gst-rtcp-packet-sdes-get-entry" title="gst_rtcp_packet_sdes_get_entry ()"><code class="function">gst_rtcp_packet_sdes_get_entry()</code></a> but it returns a
 null-terminated copy of the data instead. use <a href="http://library.gnome.org/devel/glib/unstable/glib-Memory-Allocation.html#g-free"><code class="function">g_free()</code></a> after usage.
@@ -1404,7 +1440,7 @@ null-terminated copy of the data instead. use <a href="http://library.gnome.org/
 <div class="refsect2">
 <a name="gst-rtcp-packet-sdes-add-item"></a><h3>gst_rtcp_packet_sdes_add_item ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_packet_sdes_add_item       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);</pre>
 <p>
 Add a new SDES item for <em class="parameter"><code>ssrc</code></em> to <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1434,8 +1470,8 @@ items has been exceeded for the SDES packet or the MTU has been reached.</td>
 <a name="gst-rtcp-packet-sdes-add-entry"></a><h3>gst_rtcp_packet_sdes_add_entry ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_packet_sdes_add_entry      (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPSDESType" title="enum GstRTCPSDESType"><span class="type">GstRTCPSDESType</span></a> type</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> len</code></em>,
-                                                         <em class="parameter"><code>const <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="type">guint8</span></a> *data</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint8</span> len</code></em>,
+                                                         <em class="parameter"><code>const <span class="type">guint8</span> *data</code></em>);</pre>
 <p>
 Add a new SDES entry to the current item in <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1493,7 +1529,7 @@ Get the number of SSRC fields in <em class="parameter"><code>packet</code></em>.
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-bye-get-nth-ssrc"></a><h3>gst_rtcp_packet_bye_get_nth_ssrc ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             gst_rtcp_packet_bye_get_nth_ssrc    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
+<pre class="programlisting"><span class="returnvalue">guint32</span>             gst_rtcp_packet_bye_get_nth_ssrc    (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> nth</code></em>);</pre>
 <p>
 Get the <em class="parameter"><code>nth</code></em> SSRC of the BYE <em class="parameter"><code>packet</code></em>.
@@ -1521,7 +1557,7 @@ Get the <em class="parameter"><code>nth</code></em> SSRC of the BYE <em class="p
 <div class="refsect2">
 <a name="gst-rtcp-packet-bye-add-ssrc"></a><h3>gst_rtcp_packet_bye_add_ssrc ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_packet_bye_add_ssrc        (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);</pre>
 <p>
 Add <em class="parameter"><code>ssrc</code></em> to the BYE <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1551,7 +1587,7 @@ the max MTU is exceeded or the number of sources blocks is greater than
 <div class="refsect2">
 <a name="gst-rtcp-packet-bye-add-ssrcs"></a><h3>gst_rtcp_packet_bye_add_ssrcs ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_packet_bye_add_ssrcs       (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> *ssrc</code></em>,
+                                                         <em class="parameter"><code><span class="type">guint32</span> *ssrc</code></em>,
                                                          <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint"><span class="type">guint</span></a> len</code></em>);</pre>
 <p>
 Adds <em class="parameter"><code>len</code></em> SSRCs in <em class="parameter"><code>ssrc</code></em> to BYE <em class="parameter"><code>packet</code></em>.
@@ -1586,7 +1622,7 @@ the max MTU is exceeded or the number of sources blocks is greater than
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-bye-get-reason-len"></a><h3>gst_rtcp_packet_bye_get_reason_len ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="returnvalue">guint8</span></a>              gst_rtcp_packet_bye_get_reason_len  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint8</span>              gst_rtcp_packet_bye_get_reason_len  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the length of the reason string.
 </p>
@@ -1706,7 +1742,7 @@ Set the feedback message type of the FB <em class="parameter"><code>packet</code
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-fb-get-sender-ssrc"></a><h3>gst_rtcp_packet_fb_get_sender_ssrc ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             gst_rtcp_packet_fb_get_sender_ssrc  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint32</span>             gst_rtcp_packet_fb_get_sender_ssrc  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the sender SSRC field of the RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1730,7 +1766,7 @@ Get the sender SSRC field of the RTPFB or PSFB <em class="parameter"><code>packe
 <div class="refsect2">
 <a name="gst-rtcp-packet-fb-set-sender-ssrc"></a><h3>gst_rtcp_packet_fb_set_sender_ssrc ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_rtcp_packet_fb_set_sender_ssrc  (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);</pre>
 <p>
 Set the sender SSRC field of the RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1753,7 +1789,7 @@ Set the sender SSRC field of the RTPFB or PSFB <em class="parameter"><code>packe
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-fb-get-media-ssrc"></a><h3>gst_rtcp_packet_fb_get_media_ssrc ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="returnvalue">guint32</span></a>             gst_rtcp_packet_fb_get_media_ssrc   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint32</span>             gst_rtcp_packet_fb_get_media_ssrc   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the media SSRC field of the RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1777,7 +1813,7 @@ Get the media SSRC field of the RTPFB or PSFB <em class="parameter"><code>packet
 <div class="refsect2">
 <a name="gst-rtcp-packet-fb-set-media-ssrc"></a><h3>gst_rtcp_packet_fb_set_media_ssrc ()</h3>
 <pre class="programlisting"><span class="returnvalue">void</span>                gst_rtcp_packet_fb_set_media_ssrc   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint32"><span class="type">guint32</span></a> ssrc</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint32</span> ssrc</code></em>);</pre>
 <p>
 Set the media SSRC field of the RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1800,7 +1836,7 @@ Set the media SSRC field of the RTPFB or PSFB <em class="parameter"><code>packet
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-fb-get-fci-length"></a><h3>gst_rtcp_packet_fb_get_fci_length ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="returnvalue">guint16</span></a>             gst_rtcp_packet_fb_get_fci_length   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint16</span>             gst_rtcp_packet_fb_get_fci_length   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the length of the Feedback Control Information attached to a
 RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
@@ -1825,7 +1861,7 @@ RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
 <div class="refsect2">
 <a name="gst-rtcp-packet-fb-set-fci-length"></a><h3>gst_rtcp_packet_fb_set_fci_length ()</h3>
 <pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="returnvalue">gboolean</span></a>            gst_rtcp_packet_fb_set_fci_length   (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>,
-                                                         <em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint16"><span class="type">guint16</span></a> wordlen</code></em>);</pre>
+                                                         <em class="parameter"><code><span class="type">guint16</span> wordlen</code></em>);</pre>
 <p>
 Set the length of the Feedback Control Information attached to a
 RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
@@ -1854,7 +1890,7 @@ RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-packet-fb-get-fci"></a><h3>gst_rtcp_packet_fb_get_fci ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint8"><span class="returnvalue">guint8</span></a> *            gst_rtcp_packet_fb_get_fci          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint8</span> *            gst_rtcp_packet_fb_get_fci          (<em class="parameter"><code><a class="link" href="gst-plugins-base-libs-gstrtcpbuffer.html#GstRTCPPacket" title="struct GstRTCPPacket"><span class="type">GstRTCPPacket</span></a> *packet</code></em>);</pre>
 <p>
 Get the Feedback Control Information attached to a RTPFB or PSFB <em class="parameter"><code>packet</code></em>.
 </p>
@@ -1877,7 +1913,7 @@ Get the Feedback Control Information attached to a RTPFB or PSFB <em class="para
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-ntp-to-unix"></a><h3>gst_rtcp_ntp_to_unix ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="returnvalue">guint64</span></a>             gst_rtcp_ntp_to_unix                (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> ntptime</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint64</span>             gst_rtcp_ntp_to_unix                (<em class="parameter"><code><span class="type">guint64</span> ntptime</code></em>);</pre>
 <p>
 Converts an NTP time to UNIX nanoseconds. <em class="parameter"><code>ntptime</code></em> can typically be
 the NTP time of an SR RTCP message and contains, in the upper 32 bits, the
@@ -1901,7 +1937,7 @@ seconds. The resulting value will be the number of nanoseconds since 1970.
 <hr>
 <div class="refsect2">
 <a name="gst-rtcp-unix-to-ntp"></a><h3>gst_rtcp_unix_to_ntp ()</h3>
-<pre class="programlisting"><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="returnvalue">guint64</span></a>             gst_rtcp_unix_to_ntp                (<em class="parameter"><code><a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#guint64"><span class="type">guint64</span></a> unixtime</code></em>);</pre>
+<pre class="programlisting"><span class="returnvalue">guint64</span>             gst_rtcp_unix_to_ntp                (<em class="parameter"><code><span class="type">guint64</span> unixtime</code></em>);</pre>
 <p>
 Converts a UNIX timestamp in nanoseconds to an NTP time. The caller should
 pass a value with nanoseconds since 1970. The NTP time will, in the upper
@@ -1980,6 +2016,6 @@ key in a <a href="http://gstreamer.freedesktop.org/data/doc/gstreamer/head/gstre
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

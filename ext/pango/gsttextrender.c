@@ -71,14 +71,9 @@ GST_DEBUG_CATEGORY_EXTERN (pango_debug);
 #define DEFAULT_PROP_LINE_ALIGNMENT GST_TEXT_RENDER_LINE_ALIGN_CENTER
 #define DEFAULT_PROP_XPAD       25
 #define DEFAULT_PROP_YPAD       25
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-#define DEFAULT_PROP_RENDER_WIDTH 800
-#define DEFAULT_PROP_RENDER_HEIGHT 480
-#define DEFAULT_PROP_RENDER_SILENT FALSE
-#else
+
 #define DEFAULT_RENDER_WIDTH 720
 #define DEFAULT_RENDER_HEIGHT 576
-#endif
 
 enum
 {
@@ -88,11 +83,6 @@ enum
   PROP_LINE_ALIGNMENT,
   PROP_XPAD,
   PROP_YPAD,
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-  PROP_RENDER_WIDTH,
-  PROP_RENDER_HEIGHT,
-  PROP_RENDER_SILENT,
-#endif
   PROP_FONT_DESC
 };
 
@@ -185,10 +175,10 @@ gst_text_render_base_init (gpointer g_class)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&src_template_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&sink_template_factory));
+  gst_element_class_add_static_pad_template (element_class,
+      &src_template_factory);
+  gst_element_class_add_static_pad_template (element_class,
+      &sink_template_factory);
 
   gst_element_class_set_details_simple (element_class, "Text renderer",
       "Filter/Editor/Video",
@@ -237,20 +227,6 @@ gst_text_render_class_init (GstTextRenderClass * klass)
       g_param_spec_int ("ypad", "vertical padding",
           "Vertical padding when using top/bottom alignment", 0, G_MAXINT,
           DEFAULT_PROP_YPAD, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_RENDER_WIDTH,
-      g_param_spec_int ("width", "render width",
-          "Width of rendered video size", 0, G_MAXINT,
-          DEFAULT_PROP_RENDER_WIDTH, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_RENDER_HEIGHT,
-      g_param_spec_int ("height", "render height",
-          "Height of rendered video size", 0, G_MAXINT,
-          DEFAULT_PROP_RENDER_HEIGHT, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
-  g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_RENDER_SILENT,
-      g_param_spec_boolean ("silent", "render silent",
-          "Whether to render the text string", 
-          DEFAULT_PROP_RENDER_SILENT, G_PARAM_READWRITE));
-#endif
   g_object_class_install_property (G_OBJECT_CLASS (klass), PROP_LINE_ALIGNMENT,
       g_param_spec_enum ("line-alignment", "line alignment",
           "Alignment of text lines relative to each other.",
@@ -404,8 +380,10 @@ gst_text_render_fixate_caps (GstPad * pad, GstCaps * caps)
   GstStructure *s = gst_caps_get_structure (caps, 0);
 
   GST_DEBUG ("Fixating caps %" GST_PTR_FORMAT, caps);
-  gst_structure_fixate_field_nearest_int (s, "width", render->image_width);
-  gst_structure_fixate_field_nearest_int (s, "height", render->image_height);
+  gst_structure_fixate_field_nearest_int (s, "width", MAX (render->image_width,
+          DEFAULT_RENDER_WIDTH));
+  gst_structure_fixate_field_nearest_int (s, "height",
+      MAX (render->image_height + render->ypad, DEFAULT_RENDER_HEIGHT));
   GST_DEBUG ("Fixated to    %" GST_PTR_FORMAT, caps);
 
   gst_object_unref (render);
@@ -428,12 +406,12 @@ gst_text_renderer_image_to_ayuv (GstTextRender * render, guchar * pixbuf,
 
   width = render->image_width;
   height = render->image_height;
-  bitp = render->text_image;
 
-  for (y = 0; y < height; y++) {
+  for (y = 0; y < height && ypos + y < render->height; y++) {
     int n;
     p = pixbuf + (ypos + y) * stride + xpos * 4;
-    for (n = 0; n < width; n++) {
+    bitp = render->text_image + y * width * 4;
+    for (n = 0; n < width && n < render->width; n++) {
       b = bitp[CAIRO_ARGB_B];
       g = bitp[CAIRO_ARGB_G];
       r = bitp[CAIRO_ARGB_R];
@@ -464,11 +442,11 @@ gst_text_renderer_image_to_argb (GstTextRender * render, guchar * pixbuf,
 
   width = render->image_width;
   height = render->image_height;
-  bitp = render->text_image;
 
-  for (i = 0; i < height; i++) {
+  for (i = 0; i < height && ypos + i < render->height; i++) {
     p = pixbuf + (ypos + i) * stride + xpos * 4;
-    for (j = 0; j < width; j++) {
+    bitp = render->text_image + i * width * 4;
+    for (j = 0; j < width && j < render->width; j++) {
       p[0] = bitp[CAIRO_ARGB_A];
       p[1] = bitp[CAIRO_ARGB_R];
       p[2] = bitp[CAIRO_ARGB_G];
@@ -489,7 +467,7 @@ gst_text_render_chain (GstPad * pad, GstBuffer * inbuf)
   GstTextRender *render;
   GstFlowReturn ret;
   GstBuffer *outbuf;
-  GstCaps *caps = NULL;
+  GstCaps *caps = NULL, *padcaps, *peercaps;
   guint8 *data = GST_BUFFER_DATA (inbuf);
   guint size = GST_BUFFER_SIZE (inbuf);
   gint n;
@@ -505,34 +483,28 @@ gst_text_render_chain (GstPad * pad, GstBuffer * inbuf)
   }
 
   /* render text */
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-  if (!render->silent) {
-    GST_DEBUG ("rendering '%*s'", size, data);
-    pango_layout_set_markup (render->layout, (gchar *) data, size);
-    gst_text_render_render_pangocairo (render);
-  } else {
-    GST_DEBUG ("silent mode is on, not rendering '%*s'", size, data);
-  }
-#else
   GST_DEBUG ("rendering '%*s'", size, data);
   pango_layout_set_markup (render->layout, (gchar *) data, size);
   gst_text_render_render_pangocairo (render);
-#endif
 
   gst_text_render_check_argb (render);
 
-  if (!render->use_ARGB) {
-    caps =
-        gst_video_format_new_caps (GST_VIDEO_FORMAT_AYUV, render->width,
-        render->height, 1, 1, 1, 1);
-  } else {
-    caps =
-        gst_video_format_new_caps (GST_VIDEO_FORMAT_ARGB, render->width,
-        render->height, 1, 1, 1, 1);
+  peercaps = gst_pad_peer_get_caps (render->srcpad);
+  padcaps = gst_pad_get_caps (render->srcpad);
+  caps = gst_caps_intersect (padcaps, peercaps);
+  gst_caps_unref (padcaps);
+  gst_caps_unref (peercaps);
+
+  if (!caps || gst_caps_is_empty (caps)) {
+    GST_ELEMENT_ERROR (render, CORE, NEGOTIATION, (NULL), (NULL));
+    ret = GST_FLOW_ERROR;
+    goto done;
   }
 
+  gst_caps_truncate (caps);
+  gst_pad_fixate_caps (render->srcpad, caps);
+
   if (!gst_pad_set_caps (render->srcpad, caps)) {
-    gst_caps_unref (caps);
     GST_ELEMENT_ERROR (render, CORE, NEGOTIATION, (NULL), (NULL));
     ret = GST_FLOW_ERROR;
     goto done;
@@ -557,13 +529,6 @@ gst_text_render_chain (GstPad * pad, GstBuffer * inbuf)
       data[n * 4 + 2] = data[n * 4 + 3] = 128;
     }
   }
-
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-  if (render->silent) {
-    ret = gst_pad_push (render->srcpad, outbuf);
-    goto done;
-  }
-#endif
 
   switch (render->halign) {
     case GST_TEXT_RENDER_HALIGN_LEFT:
@@ -662,14 +627,8 @@ gst_text_render_init (GstTextRender * render, GstTextRenderClass * klass)
   render->xpad = DEFAULT_PROP_XPAD;
   render->ypad = DEFAULT_PROP_YPAD;
 
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-  render->width = DEFAULT_PROP_RENDER_WIDTH;
-  render->height = DEFAULT_PROP_RENDER_HEIGHT;
-  render->silent = DEFAULT_PROP_RENDER_SILENT;
-#else
   render->width = DEFAULT_RENDER_WIDTH;
   render->height = DEFAULT_RENDER_HEIGHT;
-#endif
 
   render->use_ARGB = FALSE;
 }
@@ -698,17 +657,6 @@ gst_text_render_set_property (GObject * object, guint prop_id,
     case PROP_YPAD:
       render->ypad = g_value_get_int (value);
       break;
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-    case PROP_RENDER_WIDTH:
-      render->width = g_value_get_int (value);
-      break;
-    case PROP_RENDER_HEIGHT:
-      render->height = g_value_get_int (value);
-      break;
-    case PROP_RENDER_SILENT:
-      render->silent = g_value_get_boolean (value);
-      break;
-#endif
     case PROP_FONT_DESC:
     {
       PangoFontDescription *desc;
@@ -756,17 +704,6 @@ gst_text_render_get_property (GObject * object, guint prop_id,
     case PROP_YPAD:
       g_value_set_int (value, render->ypad);
       break;
-#ifdef GST_EXT_TEXTRENDER_ENHANCEMENT
-    case PROP_RENDER_WIDTH:
-      g_value_set_int (value, render->width);
-      break;
-    case PROP_RENDER_HEIGHT:
-      g_value_set_int (value, render->height);
-      break;
-    case PROP_RENDER_SILENT:
-      g_value_set_boolean (value, render->silent);
-      break;
-#endif
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;

@@ -31,7 +31,7 @@
  *
  * <refsect2>
  * <para>
- * This library contains some helper functions and includes the 
+ * This library contains some helper functions and includes the
  * videosink and videofilter base classes.
  * </para>
  * </refsect2>
@@ -53,7 +53,7 @@ static GstVideoFormat gst_video_format_from_rgb16_masks (int red_mask,
  *
  * A convenience function to retrieve a GValue holding the framerate
  * from the caps on a pad.
- * 
+ *
  * The pad needs to have negotiated caps containing a framerate property.
  *
  * Returns: NULL if the pad has no configured caps or the configured caps
@@ -106,7 +106,7 @@ gst_video_frame_rate (GstPad * pad)
  *
  * Inspect the caps of the provided pad and retrieve the width and height of
  * the video frames it is configured for.
- * 
+ *
  * The pad needs to have negotiated caps containing width and height properties.
  *
  * Returns: TRUE if the width and height could be retrieved.
@@ -158,13 +158,13 @@ gst_video_get_size (GstPad * pad, gint * width, gint * height)
  * @display_par_n: Numerator of the pixel aspect ratio of the display device
  * @display_par_d: Denominator of the pixel aspect ratio of the display device
  *
- * Given the Pixel Aspect Ratio and size of an input video frame, and the 
- * pixel aspect ratio of the intended display device, calculates the actual 
+ * Given the Pixel Aspect Ratio and size of an input video frame, and the
+ * pixel aspect ratio of the intended display device, calculates the actual
  * display ratio the video will be rendered with.
  *
- * Returns: A boolean indicating success and a calculated Display Ratio in the 
- * dar_n and dar_d parameters. 
- * The return value is FALSE in the case of integer overflow or other error. 
+ * Returns: A boolean indicating success and a calculated Display Ratio in the
+ * dar_n and dar_d parameters.
+ * The return value is FALSE in the case of integer overflow or other error.
  *
  * Since: 0.10.7
  */
@@ -276,7 +276,7 @@ gst_video_parse_caps_color_matrix (GstCaps * caps)
  * halfway-sited vertically), "jpeg" for JPEG and Theora style
  * chroma siting (halfway-sited both horizontally and vertically).
  * Other chroma site values are possible, but uncommon.
- * 
+ *
  * When no chroma site is specified in the caps, it should be assumed
  * to be "mpeg2".
  *
@@ -317,15 +317,17 @@ gst_video_parse_caps_chroma_site (GstCaps * caps)
  * Determines the #GstVideoFormat of @caps and places it in the location
  * pointed to by @format.  Extracts the size of the video and places it
  * in the location pointed to by @width and @height.  If @caps does not
- * represent one of the raw video formats listed in #GstVideoFormat, the
- * function will fail and return FALSE.
+ * represent a video format or does not contain height and width, the
+ * function will fail and return FALSE. If @caps does not represent a raw
+ * video format listed in #GstVideoFormat, but still contains video caps,
+ * this function will return TRUE and set @format to #GST_VIDEO_FORMAT_UNKNOWN.
  *
  * Since: 0.10.16
  *
  * Returns: TRUE if @caps was parsed correctly.
  */
 gboolean
-gst_video_format_parse_caps (GstCaps * caps, GstVideoFormat * format,
+gst_video_format_parse_caps (const GstCaps * caps, GstVideoFormat * format,
     int *width, int *height)
 {
   GstStructure *structure;
@@ -429,6 +431,8 @@ gst_video_format_parse_caps (GstCaps * caps, GstVideoFormat * format,
       } else {
         ok = FALSE;
       }
+    } else if (g_str_has_prefix (gst_structure_get_name (structure), "video/")) {
+      *format = GST_VIDEO_FORMAT_UNKNOWN;
     } else {
       ok = FALSE;
     }
@@ -658,10 +662,10 @@ gst_video_format_new_caps_raw (GstVideoFormat format)
           blue_mask = GST_VIDEO_COMP1_MASK_15_INT;
           break;
         default:
-          return NULL;
+          g_assert_not_reached ();
       }
     } else if (bpp != 8) {
-      return NULL;
+      g_assert_not_reached ();
     }
 
     caps = gst_caps_new_simple ("video/x-raw-rgb",
@@ -762,11 +766,9 @@ gst_video_format_new_template_caps (GstVideoFormat format)
     gst_value_list_append_value (&value, &v);
     g_value_set_boolean (&v, FALSE);
     gst_value_list_append_value (&value, &v);
+    g_value_unset (&v);
 
-    gst_structure_set_value (structure, "interlaced", &value);
-
-    g_value_reset (&value);
-    g_value_reset (&v);
+    gst_structure_take_value (structure, "interlaced", &value);
   }
 
   return caps;
@@ -954,7 +956,7 @@ gst_video_format_to_fourcc (GstVideoFormat format)
  * @blue_mask: blue bit mask
  *
  * Converts red, green, blue bit masks into the corresponding
- * #GstVideoFormat.  
+ * #GstVideoFormat.
  *
  * Since: 0.10.16
  *
@@ -1193,7 +1195,7 @@ gst_video_format_is_gray (GstVideoFormat format)
 /**
  * gst_video_format_has_alpha:
  * @format: a #GstVideoFormat
- * 
+ *
  * Returns TRUE or FALSE depending on if the video format provides an
  * alpha channel.
  *
@@ -1255,9 +1257,10 @@ gst_video_format_has_alpha (GstVideoFormat format)
 /**
  * gst_video_format_get_component_depth:
  * @format: a #GstVideoFormat
- * 
+ * @component: the video component (e.g. 0 for 'R' in RGB)
+ *
  * Returns the number of bits used to encode an individual pixel of
- * a given component.  Typically this is 8, although higher and lower
+ * a given @component.  Typically this is 8, although higher and lower
  * values are possible for some formats.
  *
  * Since: 0.10.33
@@ -1744,7 +1747,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
             GST_ROUND_UP_4 (GST_ROUND_UP_2 (width) / 2) *
             (GST_ROUND_UP_2 (height) / 2);
       }
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_YV12:        /* same as I420, but components 1+2 swapped */
       if (component == 0)
         return 0;
@@ -1755,7 +1758,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
             GST_ROUND_UP_4 (GST_ROUND_UP_2 (width) / 2) *
             (GST_ROUND_UP_2 (height) / 2);
       }
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_YUY2:
       if (component == 0)
         return 0;
@@ -1763,7 +1766,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 1;
       if (component == 2)
         return 3;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_YVYU:
       if (component == 0)
         return 0;
@@ -1771,7 +1774,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 3;
       if (component == 2)
         return 1;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_UYVY:
       if (component == 0)
         return 1;
@@ -1779,7 +1782,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 0;
       if (component == 2)
         return 2;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_AYUV:
       if (component == 0)
         return 1;
@@ -1789,7 +1792,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 3;
       if (component == 3)
         return 0;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_RGBx:
     case GST_VIDEO_FORMAT_RGBA:
       if (component == 0)
@@ -1800,7 +1803,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 2;
       if (component == 3)
         return 3;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_BGRx:
     case GST_VIDEO_FORMAT_BGRA:
       if (component == 0)
@@ -1811,7 +1814,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 0;
       if (component == 3)
         return 3;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_xRGB:
     case GST_VIDEO_FORMAT_ARGB:
       if (component == 0)
@@ -1822,7 +1825,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 3;
       if (component == 3)
         return 0;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_xBGR:
     case GST_VIDEO_FORMAT_ABGR:
       if (component == 0)
@@ -1833,7 +1836,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 1;
       if (component == 3)
         return 0;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_RGB:
     case GST_VIDEO_FORMAT_v308:
       if (component == 0)
@@ -1842,7 +1845,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 1;
       if (component == 2)
         return 2;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_BGR:
       if (component == 0)
         return 2;
@@ -1850,7 +1853,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 1;
       if (component == 2)
         return 0;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_Y41B:
       if (component == 0)
         return 0;
@@ -1859,7 +1862,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
       if (component == 2)
         return (GST_ROUND_UP_4 (width) +
             (GST_ROUND_UP_16 (width) / 4)) * height;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_Y42B:
       if (component == 0)
         return 0;
@@ -1867,7 +1870,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return GST_ROUND_UP_4 (width) * height;
       if (component == 2)
         return (GST_ROUND_UP_4 (width) + (GST_ROUND_UP_8 (width) / 2)) * height;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_Y444:
       return GST_ROUND_UP_4 (width) * height * component;
     case GST_VIDEO_FORMAT_v210:
@@ -1881,7 +1884,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 2;
       if (component == 2)
         return 6;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_NV12:
       if (component == 0)
         return 0;
@@ -1889,6 +1892,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return GST_ROUND_UP_4 (width) * GST_ROUND_UP_2 (height);
       if (component == 2)
         return GST_ROUND_UP_4 (width) * GST_ROUND_UP_2 (height) + 1;
+      break;
     case GST_VIDEO_FORMAT_NV21:
       if (component == 0)
         return 0;
@@ -1896,6 +1900,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return GST_ROUND_UP_4 (width) * GST_ROUND_UP_2 (height) + 1;
       if (component == 2)
         return GST_ROUND_UP_4 (width) * GST_ROUND_UP_2 (height);
+      break;
     case GST_VIDEO_FORMAT_GRAY8:
     case GST_VIDEO_FORMAT_GRAY16_BE:
     case GST_VIDEO_FORMAT_GRAY16_LE:
@@ -1920,6 +1925,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
             2 * GST_ROUND_UP_4 (GST_ROUND_UP_2 (width) / 2) *
             (GST_ROUND_UP_2 (height) / 2);
       }
+      break;
     case GST_VIDEO_FORMAT_RGB8_PALETTED:
       return 0;
     case GST_VIDEO_FORMAT_YUV9:
@@ -1932,7 +1938,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
             GST_ROUND_UP_4 (GST_ROUND_UP_4 (width) / 4) *
             (GST_ROUND_UP_4 (height) / 4);
       }
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_YVU9:
       if (component == 0)
         return 0;
@@ -1943,7 +1949,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
       }
       if (component == 2)
         return GST_ROUND_UP_4 (width) * height;
-      return 0;
+      break;
     case GST_VIDEO_FORMAT_IYU1:
       if (component == 0)
         return 1;
@@ -1951,6 +1957,7 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 0;
       if (component == 2)
         return 4;
+      break;
     case GST_VIDEO_FORMAT_ARGB64:
     case GST_VIDEO_FORMAT_AYUV64:
       if (component == 0)
@@ -1961,10 +1968,12 @@ gst_video_format_get_component_offset (GstVideoFormat format,
         return 6;
       if (component == 3)
         return 0;
-      return 0;
+      break;
     default:
-      return 0;
+      break;
   }
+  GST_WARNING ("unhandled format %d or component %d", format, component);
+  return 0;
 }
 
 /**
@@ -2064,6 +2073,36 @@ gst_video_format_get_size (GstVideoFormat format, int width, int height)
     default:
       return 0;
   }
+}
+
+/**
+ * gst_video_get_size_from_caps:
+ * @caps: a pointer to #GstCaps
+ * @size: a pointer to a gint that will be assigned the size (in bytes) of a video frame with the given caps
+ *
+ * Calculates the total number of bytes in the raw video format for the given
+ * caps.  This number should be used when allocating a buffer for raw video.
+ *
+ * Since: 0.10.36
+ *
+ * Returns: %TRUE if the size could be calculated from the caps
+ */
+gboolean
+gst_video_get_size_from_caps (const GstCaps * caps, gint * size)
+{
+  GstVideoFormat format = 0;
+  gint width = 0, height = 0;
+
+  g_return_val_if_fail (gst_caps_is_fixed (caps), FALSE);
+  g_return_val_if_fail (size != NULL, FALSE);
+
+  if (gst_video_format_parse_caps (caps, &format, &width, &height) == FALSE) {
+    GST_WARNING ("Could not parse caps: %" GST_PTR_FORMAT, caps);
+    return FALSE;
+  }
+
+  *size = gst_video_format_get_size (format, width, height);
+  return TRUE;
 }
 
 /**
@@ -2292,4 +2331,228 @@ gst_video_parse_caps_palette (GstCaps * caps)
   p = gst_buffer_ref (gst_value_get_buffer (p_v));
 
   return p;
+}
+
+#define GST_VIDEO_EVENT_FORCE_KEY_UNIT_NAME "GstForceKeyUnit"
+
+/**
+ * gst_video_event_new_downstream_force_key_unit:
+ * @timestamp: the timestamp of the buffer that starts a new key unit
+ * @stream_time: the stream_time of the buffer that starts a new key unit
+ * @running_time: the running_time of the buffer that starts a new key unit
+ * @all_headers: %TRUE to produce headers when starting a new key unit
+ * @count: integer that can be used to number key units
+ *
+ * Creates a new downstream force key unit event. A downstream force key unit
+ * event can be sent down the pipeline to request downstream elements to produce
+ * a key unit. A downstream force key unit event must also be sent when handling
+ * an upstream force key unit event to notify downstream that the latter has been
+ * handled.
+ *
+ * To parse an event created by gst_video_event_new_downstream_force_key_unit() use
+ * gst_video_event_parse_downstream_force_key_unit().
+ *
+ * Returns: The new GstEvent
+ * Since: 0.10.36
+ */
+GstEvent *
+gst_video_event_new_downstream_force_key_unit (GstClockTime timestamp,
+    GstClockTime stream_time, GstClockTime running_time, gboolean all_headers,
+    guint count)
+{
+  GstEvent *force_key_unit_event;
+  GstStructure *s;
+
+  s = gst_structure_new (GST_VIDEO_EVENT_FORCE_KEY_UNIT_NAME,
+      "timestamp", G_TYPE_UINT64, timestamp,
+      "stream-time", G_TYPE_UINT64, stream_time,
+      "running-time", G_TYPE_UINT64, running_time,
+      "all-headers", G_TYPE_BOOLEAN, all_headers,
+      "count", G_TYPE_UINT, count, NULL);
+  force_key_unit_event = gst_event_new_custom (GST_EVENT_CUSTOM_DOWNSTREAM, s);
+
+  return force_key_unit_event;
+}
+
+/**
+ * gst_video_event_new_upstream_force_key_unit:
+ * @running_time: the running_time at which a new key unit should be produced
+ * @all_headers: %TRUE to produce headers when starting a new key unit
+ * @count: integer that can be used to number key units
+ *
+ * Creates a new upstream force key unit event. An upstream force key unit event
+ * can be sent to request upstream elements to produce a key unit. 
+ *
+ * @running_time can be set to request a new key unit at a specific
+ * running_time. If set to GST_CLOCK_TIME_NONE, upstream elements will produce a
+ * new key unit as soon as possible.
+ *
+ * To parse an event created by gst_video_event_new_downstream_force_key_unit() use
+ * gst_video_event_parse_downstream_force_key_unit().
+ *
+ * Returns: The new GstEvent
+ * Since: 0.10.36
+ */
+GstEvent *
+gst_video_event_new_upstream_force_key_unit (GstClockTime running_time,
+    gboolean all_headers, guint count)
+{
+  GstEvent *force_key_unit_event;
+  GstStructure *s;
+
+  s = gst_structure_new (GST_VIDEO_EVENT_FORCE_KEY_UNIT_NAME,
+      "running-time", GST_TYPE_CLOCK_TIME, running_time,
+      "all-headers", G_TYPE_BOOLEAN, all_headers,
+      "count", G_TYPE_UINT, count, NULL);
+  force_key_unit_event = gst_event_new_custom (GST_EVENT_CUSTOM_UPSTREAM, s);
+
+  return force_key_unit_event;
+}
+
+/**
+ * gst_video_event_is_force_key_unit:
+ * @event: A #GstEvent to check
+ *
+ * Checks if an event is a force key unit event. Returns true for both upstream
+ * and downstream force key unit events.
+ *
+ * Returns: %TRUE if the event is a valid force key unit event
+ * Since: 0.10.36
+ */
+gboolean
+gst_video_event_is_force_key_unit (GstEvent * event)
+{
+  const GstStructure *s;
+
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  if (GST_EVENT_TYPE (event) != GST_EVENT_CUSTOM_DOWNSTREAM &&
+      GST_EVENT_TYPE (event) != GST_EVENT_CUSTOM_UPSTREAM)
+    return FALSE;               /* Not a force key unit event */
+
+  s = gst_event_get_structure (event);
+  if (s == NULL
+      || !gst_structure_has_name (s, GST_VIDEO_EVENT_FORCE_KEY_UNIT_NAME))
+    return FALSE;
+
+  return TRUE;
+}
+
+/**
+ * gst_video_event_parse_downstream_force_key_unit:
+ * @event: A #GstEvent to parse
+ * @timestamp: (out): A pointer to the timestamp in the event
+ * @stream_time: (out): A pointer to the stream-time in the event
+ * @running_time: (out): A pointer to the running-time in the event
+ * @all_headers: (out): A pointer to the all_headers flag in the event
+ * @count: (out): A pointer to the count field of the event
+ *
+ * Get timestamp, stream-time, running-time, all-headers and count in the force
+ * key unit event. See gst_video_event_new_downstream_force_key_unit() for a
+ * full description of the downstream force key unit event.
+ *
+ * Returns: %TRUE if the event is a valid downstream force key unit event.
+ * Since: 0.10.36
+ */
+gboolean
+gst_video_event_parse_downstream_force_key_unit (GstEvent * event,
+    GstClockTime * timestamp, GstClockTime * stream_time,
+    GstClockTime * running_time, gboolean * all_headers, guint * count)
+{
+  const GstStructure *s;
+  GstClockTime ev_timestamp, ev_stream_time, ev_running_time;
+  gboolean ev_all_headers;
+  guint ev_count;
+
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  if (GST_EVENT_TYPE (event) != GST_EVENT_CUSTOM_DOWNSTREAM)
+    return FALSE;               /* Not a force key unit event */
+
+  s = gst_event_get_structure (event);
+  if (s == NULL
+      || !gst_structure_has_name (s, GST_VIDEO_EVENT_FORCE_KEY_UNIT_NAME))
+    return FALSE;
+
+  if (!gst_structure_get_clock_time (s, "timestamp", &ev_timestamp))
+    return FALSE;               /* Not a force key unit event */
+  if (!gst_structure_get_clock_time (s, "stream-time", &ev_stream_time))
+    return FALSE;               /* Not a force key unit event */
+  if (!gst_structure_get_clock_time (s, "running-time", &ev_running_time))
+    return FALSE;               /* Not a force key unit event */
+  if (!gst_structure_get_boolean (s, "all-headers", &ev_all_headers))
+    return FALSE;               /* Not a force key unit event */
+  if (!gst_structure_get_uint (s, "count", &ev_count))
+    return FALSE;               /* Not a force key unit event */
+
+  if (timestamp)
+    *timestamp = ev_timestamp;
+
+  if (stream_time)
+    *stream_time = ev_stream_time;
+
+  if (running_time)
+    *running_time = ev_running_time;
+
+  if (all_headers)
+    *all_headers = ev_all_headers;
+
+  if (count)
+    *count = ev_count;
+
+  return TRUE;
+}
+
+/**
+ * gst_video_event_parse_upstream_force_key_unit:
+ * @event: A #GstEvent to parse
+ * @running_time: (out): A pointer to the running_time in the event
+ * @all_headers: (out): A pointer to the all_headers flag in the event
+ * @count: (out): A pointer to the count field in the event
+ *
+ * Get running-time, all-headers and count in the force key unit event. See
+ * gst_video_event_new_upstream_force_key_unit() for a full description of the
+ * upstream force key unit event.
+ *
+ * Create an upstream force key unit event using  gst_video_event_new_upstream_force_key_unit()
+ *
+ * Returns: %TRUE if the event is a valid upstream force-key-unit event. %FALSE if not
+ * Since: 0.10.36
+ */
+gboolean
+gst_video_event_parse_upstream_force_key_unit (GstEvent * event,
+    GstClockTime * running_time, gboolean * all_headers, guint * count)
+{
+  const GstStructure *s;
+  GstClockTime ev_running_time;
+  gboolean ev_all_headers;
+  guint ev_count;
+
+  g_return_val_if_fail (event != NULL, FALSE);
+
+  if (GST_EVENT_TYPE (event) != GST_EVENT_CUSTOM_UPSTREAM)
+    return FALSE;               /* Not a force key unit event */
+
+  s = gst_event_get_structure (event);
+  if (s == NULL
+      || !gst_structure_has_name (s, GST_VIDEO_EVENT_FORCE_KEY_UNIT_NAME))
+    return FALSE;
+
+  if (!gst_structure_get_clock_time (s, "running-time", &ev_running_time))
+    return FALSE;               /* Not a force key unit event */
+  if (!gst_structure_get_boolean (s, "all-headers", &ev_all_headers))
+    return FALSE;               /* Not a force key unit event */
+  if (!gst_structure_get_uint (s, "count", &ev_count))
+    return FALSE;               /* Not a force key unit event */
+
+  if (running_time)
+    *running_time = ev_running_time;
+
+  if (all_headers)
+    *all_headers = ev_all_headers;
+
+  if (count)
+    *count = ev_count;
+
+  return TRUE;
 }

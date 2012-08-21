@@ -21,6 +21,7 @@
 #define __GST_VIDEO_RATE_H__
 
 #include <gst/gst.h>
+#include <gst/base/gstbasetransform.h>
 
 G_BEGIN_DECLS
 
@@ -45,9 +46,7 @@ typedef struct _GstVideoRateClass GstVideoRateClass;
  */
 struct _GstVideoRate
 {
-  GstElement element;
-
-  GstPad *sinkpad, *srcpad;
+  GstBaseTransform parent;
 
   /* video state */
   gint from_rate_numerator, from_rate_denominator;
@@ -63,6 +62,10 @@ struct _GstVideoRate
   gboolean discont;
   guint64 last_ts;              /* Timestamp of last input buffer */
 
+  guint64 average_period;
+  GstClockTimeDiff wanted_diff; /* target average diff */
+  GstClockTimeDiff average;     /* moving average period */
+
   /* segment handling */
   GstSegment segment;
 
@@ -71,11 +74,16 @@ struct _GstVideoRate
   gboolean silent;
   gdouble new_pref;
   gboolean skip_to_first;
+  gboolean drop_only;
+  guint64 average_period_set;
+  gint force_fps_n, force_fps_d;
+
+  volatile int max_rate;
 };
 
 struct _GstVideoRateClass
 {
-  GstElementClass parent_class;
+  GstBaseTransformClass parent_class;
 };
 
 GType gst_video_rate_get_type (void);

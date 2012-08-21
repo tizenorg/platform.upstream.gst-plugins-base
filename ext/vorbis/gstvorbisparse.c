@@ -91,10 +91,10 @@ gst_vorbis_parse_base_init (gpointer g_class)
 {
   GstElementClass *element_class = GST_ELEMENT_CLASS (g_class);
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&vorbis_parse_src_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&vorbis_parse_sink_factory));
+  gst_element_class_add_static_pad_template (element_class,
+      &vorbis_parse_src_factory);
+  gst_element_class_add_static_pad_template (element_class,
+      &vorbis_parse_sink_factory);
   gst_element_class_set_details_simple (element_class,
       "VorbisParse", "Codec/Parser/Audio",
       "parse raw vorbis streams",
@@ -401,7 +401,7 @@ vorbis_parse_parse_packet (GstVorbisParse * parse, GstBuffer * buf)
 
   have_header = FALSE;
   if (size >= 1) {
-    if (data[0] >= 0x01 && data[0] <= 0x05)
+    if (data[0] & 1)
       have_header = TRUE;
   }
 

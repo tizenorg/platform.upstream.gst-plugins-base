@@ -117,7 +117,7 @@ free_stream (GstOggStream * stream)
   g_list_foreach (stream->unknown_pages, (GFunc) gst_mini_object_unref, NULL);
   g_list_foreach (stream->stored_buffers, (GFunc) gst_mini_object_unref, NULL);
 
-  g_free (stream);
+  g_slice_free (GstOggStream, stream);
 }
 
 static void
@@ -140,7 +140,7 @@ gst_ogg_parse_new_stream (GstOggParse * parser, ogg_page * page)
 
   GST_DEBUG_OBJECT (parser, "creating new stream %08x", serialno);
 
-  stream = g_new0 (GstOggStream, 1);
+  stream = g_slice_new0 (GstOggStream);
 
   stream->serialno = serialno;
   stream->in_headers = 1;
@@ -224,10 +224,10 @@ gst_ogg_parse_base_init (gpointer g_class)
       "parse ogg streams into pages (info about ogg: http://xiph.org)",
       "Michael Smith <msmith@fluendo.com>");
 
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&ogg_parse_sink_template_factory));
-  gst_element_class_add_pad_template (element_class,
-      gst_static_pad_template_get (&ogg_parse_src_template_factory));
+  gst_element_class_add_static_pad_template (element_class,
+      &ogg_parse_sink_template_factory);
+  gst_element_class_add_static_pad_template (element_class,
+      &ogg_parse_src_template_factory);
 }
 
 static void
@@ -466,7 +466,7 @@ gst_ogg_parse_chain (GstPad * pad, GstBuffer * buffer)
         GstOggStream *stream = gst_ogg_parse_find_stream (ogg, serialno);
 
         if (stream != NULL) {
-          GST_LOG_OBJECT (ogg, "Incorrect stream; repeats serial number %u "
+          GST_LOG_OBJECT (ogg, "Incorrect stream; repeats serial number %08x "
               "at offset %" G_GINT64_FORMAT, serialno, ogg->offset);
         }
 
@@ -560,7 +560,7 @@ gst_ogg_parse_chain (GstPad * pad, GstBuffer * buffer)
               GstOggStream *stream = (GstOggStream *) l->data;
 
               if (g_list_length (stream->headers) == 0) {
-                GST_LOG_OBJECT (ogg, "No primary header found for stream %08lx",
+                GST_LOG_OBJECT (ogg, "No primary header found for stream %08x",
                     stream->serialno);
                 goto failure;
               }

@@ -3,12 +3,12 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>audiotestsrc</title>
-<meta name="generator" content="DocBook XSL Stylesheets V1.75.2">
+<meta name="generator" content="DocBook XSL Stylesheets V1.76.1">
 <link rel="home" href="index.html" title="GStreamer Base Plugins 0.10 Plugins Reference Manual">
 <link rel="up" href="ch01.html" title="gst-plugins-base Elements">
 <link rel="prev" href="gst-plugins-base-plugins-audioresample.html" title="audioresample">
 <link rel="next" href="gst-plugins-base-plugins-cdparanoiasrc.html" title="cdparanoiasrc">
-<meta name="generator" content="GTK-Doc V1.17 (XML mode)">
+<meta name="generator" content="GTK-Doc V1.18 (XML mode)">
 <link rel="stylesheet" href="style.css" type="text/css">
 </head>
 <body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
@@ -61,7 +61,7 @@ enum                <a class="link" href="gst-plugins-base-plugins-audiotestsrc.
   "<a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrc--freq" title='The "freq" property'>freq</a>"                     <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>               : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrc--is-live" title='The "is-live" property'>is-live</a>"                  <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrc--samplesperbuffer" title='The "samplesperbuffer" property'>samplesperbuffer</a>"         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint"><span class="type">gint</span></a>                  : Read / Write
-  "<a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrc--timestamp-offset" title='The "timestamp-offset" property'>timestamp-offset</a>"         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a>                : Read / Write
+  "<a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrc--timestamp-offset" title='The "timestamp-offset" property'>timestamp-offset</a>"         <span class="type">gint64</span>                : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrc--volume" title='The "volume" property'>volume</a>"                   <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gdouble"><span class="type">gdouble</span></a>               : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrc--wave" title='The "wave" property'>wave</a>"                     <a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrcWave" title="enum GstAudioTestSrcWave"><span class="type">GstAudioTestSrcWave</span></a>   : Read / Write
   "<a class="link" href="gst-plugins-base-plugins-audiotestsrc.html#GstAudioTestSrc--can-activate-pull" title='The "can-activate-pull" property'>can-activate-pull</a>"        <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gboolean"><span class="type">gboolean</span></a>              : Read / Write
@@ -77,7 +77,7 @@ different waveforms and allows to set the base frequency and volume.
 <p>
 </p>
 <div class="refsect2">
-<a name="idp10290800"></a><h3>Example launch line</h3>
+<a name="idp10528400"></a><h3>Example launch line</h3>
 <div class="informalexample">
   <table class="listing_frame" border="0" cellpadding="0" cellspacing="0">
     <tbody>
@@ -109,7 +109,7 @@ the saw wave is correct.
 <div class="refsynopsisdiv">
 <h2>Synopsis</h2>
 <div class="refsect2">
-<a name="idp10294688"></a><h3>Element Information</h3>
+<a name="idp10222736"></a><h3>Element Information</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -132,7 +132,7 @@ the saw wave is correct.
 </div>
 <hr>
 <div class="refsect2">
-<a name="idp10302144"></a><h3>Element Pads</h3>
+<a name="idp10230192"></a><h3>Element Pads</h3>
 <div class="variablelist"><table border="0">
 <col align="left" valign="top">
 <tbody>
@@ -189,8 +189,11 @@ audiotestsrc object structure.
   GST_AUDIO_TEST_SRC_WAVE_PINK_NOISE,
   GST_AUDIO_TEST_SRC_WAVE_SINE_TAB,
   GST_AUDIO_TEST_SRC_WAVE_TICKS,
-  GST_AUDIO_TEST_SRC_WAVE_GAUSSIAN_WHITE_NOISE
-} GstAudioTestSrcWave; 
+  GST_AUDIO_TEST_SRC_WAVE_GAUSSIAN_WHITE_NOISE,
+  GST_AUDIO_TEST_SRC_WAVE_RED_NOISE,
+  GST_AUDIO_TEST_SRC_WAVE_BLUE_NOISE,
+  GST_AUDIO_TEST_SRC_WAVE_VIOLET_NOISE
+} GstAudioTestSrcWave;
 </pre>
 <p>
 Different types of supported sound waves.
@@ -248,6 +251,21 @@ Different types of supported sound waves.
 <td>white (zero mean) Gaussian noise;  volume sets the standard deviation of the noise in units of the range of values of the sample type, e.g. volume=0.1 produces noise with a standard deviation of 0.1*32767=3277 with 16-bit integer samples, or 0.1*1.0=0.1 with floating-point samples.
 </td>
 </tr>
+<tr>
+<td><p><a name="GST-AUDIO-TEST-SRC-WAVE-RED-NOISE:CAPS"></a><span class="term"><code class="literal">GST_AUDIO_TEST_SRC_WAVE_RED_NOISE</code></span></p></td>
+<td>red (brownian) noise
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-AUDIO-TEST-SRC-WAVE-BLUE-NOISE:CAPS"></a><span class="term"><code class="literal">GST_AUDIO_TEST_SRC_WAVE_BLUE_NOISE</code></span></p></td>
+<td>spectraly inverted pink noise
+</td>
+</tr>
+<tr>
+<td><p><a name="GST-AUDIO-TEST-SRC-WAVE-VIOLET-NOISE:CAPS"></a><span class="term"><code class="literal">GST_AUDIO_TEST_SRC_WAVE_VIOLET_NOISE</code></span></p></td>
+<td>spectraly inverted red (brownian) noise
+</td>
+</tr>
 </tbody>
 </table></div>
 </div>
@@ -279,7 +297,7 @@ Different types of supported sound waves.
 <hr>
 <div class="refsect2">
 <a name="GstAudioTestSrc--timestamp-offset"></a><h3>The <code class="literal">"timestamp-offset"</code> property</h3>
-<pre class="programlisting">  "timestamp-offset"         <a href="http://library.gnome.org/devel/glib/unstable/glib-Basic-Types.html#gint64"><span class="type">gint64</span></a>                : Read / Write</pre>
+<pre class="programlisting">  "timestamp-offset"         <span class="type">gint64</span>                : Read / Write</pre>
 <p>An offset added to timestamps set on buffers (in ns).</p>
 <p>Default value: 0</p>
 </div>
@@ -316,6 +334,6 @@ Different types of supported sound waves.
 </div>
 <div class="footer">
 <hr>
-          Generated by GTK-Doc V1.17</div>
+          Generated by GTK-Doc V1.18</div>
 </body>
 </html>

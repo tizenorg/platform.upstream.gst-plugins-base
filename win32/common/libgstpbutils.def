@@ -5,6 +5,7 @@ EXPORTS
 	gst_codec_utils_aac_get_sample_rate_from_index
 	gst_codec_utils_h264_caps_set_level_and_profile
 	gst_codec_utils_h264_get_level
+	gst_codec_utils_h264_get_level_idc
 	gst_codec_utils_h264_get_profile
 	gst_codec_utils_mpeg4video_caps_set_level_and_profile
 	gst_codec_utils_mpeg4video_get_level
@@ -12,6 +13,7 @@ EXPORTS
 	gst_discoverer_audio_info_get_bitrate
 	gst_discoverer_audio_info_get_channels
 	gst_discoverer_audio_info_get_depth
+	gst_discoverer_audio_info_get_language
 	gst_discoverer_audio_info_get_max_bitrate
 	gst_discoverer_audio_info_get_sample_rate
 	gst_discoverer_audio_info_get_type
@@ -30,6 +32,7 @@ EXPORTS
 	gst_discoverer_info_get_stream_info
 	gst_discoverer_info_get_stream_list
 	gst_discoverer_info_get_streams
+	gst_discoverer_info_get_subtitle_streams
 	gst_discoverer_info_get_tags
 	gst_discoverer_info_get_type
 	gst_discoverer_info_get_uri
@@ -46,6 +49,8 @@ EXPORTS
 	gst_discoverer_stream_info_get_tags
 	gst_discoverer_stream_info_get_type
 	gst_discoverer_stream_info_list_free
+	gst_discoverer_subtitle_info_get_language
+	gst_discoverer_subtitle_info_get_type
 	gst_discoverer_video_info_get_bitrate
 	gst_discoverer_video_info_get_depth
 	gst_discoverer_video_info_get_framerate_denom
@@ -68,6 +73,7 @@ EXPORTS
 	gst_encoding_list_all_targets
 	gst_encoding_list_available_categories
 	gst_encoding_profile_find
+	gst_encoding_profile_from_discoverer
 	gst_encoding_profile_get_description
 	gst_encoding_profile_get_format
 	gst_encoding_profile_get_input_caps

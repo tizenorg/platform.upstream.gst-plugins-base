@@ -5,9 +5,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: gst-plugins-base 0.10.34\n"
+"Project-Id-Version: gst-plugins-base 0.10.36\n"
 "Report-Msgid-Bugs-To: http://bugzilla.gnome.org/\n"
-"POT-Creation-Date: 2011-05-14 00:45+0100\n"
+"POT-Creation-Date: 2012-02-20 23:28+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,49 +61,49 @@ msgstr ""
 msgid "Capture"
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:486
+#: ext/alsa/gstalsasink.c:485
 msgid "Could not open device for playback in mono mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:488
+#: ext/alsa/gstalsasink.c:487
 msgid "Could not open device for playback in stereo mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:492
+#: ext/alsa/gstalsasink.c:491
 #, c-format
 msgid "Could not open device for playback in %d-channel mode."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:695
+#: ext/alsa/gstalsasink.c:687
 msgid ""
 "Could not open audio device for playback. Device is being used by another "
 "application."
 msgstr ""
 
-#: ext/alsa/gstalsasink.c:700
+#: ext/alsa/gstalsasink.c:692
 msgid "Could not open audio device for playback."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:421
+#: ext/alsa/gstalsasrc.c:422
 msgid "Could not open device for recording in mono mode."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:423
+#: ext/alsa/gstalsasrc.c:424
 msgid "Could not open device for recording in stereo mode."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:427
+#: ext/alsa/gstalsasrc.c:428
 #, c-format
 msgid "Could not open device for recording in %d-channel mode"
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:633
+#: ext/alsa/gstalsasrc.c:634
 msgid ""
 "Could not open audio device for recording. Device is being used by another "
 "application."
 msgstr ""
 
-#: ext/alsa/gstalsasrc.c:638
+#: ext/alsa/gstalsasrc.c:639
 msgid "Could not open audio device for recording."
 msgstr ""
 
@@ -119,86 +119,86 @@ msgstr ""
 msgid "Could not read CD."
 msgstr ""
 
-#: ext/gnomevfs/gstgnomevfssink.c:375
+#: ext/gnomevfs/gstgnomevfssink.c:374
 #, c-format
 msgid "Could not open vfs file \"%s\" for writing: %s."
 msgstr ""
 
-#: ext/gnomevfs/gstgnomevfssink.c:382
+#: ext/gnomevfs/gstgnomevfssink.c:381
 msgid "No filename given"
 msgstr ""
 
-#: ext/gnomevfs/gstgnomevfssink.c:408
+#: ext/gnomevfs/gstgnomevfssink.c:407
 #, c-format
 msgid "Could not close vfs file \"%s\"."
 msgstr ""
 
-#: ext/gnomevfs/gstgnomevfssink.c:566
+#: ext/gnomevfs/gstgnomevfssink.c:565
 #, c-format
 msgid "Error while writing to file \"%s\"."
 msgstr ""
 
-#: ext/ogg/gstoggdemux.c:3480
+#: ext/ogg/gstoggdemux.c:4466
 msgid "Internal data stream error."
 msgstr ""
 
-#: gst/playback/gstdecodebin.c:994 gst/playback/gstdecodebin2.c:1576
-#: gst/playback/gstplaybasebin.c:1548 gst/playback/gstplaybasebin.c:1684
+#: gst/playback/gstdecodebin.c:1000 gst/playback/gstdecodebin2.c:1696
+#: gst/playback/gstplaybasebin.c:1549 gst/playback/gstplaybasebin.c:1685
 #, c-format
 msgid "A %s plugin is required to play this stream, but not installed."
 msgstr ""
 
-#: gst/playback/gstdecodebin.c:1825 gst/playback/gstdecodebin2.c:2061
+#: gst/playback/gstdecodebin.c:1845 gst/playback/gstdecodebin2.c:2264
 msgid "This appears to be a text file"
 msgstr ""
 
-#: gst/playback/gstdecodebin2.c:1583
+#: gst/playback/gstdecodebin2.c:1703
 msgid "Could not determine type of stream"
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:1531
+#: gst/playback/gstplaybasebin.c:1532
 #, c-format
 msgid "Invalid subtitle URI \"%s\", subtitles disabled."
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:1654 gst/playback/gsturidecodebin.c:1148
+#: gst/playback/gstplaybasebin.c:1655 gst/playback/gsturidecodebin.c:1256
 msgid "No URI specified to play from."
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:1660 gst/playback/gsturidecodebin.c:1154
+#: gst/playback/gstplaybasebin.c:1661 gst/playback/gsturidecodebin.c:1262
 #, c-format
 msgid "Invalid URI \"%s\"."
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:1666
+#: gst/playback/gstplaybasebin.c:1667
 msgid "RTSP streams cannot be played yet."
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:2019
+#: gst/playback/gstplaybasebin.c:2020
 msgid "Could not create \"decodebin\" element."
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:2239 gst/playback/gsturidecodebin.c:1986
+#: gst/playback/gstplaybasebin.c:2240 gst/playback/gsturidecodebin.c:2091
 msgid "Source element is invalid."
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:2316
+#: gst/playback/gstplaybasebin.c:2317
 msgid ""
 "Only a subtitle stream was detected. Either you are loading a subtitle file "
 "or some other type of text file, or the media file was not recognized."
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:2321
+#: gst/playback/gstplaybasebin.c:2322
 msgid ""
 "You do not have a decoder installed to handle this file. You might need to "
 "install the necessary plugins."
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:2325
+#: gst/playback/gstplaybasebin.c:2326
 msgid "This is not a media file"
 msgstr ""
 
-#: gst/playback/gstplaybasebin.c:2330
+#: gst/playback/gstplaybasebin.c:2331
 msgid "A subtitle stream was detected, but no video stream."
 msgstr ""
 
@@ -210,16 +210,14 @@ msgstr ""
 #: gst/playback/gstplaybin.c:1177 gst/playback/gstplaybin.c:1186
 #: gst/playback/gstplaybin.c:1195 gst/playback/gstplaybin.c:1326
 #: gst/playback/gstplaybin.c:1335 gst/playback/gstplaybin.c:1344
-#: gst/playback/gstplaysink.c:1116 gst/playback/gstplaysink.c:1129
-#: gst/playback/gstplaysink.c:1260 gst/playback/gstplaysink.c:1277
-#: gst/playback/gstplaysink.c:1296 gst/playback/gstplaysink.c:1466
-#: gst/playback/gstplaysink.c:1515 gst/playback/gstplaysink.c:1530
-#: gst/playback/gstplaysink.c:1555 gst/playback/gstplaysink.c:1579
-#: gst/playback/gstplaysink.c:1699 gst/playback/gstplaysink.c:1766
-#: gst/playback/gstplaysink.c:1785 gst/playback/gstplaysink.c:1805
-#: gst/playback/gstplaysink.c:2080 gst/playback/gstplaysink.c:2089
-#: gst/playback/gstplaysink.c:2098 gst/playback/gstplaysink.c:2107
-#: gst/playback/gstplaysink.c:2888 gst/playback/gsturidecodebin.c:1235
+#: gst/playback/gstplaysink.c:1186 gst/playback/gstplaysink.c:1199
+#: gst/playback/gstplaysink.c:1330 gst/playback/gstplaysink.c:1510
+#: gst/playback/gstplaysink.c:1559 gst/playback/gstplaysink.c:1574
+#: gst/playback/gstplaysink.c:1599 gst/playback/gstplaysink.c:1631
+#: gst/playback/gstplaysink.c:1751 gst/playback/gstplaysink.c:2106
+#: gst/playback/gstplaysink.c:2115 gst/playback/gstplaysink.c:2124
+#: gst/playback/gstplaysink.c:2133 gst/playback/gstplaysink.c:3125
+#: gst/playback/gsturidecodebin.c:1343
 #, c-format
 msgid "Missing element '%s' - check your GStreamer installation."
 msgstr ""
@@ -228,79 +226,79 @@ msgstr ""
 msgid "Both autoaudiosink and alsasink elements are missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1336
+#: gst/playback/gstplaysink.c:1379
 #, c-format
 msgid "Both autovideosink and %s elements are missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1340
+#: gst/playback/gstplaysink.c:1383
 msgid "The autovideosink element is missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1345
+#: gst/playback/gstplaysink.c:1388
 #, c-format
 msgid "Configured videosink %s is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1349
+#: gst/playback/gstplaysink.c:1392
 #, c-format
 msgid "Both autovideosink and %s elements are not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1353
+#: gst/playback/gstplaysink.c:1396
 msgid "The autovideosink element is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1503
+#: gst/playback/gstplaysink.c:1547
 msgid "Custom text sink element is not usable."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1848
+#: gst/playback/gstplaysink.c:1869
 msgid "No volume control found"
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1868
+#: gst/playback/gstplaysink.c:1889
 #, c-format
 msgid "Both autoaudiosink and %s elements are missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1872
+#: gst/playback/gstplaysink.c:1893
 msgid "The autoaudiosink element is missing."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1877
+#: gst/playback/gstplaysink.c:1898
 #, c-format
 msgid "Configured audiosink %s is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1881
+#: gst/playback/gstplaysink.c:1902
 #, c-format
 msgid "Both autoaudiosink and %s elements are not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:1885
+#: gst/playback/gstplaysink.c:1906
 msgid "The autoaudiosink element is not working."
 msgstr ""
 
-#: gst/playback/gstplaysink.c:2183 gst/playback/gstplaysink.c:2188
+#: gst/playback/gstplaysink.c:2209 gst/playback/gstplaysink.c:2214
 msgid "Can't play a text file without video or visualizations."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:867
+#: gst/playback/gsturidecodebin.c:874
 #, c-format
 msgid "No decoder available for type '%s'."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1160
+#: gst/playback/gsturidecodebin.c:1268
 msgid "This stream type cannot be played yet."
 msgstr ""
 
-#: gst/playback/gsturidecodebin.c:1177
+#: gst/playback/gsturidecodebin.c:1285
 #, c-format
 msgid "No URI handler implemented for \"%s\"."
 msgstr ""
 
-#: gst/tcp/gsttcp.c:503 gst/tcp/gsttcpclientsink.c:283
+#: gst/tcp/gsttcp.c:503 gst/tcp/gsttcpclientsink.c:282
 #, c-format
 msgid "Error while sending data to \"%s:%d\"."
 msgstr ""
@@ -315,218 +313,226 @@ msgstr ""
 msgid "Error while sending gdp payload data to \"%s:%d\"."
 msgstr ""
 
-#: gst/tcp/gsttcpclientsink.c:395 gst/tcp/gsttcpclientsrc.c:379
+#: gst/tcp/gsttcpclientsink.c:394 gst/tcp/gsttcpclientsrc.c:378
 #, c-format
 msgid "Connection to %s:%d refused."
 msgstr ""
 
-#: gst-libs/gst/audio/gstbaseaudiosrc.c:835
+#: gst-libs/gst/audio/gstbaseaudiosrc.c:837
 msgid "Can't record audio fast enough"
 msgstr ""
 
-#: gst-libs/gst/tag/gsttagdemux.c:1079
+#: gst-libs/gst/tag/gsttagdemux.c:1078
 msgid "Failed to read tag: not enough data"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:78
+#: gst-libs/gst/tag/tags.c:79
 msgid "track ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:78
+#: gst-libs/gst/tag/tags.c:79
 msgid "MusicBrainz track ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:80
+#: gst-libs/gst/tag/tags.c:81
 msgid "artist ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:80
+#: gst-libs/gst/tag/tags.c:81
 msgid "MusicBrainz artist ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:82
+#: gst-libs/gst/tag/tags.c:83
 msgid "album ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:82
+#: gst-libs/gst/tag/tags.c:83
 msgid "MusicBrainz album ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:85
+#: gst-libs/gst/tag/tags.c:86
 msgid "album artist ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:85
+#: gst-libs/gst/tag/tags.c:86
 msgid "MusicBrainz album artist ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:87
+#: gst-libs/gst/tag/tags.c:88
 msgid "track TRM ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:87
+#: gst-libs/gst/tag/tags.c:88
 msgid "MusicBrainz TRM ID"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:109
+#: gst-libs/gst/tag/tags.c:110
 msgid "capturing shutter speed"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:110
+#: gst-libs/gst/tag/tags.c:111
 msgid "Shutter speed used when capturing an image, in seconds"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:113
+#: gst-libs/gst/tag/tags.c:114
 msgid "capturing focal ratio"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:114
+#: gst-libs/gst/tag/tags.c:115
 msgid "Focal ratio (f-number) used when capturing the image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:117
+#: gst-libs/gst/tag/tags.c:118
 msgid "capturing focal length"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:118
+#: gst-libs/gst/tag/tags.c:119
 msgid "Focal length of the lens used capturing the image, in mm"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:121
+#: gst-libs/gst/tag/tags.c:122
 msgid "capturing digital zoom ratio"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:122
+#: gst-libs/gst/tag/tags.c:123
 msgid "Digital zoom ratio used when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:125
+#: gst-libs/gst/tag/tags.c:126
 msgid "capturing iso speed"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:126
+#: gst-libs/gst/tag/tags.c:127
 msgid "The ISO speed used when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:129
+#: gst-libs/gst/tag/tags.c:130
 msgid "capturing exposure program"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:130
+#: gst-libs/gst/tag/tags.c:131
 msgid "The exposure program used when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:133
+#: gst-libs/gst/tag/tags.c:134
 msgid "capturing exposure mode"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:134
+#: gst-libs/gst/tag/tags.c:135
 msgid "The exposure mode used when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:137
+#: gst-libs/gst/tag/tags.c:138
 msgid "capturing exposure compensation"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:138
+#: gst-libs/gst/tag/tags.c:139
 msgid "The exposure compensation used when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:141
+#: gst-libs/gst/tag/tags.c:142
 msgid "capturing scene capture type"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:142
+#: gst-libs/gst/tag/tags.c:143
 msgid "The scene capture mode used when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:145
+#: gst-libs/gst/tag/tags.c:146
 msgid "capturing gain adjustment"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:146
+#: gst-libs/gst/tag/tags.c:147
 msgid "The overall gain adjustment applied on an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:149
+#: gst-libs/gst/tag/tags.c:150
 msgid "capturing white balance"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:150
+#: gst-libs/gst/tag/tags.c:151
 msgid "The white balance mode set when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:153
+#: gst-libs/gst/tag/tags.c:154
 msgid "capturing contrast"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:154
+#: gst-libs/gst/tag/tags.c:155
 msgid "The direction of contrast processing applied when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:158
+#: gst-libs/gst/tag/tags.c:159
 msgid "capturing saturation"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:159
+#: gst-libs/gst/tag/tags.c:160
 msgid "The direction of saturation processing applied when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:163
+#: gst-libs/gst/tag/tags.c:164
 msgid "capturing sharpness"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:164
+#: gst-libs/gst/tag/tags.c:165
 msgid "The direction of sharpness processing applied when capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:168
+#: gst-libs/gst/tag/tags.c:169
 msgid "capturing flash fired"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:169
+#: gst-libs/gst/tag/tags.c:170
 msgid "If the flash fired while capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:172
+#: gst-libs/gst/tag/tags.c:173
 msgid "capturing flash mode"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:173
+#: gst-libs/gst/tag/tags.c:174
 msgid "The selected flash mode while capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:176
+#: gst-libs/gst/tag/tags.c:177
 msgid "capturing metering mode"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:177
+#: gst-libs/gst/tag/tags.c:178
 msgid ""
 "The metering mode used while determining exposure for capturing an image"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:181
+#: gst-libs/gst/tag/tags.c:182
 msgid "capturing source"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:182
+#: gst-libs/gst/tag/tags.c:183
 msgid "The source or type of device used for the capture"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:185
+#: gst-libs/gst/tag/tags.c:186
 msgid "image horizontal ppi"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:186
+#: gst-libs/gst/tag/tags.c:187
 msgid "Media (image/video) intended horizontal pixel density in ppi"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:189
+#: gst-libs/gst/tag/tags.c:190
 msgid "image vertical ppi"
 msgstr ""
 
-#: gst-libs/gst/tag/tags.c:190
+#: gst-libs/gst/tag/tags.c:191
 msgid "Media (image/video) intended vertical pixel density in ppi"
+msgstr ""
+
+#: gst-libs/gst/tag/tags.c:194
+msgid "ID3v2 frame"
+msgstr ""
+
+#: gst-libs/gst/tag/tags.c:194
+msgid "unparsed id3v2 tag frame"
 msgstr ""
 
 #: gst-libs/gst/cdda/gstcddabasesrc.c:1468
@@ -584,163 +590,163 @@ msgstr ""
 msgid "Run-length encoding"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:237
+#: gst-libs/gst/pbutils/descriptions.c:238
 msgid "Sami subtitle format"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:238
+#: gst-libs/gst/pbutils/descriptions.c:239
 msgid "TMPlayer subtitle format"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:240
+#: gst-libs/gst/pbutils/descriptions.c:241
 msgid "Kate subtitle format"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:304
+#: gst-libs/gst/pbutils/descriptions.c:305
 msgid "Uncompressed planar YUV 4:2:0"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:307
+#: gst-libs/gst/pbutils/descriptions.c:308
 msgid "Uncompressed planar YVU 4:2:0"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:310
-#: gst-libs/gst/pbutils/descriptions.c:320
+#: gst-libs/gst/pbutils/descriptions.c:311
+#: gst-libs/gst/pbutils/descriptions.c:321
 msgid "Uncompressed packed YUV 4:2:2"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:313
+#: gst-libs/gst/pbutils/descriptions.c:314
 msgid "Uncompressed packed YUV 4:1:0"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:316
+#: gst-libs/gst/pbutils/descriptions.c:317
 msgid "Uncompressed packed YVU 4:1:0"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:323
+#: gst-libs/gst/pbutils/descriptions.c:324
 msgid "Uncompressed packed YUV 4:1:1"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:326
+#: gst-libs/gst/pbutils/descriptions.c:327
 msgid "Uncompressed packed YUV 4:4:4"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:329
+#: gst-libs/gst/pbutils/descriptions.c:330
 msgid "Uncompressed planar YUV 4:2:2"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:332
+#: gst-libs/gst/pbutils/descriptions.c:333
 msgid "Uncompressed planar YUV 4:1:1"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:335
+#: gst-libs/gst/pbutils/descriptions.c:336
 msgid "Uncompressed black and white Y-plane"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:338
+#: gst-libs/gst/pbutils/descriptions.c:339
 msgid "Uncompressed YUV"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:349
+#: gst-libs/gst/pbutils/descriptions.c:350
 #, c-format
 msgid "Uncompressed palettized %d-bit %s"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:401
+#: gst-libs/gst/pbutils/descriptions.c:402
 #, c-format
 msgid "DivX MPEG-4 Version %d"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:619
+#: gst-libs/gst/pbutils/descriptions.c:620
 #, c-format
 msgid "Raw %d-bit PCM audio"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:621
+#: gst-libs/gst/pbutils/descriptions.c:622
 msgid "Raw PCM audio"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:627
+#: gst-libs/gst/pbutils/descriptions.c:628
 #, c-format
 msgid "Raw %d-bit floating-point audio"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:629
+#: gst-libs/gst/pbutils/descriptions.c:630
 msgid "Raw floating-point audio"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:716
+#: gst-libs/gst/pbutils/descriptions.c:717
 msgid "Audio CD source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:719
+#: gst-libs/gst/pbutils/descriptions.c:720
 msgid "DVD source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:722
+#: gst-libs/gst/pbutils/descriptions.c:723
 msgid "Real Time Streaming Protocol (RTSP) source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:726
+#: gst-libs/gst/pbutils/descriptions.c:727
 msgid "Microsoft Media Server (MMS) protocol source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:734
+#: gst-libs/gst/pbutils/descriptions.c:735
 #, c-format
 msgid "%s protocol source"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:806
+#: gst-libs/gst/pbutils/descriptions.c:807
 #, c-format
 msgid "%s video RTP depayloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:808
+#: gst-libs/gst/pbutils/descriptions.c:809
 #, c-format
 msgid "%s audio RTP depayloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:810
+#: gst-libs/gst/pbutils/descriptions.c:811
 #, c-format
 msgid "%s RTP depayloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:817
+#: gst-libs/gst/pbutils/descriptions.c:818
 #, c-format
 msgid "%s demuxer"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:819
+#: gst-libs/gst/pbutils/descriptions.c:820
 #, c-format
 msgid "%s decoder"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:857
+#: gst-libs/gst/pbutils/descriptions.c:858
 #, c-format
 msgid "%s video RTP payloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:859
+#: gst-libs/gst/pbutils/descriptions.c:860
 #, c-format
 msgid "%s audio RTP payloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:861
+#: gst-libs/gst/pbutils/descriptions.c:862
 #, c-format
 msgid "%s RTP payloader"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:868
+#: gst-libs/gst/pbutils/descriptions.c:869
 #, c-format
 msgid "%s muxer"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:870
+#: gst-libs/gst/pbutils/descriptions.c:871
 #, c-format
 msgid "%s encoder"
 msgstr ""
 
-#: gst-libs/gst/pbutils/descriptions.c:902
+#: gst-libs/gst/pbutils/descriptions.c:903
 #, c-format
 msgid "GStreamer element %s"
 msgstr ""

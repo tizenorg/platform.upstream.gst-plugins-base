@@ -16,17 +16,21 @@ lib_LTLIBRARIES = \
 
 CLEANFILES = $(BUILT_SOURCES)
 
+# FIXME 0.11: rename GstBaseAudioSink to GstAudioBaseSink or merge with GstAudioSink
 libgstaudio_@GST_MAJORMINOR@_la_SOURCES = \
 	audio.c \
 	gstringbuffer.c \
 	gstaudioclock.c \
 	mixerutils.c \
 	multichannel.c \
+	gstaudiodecoder.c \
+	gstaudioencoder.c \
 	gstbaseaudiosink.c \
 	gstbaseaudiosrc.c \
 	gstaudiofilter.c \
 	gstaudiosink.c \
-	gstaudiosrc.c
+	gstaudiosrc.c \
+	gstaudioiec61937.c
 nodist_libgstaudio_@GST_MAJORMINOR@_la_SOURCES = $(built_sources) $(built_headers)
 
 libgstaudio_@GST_MAJORMINOR@includedir = $(includedir)/gstreamer-@GST_MAJORMINOR@/gst/audio
@@ -35,25 +39,25 @@ libgstaudio_@GST_MAJORMINOR@include_HEADERS = \
 	gstringbuffer.h \
 	gstaudioclock.h \
 	gstaudiofilter.h \
+	gstaudiodecoder.h \
+	gstaudioencoder.h \
 	gstbaseaudiosink.h \
 	gstbaseaudiosrc.h \
 	gstaudiosink.h \
 	gstaudiosrc.h \
 	mixerutils.h \
-	multichannel.h
+	multichannel.h \
+	gstaudioiec61937.h
 
 nodist_libgstaudio_@GST_MAJORMINOR@include_HEADERS = \
 	audio-enumtypes.h
 
 libgstaudio_@GST_MAJORMINOR@_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
-libgstaudio_@GST_MAJORMINOR@_la_LIBADD = $(GST_BASE_LIBS) $(GST_LIBS) \
-  $(top_builddir)/gst-libs/gst/interfaces/libgstinterfaces-@GST_MAJORMINOR@.la
+libgstaudio_@GST_MAJORMINOR@_la_LIBADD = \
+  $(top_builddir)/gst-libs/gst/pbutils/libgstpbutils-@GST_MAJORMINOR@.la \
+  $(top_builddir)/gst-libs/gst/interfaces/libgstinterfaces-@GST_MAJORMINOR@.la \
+  $(GST_BASE_LIBS) $(GST_LIBS)
 libgstaudio_@GST_MAJORMINOR@_la_LDFLAGS = $(GST_LIB_LDFLAGS) $(GST_ALL_LDFLAGS) $(GST_LT_LDFLAGS)
-
-noinst_PROGRAMS = testchannels
-testchannels_SOURCES = testchannels.c
-testchannels_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS)
-testchannels_LDADD = $(GST_LIBS)
 
 include $(top_srcdir)/common/gst-glib-gen.mak
 
