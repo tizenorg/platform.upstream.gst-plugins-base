@@ -350,6 +350,9 @@ struct _GstVideoDecoderPrivate
 
   /* last outgoing ts */
   GstClockTime last_timestamp_out;
+  /* incoming pts - dts */
+  GstClockTime pts_delta;
+  gboolean reordered_output;
 
   /* reverse playback */
   /* collect input */
@@ -378,7 +381,7 @@ struct _GstVideoDecoderPrivate
 
   GList *frames;                /* Protected with OBJECT_LOCK */
   GstVideoCodecState *input_state;
-  GstVideoCodecState *output_state;
+  GstVideoCodecState *output_state;     /* OBJECT_LOCK and STREAM_LOCK */
   gboolean output_state_changed;
 
   /* QoS properties */
@@ -1393,13 +1396,13 @@ gst_video_decoder_src_query (GstPad * pad, GstObject * parent, GstQuery * query)
       GST_DEBUG_OBJECT (dec, "convert query");
 
       gst_query_parse_convert (query, &src_fmt, &src_val, &dest_fmt, &dest_val);
-      GST_VIDEO_DECODER_STREAM_LOCK (dec);
+      GST_OBJECT_LOCK (dec);
       if (dec->priv->output_state != NULL)
         res = gst_video_rawvideo_convert (dec->priv->output_state,
             src_fmt, src_val, &dest_fmt, &dest_val);
       else
         res = FALSE;
-      GST_VIDEO_DECODER_STREAM_UNLOCK (dec);
+      GST_OBJECT_UNLOCK (dec);
       if (!res)
         goto error;
       gst_query_set_convert (query, src_fmt, src_val, dest_fmt, dest_val);
@@ -1603,11 +1606,11 @@ gst_video_decoder_reset (GstVideoDecoder * decoder, gboolean full)
     if (priv->input_state)
       gst_video_codec_state_unref (priv->input_state);
     priv->input_state = NULL;
+    GST_OBJECT_LOCK (decoder);
     if (priv->output_state)
       gst_video_codec_state_unref (priv->output_state);
     priv->output_state = NULL;
 
-    GST_OBJECT_LOCK (decoder);
     priv->qos_frame_duration = 0;
     GST_OBJECT_UNLOCK (decoder);
 
@@ -1618,12 +1621,14 @@ gst_video_decoder_reset (GstVideoDecoder * decoder, gboolean full)
       gst_tag_list_unref (priv->tags);
     priv->tags = NULL;
     priv->tags_changed = FALSE;
+    priv->reordered_output = FALSE;
   }
 
   priv->discont = TRUE;
 
   priv->base_timestamp = GST_CLOCK_TIME_NONE;
   priv->last_timestamp_out = GST_CLOCK_TIME_NONE;
+  priv->pts_delta = GST_CLOCK_TIME_NONE;
 
   priv->input_offset = 0;
   priv->frame_offset = 0;
@@ -1733,12 +1738,11 @@ gst_video_decoder_flush_decode (GstVideoDecoder * dec)
   while (walk) {
     GList *next;
     GstVideoCodecFrame *frame = (GstVideoCodecFrame *) (walk->data);
-    GstBuffer *buf = frame->input_buffer;
 
     GST_DEBUG_OBJECT (dec, "decoding frame %p buffer %p, PTS %" GST_TIME_FORMAT
-        ", DTS %" GST_TIME_FORMAT, frame, buf,
-        GST_TIME_ARGS (GST_BUFFER_PTS (buf)),
-        GST_TIME_ARGS (GST_BUFFER_DTS (buf)));
+        ", DTS %" GST_TIME_FORMAT, frame, frame->input_buffer,
+        GST_TIME_ARGS (GST_BUFFER_PTS (frame->input_buffer)),
+        GST_TIME_ARGS (GST_BUFFER_DTS (frame->input_buffer)));
 
     next = walk->next;
 
@@ -2144,6 +2148,82 @@ gst_video_decoder_prepare_finish_frame (GstVideoDecoder *
         GST_TIME_ARGS (frame->duration));
   }
 
+  /* PTS is expected montone ascending,
+   * so a good guess is lowest unsent DTS */
+  {
+    GstClockTime min_ts = GST_CLOCK_TIME_NONE;
+    GstVideoCodecFrame *oframe = NULL;
+    gboolean seen_none = FALSE;
+
+    /* some maintenance regardless */
+    for (l = priv->frames; l; l = l->next) {
+      GstVideoCodecFrame *tmp = l->data;
+
+      if (!GST_CLOCK_TIME_IS_VALID (tmp->abidata.ABI.ts)) {
+        seen_none = TRUE;
+        continue;
+      }
+
+      if (!GST_CLOCK_TIME_IS_VALID (min_ts) || tmp->abidata.ABI.ts < min_ts) {
+        min_ts = tmp->abidata.ABI.ts;
+        oframe = tmp;
+      }
+    }
+    /* save a ts if needed */
+    if (oframe && oframe != frame) {
+      oframe->abidata.ABI.ts = frame->abidata.ABI.ts;
+    }
+
+    /* and set if needed;
+     * valid delta means we have reasonable DTS input */
+    /* also, if we ended up reordered, means this approach is conflicting
+     * with some sparse existing PTS, and so it does not work out */
+    if (!priv->reordered_output &&
+        !GST_CLOCK_TIME_IS_VALID (frame->pts) && !seen_none &&
+        GST_CLOCK_TIME_IS_VALID (priv->pts_delta)) {
+      frame->pts = min_ts + priv->pts_delta;
+      GST_DEBUG_OBJECT (decoder,
+          "no valid PTS, using oldest DTS %" GST_TIME_FORMAT,
+          GST_TIME_ARGS (frame->pts));
+    }
+
+    /* some more maintenance, ts2 holds PTS */
+    min_ts = GST_CLOCK_TIME_NONE;
+    seen_none = FALSE;
+    for (l = priv->frames; l; l = l->next) {
+      GstVideoCodecFrame *tmp = l->data;
+
+      if (!GST_CLOCK_TIME_IS_VALID (tmp->abidata.ABI.ts2)) {
+        seen_none = TRUE;
+        continue;
+      }
+
+      if (!GST_CLOCK_TIME_IS_VALID (min_ts) || tmp->abidata.ABI.ts2 < min_ts) {
+        min_ts = tmp->abidata.ABI.ts2;
+        oframe = tmp;
+      }
+    }
+    /* save a ts if needed */
+    if (oframe && oframe != frame) {
+      oframe->abidata.ABI.ts2 = frame->abidata.ABI.ts2;
+    }
+
+    /* if we detected reordered output, then PTS are void,
+     * however those were obtained; bogus input, subclass etc */
+    if (priv->reordered_output && !seen_none) {
+      GST_DEBUG_OBJECT (decoder, "invaliding PTS");
+      frame->pts = GST_CLOCK_TIME_NONE;
+    }
+
+    if (!GST_CLOCK_TIME_IS_VALID (frame->pts) && !seen_none) {
+      frame->pts = min_ts;
+      GST_DEBUG_OBJECT (decoder,
+          "no valid PTS, using oldest PTS %" GST_TIME_FORMAT,
+          GST_TIME_ARGS (frame->pts));
+    }
+  }
+
+
   if (frame->pts == GST_CLOCK_TIME_NONE) {
     /* Last ditch timestamp guess: Just add the duration to the previous
      * frame */
@@ -2162,6 +2242,7 @@ gst_video_decoder_prepare_finish_frame (GstVideoDecoder *
           "decreasing timestamp (%" GST_TIME_FORMAT " < %"
           GST_TIME_FORMAT ")",
           GST_TIME_ARGS (frame->pts), GST_TIME_ARGS (priv->last_timestamp_out));
+      priv->reordered_output = TRUE;
     }
   }
 
@@ -2552,10 +2633,23 @@ gst_video_decoder_decode_frame (GstVideoDecoder * decoder,
   frame->duration = GST_BUFFER_DURATION (frame->input_buffer);
 
   /* For keyframes, PTS = DTS */
+  /* FIXME upstream can be quite wrong about the keyframe aspect,
+   * so we could be going off here as well,
+   * maybe let subclass decide if it really is/was a keyframe */
   if (GST_VIDEO_CODEC_FRAME_IS_SYNC_POINT (frame)) {
-    if (!GST_CLOCK_TIME_IS_VALID (frame->pts))
+    if (!GST_CLOCK_TIME_IS_VALID (frame->pts)) {
       frame->pts = frame->dts;
+    } else if (GST_CLOCK_TIME_IS_VALID (frame->dts)) {
+      /* just in case they are not equal as might ideally be,
+       * e.g. quicktime has a (positive) delta approach */
+      priv->pts_delta = frame->pts - frame->dts;
+      GST_DEBUG_OBJECT (decoder, "PTS delta %d ms",
+          (gint) (priv->pts_delta / GST_MSECOND));
+    }
   }
+
+  frame->abidata.ABI.ts = frame->dts;
+  frame->abidata.ABI.ts2 = frame->pts;
 
   GST_LOG_OBJECT (decoder, "PTS %" GST_TIME_FORMAT ", DTS %" GST_TIME_FORMAT,
       GST_TIME_ARGS (frame->pts), GST_TIME_ARGS (frame->dts));
@@ -2591,10 +2685,10 @@ gst_video_decoder_get_output_state (GstVideoDecoder * decoder)
 {
   GstVideoCodecState *state = NULL;
 
-  GST_VIDEO_DECODER_STREAM_LOCK (decoder);
+  GST_OBJECT_LOCK (decoder);
   if (decoder->priv->output_state)
     state = gst_video_codec_state_ref (decoder->priv->output_state);
-  GST_VIDEO_DECODER_STREAM_UNLOCK (decoder);
+  GST_OBJECT_UNLOCK (decoder);
 
   return state;
 }
@@ -2631,7 +2725,6 @@ gst_video_decoder_set_output_state (GstVideoDecoder * decoder,
 {
   GstVideoDecoderPrivate *priv = decoder->priv;
   GstVideoCodecState *state;
-  GstClockTime qos_frame_duration;
 
   GST_DEBUG_OBJECT (decoder, "fmt:%d, width:%d, height:%d, reference:%p",
       fmt, width, height, reference);
@@ -2640,24 +2733,24 @@ gst_video_decoder_set_output_state (GstVideoDecoder * decoder,
   state = _new_output_state (fmt, width, height, reference);
 
   GST_VIDEO_DECODER_STREAM_LOCK (decoder);
+
+  GST_OBJECT_LOCK (decoder);
   /* Replace existing output state by new one */
   if (priv->output_state)
     gst_video_codec_state_unref (priv->output_state);
   priv->output_state = gst_video_codec_state_ref (state);
 
   if (priv->output_state != NULL && priv->output_state->info.fps_n > 0) {
-    qos_frame_duration =
+    priv->qos_frame_duration =
         gst_util_uint64_scale (GST_SECOND, priv->output_state->info.fps_d,
         priv->output_state->info.fps_n);
   } else {
-    qos_frame_duration = 0;
+    priv->qos_frame_duration = 0;
   }
   priv->output_state_changed = TRUE;
-  GST_VIDEO_DECODER_STREAM_UNLOCK (decoder);
-
-  GST_OBJECT_LOCK (decoder);
-  priv->qos_frame_duration = qos_frame_duration;
   GST_OBJECT_UNLOCK (decoder);
+
+  GST_VIDEO_DECODER_STREAM_UNLOCK (decoder);
 
   return state;
 }
@@ -2939,11 +3032,16 @@ gst_video_decoder_negotiate (GstVideoDecoder * decoder)
  * Helper function that allocates a buffer to hold a video frame for @decoder's
  * current #GstVideoCodecState.
  *
- * Returns: (transfer full): allocated buffer
+ * You should use gst_video_decoder_allocate_output_frame() instead of this
+ * function, if possible at all.
+ *
+ * Returns: (transfer full): allocated buffer, or NULL if no buffer could be
+ *     allocated (e.g. when downstream is flushing or shutting down)
  */
 GstBuffer *
 gst_video_decoder_allocate_output_buffer (GstVideoDecoder * decoder)
 {
+  GstFlowReturn flow;
   GstBuffer *buffer;
 
   GST_DEBUG ("alloc src buffer");
@@ -2954,9 +3052,15 @@ gst_video_decoder_allocate_output_buffer (GstVideoDecoder * decoder)
               && gst_pad_check_reconfigure (decoder->srcpad))))
     gst_video_decoder_negotiate (decoder);
 
-  gst_buffer_pool_acquire_buffer (decoder->priv->pool, &buffer, NULL);
+  flow = gst_buffer_pool_acquire_buffer (decoder->priv->pool, &buffer, NULL);
 
   GST_VIDEO_DECODER_STREAM_UNLOCK (decoder);
+
+  if (flow != GST_FLOW_OK) {
+    GST_INFO_OBJECT (decoder, "couldn't allocate output buffer, flow %s",
+        gst_flow_get_name (flow));
+    buffer = NULL;
+  }
 
   return buffer;
 }
@@ -3070,6 +3174,8 @@ _gst_video_decoder_error (GstVideoDecoder * dec, gint weight,
         domain, code, txt, dbg, file, function, line);
     return GST_FLOW_ERROR;
   } else {
+    g_free (txt);
+    g_free (dbg);
     return GST_FLOW_OK;
   }
 }
