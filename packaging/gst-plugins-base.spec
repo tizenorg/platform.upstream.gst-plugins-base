@@ -1,5 +1,5 @@
 Name:           gst-plugins-base
-Version:        1.0.0
+Version:        1.0.2
 Release:        2.3
 %define gst_branch 1.0
 Url:            http://gstreamer.freedesktop.org/
