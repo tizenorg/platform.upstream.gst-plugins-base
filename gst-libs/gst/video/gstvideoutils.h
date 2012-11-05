@@ -246,7 +246,13 @@ struct _GstVideoCodecFrame
   gpointer       user_data;
   GDestroyNotify user_data_destroy_notify;
 
-  void         *padding[GST_PADDING_LARGE];
+  union {
+    struct {
+      GstClockTime ts;
+      GstClockTime ts2;
+    } ABI;
+    void         *padding[GST_PADDING_LARGE];
+  } abidata;
 };
 
 /* GstVideoCodecState */
