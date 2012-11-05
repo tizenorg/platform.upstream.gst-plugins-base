@@ -1,0 +1,6 @@
+This is GStreamer Base Plugins 1.0.0
+
+New features in 1.0.0:
+
+      * Parallel installability with 0.10.x series
+      * See release notes for more details
