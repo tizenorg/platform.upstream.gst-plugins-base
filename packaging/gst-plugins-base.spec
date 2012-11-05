@@ -33,8 +33,7 @@ BuildRequires:  pkgconfig(theoraenc) >= 1.1
 BuildRequires:  pkgconfig(vorbis) >= 1.0
 BuildRequires:  pkgconfig(vorbisenc) >= 1.0
 BuildRequires:  pkgconfig(zlib)
-%define gstreamer_plugins_base_req %(xzgrep --text "^GST[_A-Z]*_REQ" %{S:0} | sort -u | sed 's/GST_REQ=/gstreamer >= /')
-Requires:       %gstreamer_plugins_base_req
+Requires:       gstreamer >= 1.0.0
 Supplements:    gstreamer
 
 %description
