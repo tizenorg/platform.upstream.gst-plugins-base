@@ -56,11 +56,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstApp-1_0
+%package -n typelib-GstApp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstApp-1_0
+%description -n typelib-GstApp
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -83,11 +83,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstAudio-1_0
+%package -n typelib-GstAudio
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstAudio-1_0
+%description -n typelib-GstAudio
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -110,11 +110,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstFft-1_0
+%package -n typelib-GstFft
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstFft-1_0
+%description -n typelib-GstFft
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -326,9 +326,9 @@ Requires:       libgstrtsp = %{version}
 Requires:       libgstsdp = %{version}
 Requires:       libgsttag = %{version}
 Requires:       libgstvideo = %{version}
-Requires:       typelib-1_0-GstApp-1_0 = %{version}
-Requires:       typelib-1_0-GstAudio-1_0 = %{version}
-Requires:       typelib-1_0-GstFft-1_0 = %{version}
+Requires:       typelib-GstApp = %{version}
+Requires:       typelib-GstAudio = %{version}
+Requires:       typelib-GstFft = %{version}
 Requires:       typelib-1_0-GstPbutils-1_0 = %{version}
 Requires:       typelib-1_0-GstRiff-1_0 = %{version}
 Requires:       typelib-1_0-GstRtp-1_0 = %{version}
@@ -460,7 +460,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstapp*.so.*
 
-%files -n typelib-1_0-GstApp-1_0
+%files -n typelib-GstApp
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstApp-*.typelib
 
@@ -468,7 +468,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstaudio*.so.*
 
-%files -n typelib-1_0-GstAudio-1_0
+%files -n typelib-GstAudio
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstAudio-*.typelib
 
@@ -476,7 +476,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstfft*.so.*
 
-%files -n typelib-1_0-GstFft-1_0
+%files -n typelib-GstFft
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstFft-*.typelib
 
