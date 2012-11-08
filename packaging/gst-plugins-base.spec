@@ -17,7 +17,7 @@ BuildRequires:  libSM-devel
 BuildRequires:  libXext-devel
 BuildRequires:  libXv-devel
 BuildRequires:  orc >= 0.4.16
-BuildRequires:  python-base
+BuildRequires:  python
 BuildRequires:  update-desktop-files
 BuildRequires:  gettext-tools
 BuildRequires:  gobject-introspection-devel >= 1.31.1
