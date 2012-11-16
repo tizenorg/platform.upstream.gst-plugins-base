@@ -336,7 +336,6 @@ Requires:       typelib-1_0-GstRtsp-1_0 = %{version}
 Requires:       typelib-1_0-GstSdp-1_0 = %{version}
 Requires:       typelib-1_0-GstTag-1_0 = %{version}
 Requires:       typelib-1_0-GstVideo-1_0 = %{version}
-# Generic name, never used in SuSE:
 Provides:       gst-plugins-base-devel = %{version}
 
 %description devel
@@ -347,7 +346,6 @@ to compile and link applications that use gstreamer-plugins-base.
 Summary:        Documentation for gstreamer-plugins-base
 Group:          Development/Libraries/C and C++
 Requires:       %{name} = %{version}
-# Generic name, never used in SuSE:
 Provides:       gst-plugins-base-doc = %{version}
 
 %description doc
