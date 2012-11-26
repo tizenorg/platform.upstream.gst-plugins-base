@@ -102,6 +102,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/libgstrtsp-0.10.so.*
 %{_libdir}/libgstsdp-0.10.so.*
 %{_libdir}/libgstapp-0.10.so.*
+%{_libdir}/libgstpolicy-0.10.so.*
 # base plugins without external dependencies
 %{_libdir}/gstreamer-0.10/libgstadder.so
 %{_libdir}/gstreamer-0.10/libgstaudioconvert.so
@@ -109,6 +110,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgstffmpegcolorspace.so
 %{_libdir}/gstreamer-0.10/libgstdecodebin.so
 %{_libdir}/gstreamer-0.10/libgstdecodebin2.so
+%{_libdir}/gstreamer-0.10/libgstpolicy.so
 %{_libdir}/gstreamer-0.10/libgstplaybin.so
 %{_libdir}/gstreamer-0.10/libgsttypefindfunctions.so
 %{_libdir}/gstreamer-0.10/libgstvideotestsrc.so
@@ -224,6 +226,8 @@ rm -rf %{buildroot}/tmp/dump
 %{_includedir}/gstreamer-0.10/gst/video/video.h
 %{_includedir}/gstreamer-0.10/gst/video/video-enumtypes.h
 %{_includedir}/gstreamer-0.10/gst/video/video-overlay-composition.h
+%dir %{_includedir}/gstreamer-0.10/gst/policy/
+%{_includedir}/gstreamer-0.10/gst/policy/gstpolicy.h
 %{_libdir}/libgstaudio-0.10.so
 %{_libdir}/libgstinterfaces-0.10.so
 %{_libdir}/libgstnetbuffer-0.10.so
@@ -237,6 +241,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/libgstsdp-0.10.so
 %{_libdir}/libgstfft-0.10.so
 %{_libdir}/libgstapp-0.10.so
+%{_libdir}/libgstpolicy-0.10.so
 # pkg-config files
 %{_libdir}/pkgconfig/*.pc
 # documentation
