@@ -423,6 +423,7 @@ AG_GST_CHECK_PLUGIN(encoding)
 AG_GST_CHECK_PLUGIN(ffmpegcolorspace)
 AG_GST_CHECK_PLUGIN(gdp)
 AG_GST_CHECK_PLUGIN(playback)
+AG_GST_CHECK_PLUGIN(policy)
 AG_GST_CHECK_PLUGIN(audioresample)
 AG_GST_CHECK_PLUGIN(subparse)
 AG_GST_CHECK_PLUGIN(tcp)
@@ -938,6 +939,7 @@ gst/encoding/Makefile
 gst/ffmpegcolorspace/Makefile
 gst/gdp/Makefile
 gst/playback/Makefile
+gst/policy/Makefile
 gst/audioresample/Makefile
 gst/subparse/Makefile
 gst/tcp/Makefile
@@ -969,6 +971,7 @@ gst-libs/gst/fft/Makefile
 gst-libs/gst/floatcast/Makefile
 gst-libs/gst/interfaces/Makefile
 gst-libs/gst/netbuffer/Makefile
+gst-libs/gst/policy/Makefile
 gst-libs/gst/riff/Makefile
 gst-libs/gst/rtp/Makefile
 gst-libs/gst/rtsp/Makefile
@@ -995,6 +998,8 @@ pkgconfig/gstreamer-netbuffer.pc
 pkgconfig/gstreamer-netbuffer-uninstalled.pc
 pkgconfig/gstreamer-pbutils.pc
 pkgconfig/gstreamer-pbutils-uninstalled.pc
+pkgconfig/gstreamer-policy.pc
+pkgconfig/gstreamer-policy-uninstalled.pc
 pkgconfig/gstreamer-riff.pc
 pkgconfig/gstreamer-riff-uninstalled.pc
 pkgconfig/gstreamer-rtp.pc

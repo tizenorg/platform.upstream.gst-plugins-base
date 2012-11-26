@@ -16,7 +16,8 @@ SUBDIRS = \
 	pbutils \
 	audio \
 	riff \
-	app
+	app \
+    policy
 
 noinst_HEADERS = gettext.h gst-i18n-plugin.h glib-compat-private.h
 
@@ -30,7 +31,7 @@ riff: tag audio
 rtsp: sdp
 
 INDEPENDENT_SUBDIRS = \
-	interfaces tag fft floatcast netbuffer pbutils rtp sdp video app
+	interfaces tag fft floatcast netbuffer pbutils rtp sdp video app policy
 
 .PHONY: independent-subdirs $(INDEPENDENT_SUBDIRS)
 

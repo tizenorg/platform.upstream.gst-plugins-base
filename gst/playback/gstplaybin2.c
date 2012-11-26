@@ -504,6 +504,7 @@ enum
   PROP_BUFFER_DURATION,
   PROP_AV_OFFSET,
   PROP_RING_BUFFER_MAX_SIZE,
+  PROP_ROLE,
   PROP_LAST
 };
 
@@ -823,6 +824,17 @@ gst_play_bin_class_init (GstPlayBinClass * klass)
           "Max. ring buffer size (bytes)",
           "Max. amount of data in the ring buffer (bytes, 0 = ring buffer disabled)",
           0, G_MAXUINT, DEFAULT_RING_BUFFER_MAX_SIZE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  /**
+  * GstPlayBin:role
+  *
+  * Set the role of the stream. This property is used by the platform policy subsystem
+  * to make policy decisions that affect the stream (for example routing and enforced 
+  * pause/playback).
+  */
+  g_object_class_install_property (gobject_klass, PROP_ROLE,
+      g_param_spec_string ("role", "Stream role",
+          "Stream role for the platform policy sybsystem", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /**
@@ -1959,6 +1971,10 @@ gst_play_bin_set_property (GObject * object, guint prop_id,
     case PROP_RING_BUFFER_MAX_SIZE:
       playbin->ring_buffer_max_size = g_value_get_uint64 (value);
       break;
+    case PROP_ROLE:
+      gst_child_proxy_set_property (GST_OBJECT_CAST(playbin->playsink),
+          "policy::actual-policy::role", value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -2133,6 +2149,10 @@ gst_play_bin_get_property (GObject * object, guint prop_id, GValue * value,
       break;
     case PROP_RING_BUFFER_MAX_SIZE:
       g_value_set_uint64 (value, playbin->ring_buffer_max_size);
+      break;
+    case PROP_ROLE:
+      gst_child_proxy_get_property (GST_OBJECT_CAST (playbin->playsink),
+          "policy::actual-policy::role", value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
