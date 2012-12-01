@@ -137,11 +137,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstPbutils-1_0
+%package -n typelib-GstPbutils
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstPbutils-1_0
+%description -n typelib-GstPbutils
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -164,11 +164,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstRiff-1_0
+%package -n typelib-GstRiff
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstRiff-1_0
+%description -n typelib-GstRiff
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -191,11 +191,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstRtp-1_0
+%package -n typelib-GstRtp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstRtp-1_0
+%description -n typelib-GstRtp
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -218,11 +218,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstRtsp-1_0
+%package -n typelib-GstRtsp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstRtsp-1_0
+%description -n typelib-GstRtsp
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -245,11 +245,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstSdp-1_0
+%package -n typelib-GstSdp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstSdp-1_0
+%description -n typelib-GstSdp
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -272,11 +272,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstTag-1_0
+%package -n typelib-GstTag
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstTag-1_0
+%description -n typelib-GstTag
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -299,11 +299,11 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-%package -n typelib-1_0-GstVideo-1_0
+%package -n typelib-GstVideo
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
 Group:          System/Libraries
 
-%description -n typelib-1_0-GstVideo-1_0
+%description -n typelib-GstVideo
 GStreamer is a streaming media framework based on graphs of filters
 that operate on media data. Applications using this library can do
 anything media-related, from real-time sound processing to playing
@@ -329,13 +329,13 @@ Requires:       libgstvideo = %{version}
 Requires:       typelib-GstApp = %{version}
 Requires:       typelib-GstAudio = %{version}
 Requires:       typelib-GstFft = %{version}
-Requires:       typelib-1_0-GstPbutils-1_0 = %{version}
-Requires:       typelib-1_0-GstRiff-1_0 = %{version}
-Requires:       typelib-1_0-GstRtp-1_0 = %{version}
-Requires:       typelib-1_0-GstRtsp-1_0 = %{version}
-Requires:       typelib-1_0-GstSdp-1_0 = %{version}
-Requires:       typelib-1_0-GstTag-1_0 = %{version}
-Requires:       typelib-1_0-GstVideo-1_0 = %{version}
+Requires:       typelib-GstPbutils = %{version}
+Requires:       typelib-GstRiff = %{version}
+Requires:       typelib-GstRtp = %{version}
+Requires:       typelib-GstRtsp = %{version}
+Requires:       typelib-GstSdp = %{version}
+Requires:       typelib-GstTag = %{version}
+Requires:       typelib-GstVideo = %{version}
 Provides:       gst-plugins-base-devel = %{version}
 
 %description devel
@@ -482,7 +482,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstpbutils*.so.*
 
-%files -n typelib-1_0-GstPbutils-1_0
+%files -n typelib-GstPbutils
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstPbutils-*.typelib
 
@@ -490,7 +490,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstriff*.so.*
 
-%files -n typelib-1_0-GstRiff-1_0
+%files -n typelib-GstRiff
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstRiff-*.typelib
 
@@ -498,7 +498,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstrtp*.so.*
 
-%files -n typelib-1_0-GstRtp-1_0
+%files -n typelib-GstRtp
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstRtp-*.typelib
 
@@ -506,7 +506,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstrtsp*.so.*
 
-%files -n typelib-1_0-GstRtsp-1_0
+%files -n typelib-GstRtsp
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstRtsp-*.typelib
 
@@ -514,7 +514,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstsdp*.so.*
 
-%files -n typelib-1_0-GstSdp-1_0
+%files -n typelib-GstSdp
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstSdp-*.typelib
 
@@ -525,7 +525,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/gst-plugins-base/%{gst_branch}/
 %{_datadir}/gst-plugins-base/%{gst_branch}/license-translations.dict
 
-%files -n typelib-1_0-GstTag-1_0
+%files -n typelib-GstTag
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstTag-*.typelib
 
@@ -533,7 +533,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstvideo*.so.*
 
-%files -n typelib-1_0-GstVideo-1_0
+%files -n typelib-GstVideo
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstVideo-*.typelib
 
