@@ -1,3 +1,5 @@
+%bcond_with introspection
+
 Name:           gst-plugins-base
 Version:        1.0.2
 Release:        2.3
@@ -20,7 +22,9 @@ BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
 BuildRequires:  gettext-tools
+%if %{with introspection}
 BuildRequires:  gobject-introspection-devel >= 1.31.1
+%endif
 BuildRequires:  pkgconfig(alsa) >= 0.9.1
 BuildRequires:  pkgconfig(freetype2) >= 2.0.9
 BuildRequires:  pkgconfig(iso-codes)
@@ -326,6 +330,7 @@ Requires:       libgstrtsp = %{version}
 Requires:       libgstsdp = %{version}
 Requires:       libgsttag = %{version}
 Requires:       libgstvideo = %{version}
+%if %{with introspection}
 Requires:       typelib-GstApp = %{version}
 Requires:       typelib-GstAudio = %{version}
 Requires:       typelib-GstFft = %{version}
@@ -336,6 +341,7 @@ Requires:       typelib-GstRtsp = %{version}
 Requires:       typelib-GstSdp = %{version}
 Requires:       typelib-GstTag = %{version}
 Requires:       typelib-GstVideo = %{version}
+%endif
 Provides:       gst-plugins-base-devel = %{version}
 
 %description devel
@@ -364,9 +370,10 @@ export CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
 	--disable-static\
 	--enable-experimental\
 	--disable-gtk-doc\
-	--disable-examples\
-        --enable-introspection\
-	%{nil}
+%if %{with introspection}
+    --enable-introspection\
+%endif
+	--disable-examples
 make %{?jobs:-j%jobs}
 
 %install
@@ -458,65 +465,83 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-, root, root)
 %{_libdir}/libgstapp*.so.*
 
-%files -n typelib-GstApp
-%defattr(-, root, root)
-%{_libdir}/girepository-1.0/GstApp-*.typelib
 
 %files -n libgstaudio
 %defattr(-, root, root)
 %{_libdir}/libgstaudio*.so.*
 
-%files -n typelib-GstAudio
-%defattr(-, root, root)
-%{_libdir}/girepository-1.0/GstAudio-*.typelib
-
 %files -n libgstfft
 %defattr(-, root, root)
 %{_libdir}/libgstfft*.so.*
+
+
+%if %{with introspection}
+%files -n typelib-GstApp
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstApp-*.typelib
+
+%files -n typelib-GstAudio
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstAudio-*.typelib
 
 %files -n typelib-GstFft
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstFft-*.typelib
 
-%files -n libgstpbutils
-%defattr(-, root, root)
-%{_libdir}/libgstpbutils*.so.*
-
-%files -n typelib-GstPbutils
-%defattr(-, root, root)
-%{_libdir}/girepository-1.0/GstPbutils-*.typelib
-
-%files -n libgstriff
-%defattr(-, root, root)
-%{_libdir}/libgstriff*.so.*
-
 %files -n typelib-GstRiff
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstRiff-*.typelib
-
-%files -n libgstrtp
-%defattr(-, root, root)
-%{_libdir}/libgstrtp*.so.*
 
 %files -n typelib-GstRtp
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstRtp-*.typelib
 
+%files -n typelib-GstRtsp
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstRtsp-*.typelib
+
+%files -n typelib-GstSdp
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstSdp-*.typelib
+
+%files -n typelib-GstTag
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstTag-*.typelib
+
+%files -n typelib-GstVideo
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstVideo-*.typelib
+
+%files -n typelib-GstPbutils
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstPbutils-*.typelib
+
+%endif
+
+%files -n libgstpbutils
+%defattr(-, root, root)
+%{_libdir}/libgstpbutils*.so.*
+
+
+%files -n libgstriff
+%defattr(-, root, root)
+%{_libdir}/libgstriff*.so.*
+
+
+%files -n libgstrtp
+%defattr(-, root, root)
+%{_libdir}/libgstrtp*.so.*
+
+
 %files -n libgstrtsp
 %defattr(-, root, root)
 %{_libdir}/libgstrtsp*.so.*
 
-%files -n typelib-GstRtsp
-%defattr(-, root, root)
-%{_libdir}/girepository-1.0/GstRtsp-*.typelib
 
 %files -n libgstsdp
 %defattr(-, root, root)
 %{_libdir}/libgstsdp*.so.*
 
-%files -n typelib-GstSdp
-%defattr(-, root, root)
-%{_libdir}/girepository-1.0/GstSdp-*.typelib
 
 %files -n libgsttag
 %defattr(-, root, root)
@@ -525,24 +550,20 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/gst-plugins-base/%{gst_branch}/
 %{_datadir}/gst-plugins-base/%{gst_branch}/license-translations.dict
 
-%files -n typelib-GstTag
-%defattr(-, root, root)
-%{_libdir}/girepository-1.0/GstTag-*.typelib
 
 %files -n libgstvideo
 %defattr(-, root, root)
 %{_libdir}/libgstvideo*.so.*
 
-%files -n typelib-GstVideo
-%defattr(-, root, root)
-%{_libdir}/girepository-1.0/GstVideo-*.typelib
 
 %files devel
 %defattr(-, root, root)
 %{_includedir}/gstreamer-%{gst_branch}/*
 %{_libdir}/*.so
 %{_libdir}/pkgconfig/*.pc
+%if %{with introspection}
 %{_datadir}/gir-1.0/*.gir
+%endif
 
 %files doc
 %defattr(-, root, root)
