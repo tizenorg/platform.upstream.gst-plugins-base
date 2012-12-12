@@ -1,5 +1,5 @@
 /*
- * GStreamer Camera Control
+ * GStreamer Camera Control Interface
  *
  * Copyright (c) 2000 - 2011 Samsung Electronics Co., Ltd. All rights reserved.
  *
@@ -172,6 +172,7 @@ typedef enum
 #define MAX_NUM_AVAILABLE_FPS   16
 #define MAX_NUM_CTRL_LIST_INFO  64
 #define MAX_NUM_CTRL_MENU       64
+#define MAX_NUM_DETECTED_FACES  16
 #define MAX_SZ_CTRL_NAME_STRING 32
 #define MAX_SZ_DEV_NAME_STRING  32
 
@@ -179,25 +180,25 @@ typedef enum
  *  @brief For timeperframe as fraction type
  *  Elapse time consumed by one frame, reverse of FPS
  */
-typedef struct {
-    gint num;
-    gint den;
-}GstCameraControlFracType;
+typedef struct _GstCameraControlFracType {
+	gint num;
+	gint den;
+} GstCameraControlFracType;
 
 /*! @struct GstCameraControlRectType
- *  @brief For touch auto focusing area
+ *  @brief For touch auto focusing area and face detection area
  */
-typedef struct {
+typedef struct _GstCameraControlRectType {
 	gint x;
 	gint y;
 	gint width;
 	gint height;
-}GstCameraControlRectType;
+} GstCameraControlRectType;
 
 /*! @struct GstCameraControlResolutionType
  *  @brief For querying supported resolutions
  */
-typedef struct {
+typedef struct _GstCameraControlResolutionType {
     gint w;
     gint h;
 
@@ -210,7 +211,7 @@ typedef struct {
  *  @brief Time per frame or frame per second will be expressed by this structure
  *  Time per frame or frame per second will be expressed by this structure
  */
-typedef struct {
+typedef struct _GstCameraControlFraction {
     int numerator;             /**< Upper number of fraction*/
     int denominator;           /**< Lower number of fraction*/
 } GstCameraControlFraction;
@@ -218,7 +219,7 @@ typedef struct {
 /*! @struct GstCameraControlFmtDescType
  *  @brief For querying supported format type
  */
-typedef struct {
+typedef struct _GstCameraControlFmtDescType {
     /* fourcc name of each pixelformat */
     guint fcc;
     gint fcc_use;
@@ -231,7 +232,7 @@ typedef struct {
 /*! @struct GstCameraControlCapsInfoType
  *  @brief For querying image input capabilities
  */
-typedef struct {
+typedef struct _GstCameraControlCapsInfoType {
     char dev_name[MAX_SZ_DEV_NAME_STRING];
     int input_idx;
     gint num_fmt_desc;
@@ -255,6 +256,23 @@ typedef struct {
     GstCameraControlFraction fps[MAX_NUM_AVAILABLE_FPS];
 } GstCameraControlCapsInfoType;
 
+/*! @struct GstCameraControlFaceInfo
+ *  @brief For face information
+ */
+typedef struct _GstCameraControlFaceInfo {
+	int id;
+	int score;
+	GstCameraControlRectType rect;
+} GstCameraControlFaceInfo;
+
+/*! @struct GstCameraControlFaceDetectInfo
+ *  @brief For face detect information
+ */
+typedef struct _GstCameraControlFaceDetectInfo {
+	int num_of_faces;
+	GstCameraControlFaceInfo face_info[MAX_NUM_DETECTED_FACES];
+} GstCameraControlFaceDetectInfo;
+
 /////////////////////////////
 //  For Querying controls  //
 /////////////////////////////
@@ -269,15 +287,15 @@ enum {
 /*! @struct GstCameraControlCtrlMenuType
  *  @brief For querying menu of specified controls
  */
-typedef struct {
+typedef struct _GstCameraControlCtrlMenuType {
     gint menu_index;
     gchar menu_name[MAX_SZ_CTRL_NAME_STRING];
-}GstCameraControlCtrlMenuType;
+} GstCameraControlCtrlMenuType;
 
 /*! @struct GstCameraControlCtrlInfoType
  *  @brief For querying controls detail
  */
-typedef struct {
+typedef struct _GstCameraControlCtrlInfoType {
     gint avsys_ctrl_id;
     gint v4l2_ctrl_id;
     gint ctrl_type;
@@ -293,7 +311,7 @@ typedef struct {
 /*! @struct GstCameraControlCtrlListInfoType
  *  @brief For querying controls
  */
-typedef struct {
+typedef struct _GstCameraControlCtrlListInfoType {
     gint num_ctrl_list_info;
     GstCameraControlCtrlInfoType ctrl_info[MAX_NUM_CTRL_LIST_INFO];
 } GstCameraControlCtrlListInfoType;
@@ -310,7 +328,7 @@ typedef struct {
 #define GST_CAMERA_STROBE_CAP_PERMANENT         0x0080	/* keep turned on until turning off */
 #define GST_CAMERA_STROBE_CAP_EXTERNAL          0x0100	/* use external strobe */
 
-typedef struct {
+typedef struct _GstCameraControlExtraInfoType {
     guint strobe_caps;                                   /**< Use above caps field */
     guint detection_caps;                                /**< Just boolean */
     guint reserved[4];
@@ -323,33 +341,31 @@ typedef struct {
 /**
  * Enumerations for Camera control Part color.
  */
-typedef struct _GstCameraControlExifInfo
-{
-    /* Dynamic value */
-    guint32 exposure_time_numerator;       //Exposure time, given in seconds
-    guint32 exposure_time_denominator;
-    gint shutter_speed_numerator;                //Shutter speed, given in APEX(Additive System Photographic Exposure)
-    gint shutter_speed_denominator;
-    gint brigtness_numerator;                    //Value of brightness, before firing flash, given in APEX value
-    gint brightness_denominator;
-    guint16 iso;                     //Sensitivity value of sensor
-    guint16 flash;                   //Whether flash is fired(1) or not(0)
-    gint metering_mode;                          //metering mode in EXIF 2.2
-    gint exif_image_width;                       //Size of image
-    gint exif_image_height;                      //
-    gint exposure_bias_in_APEX;                  //Exposure bias in APEX standard
-    gint software_used;                          //Firmware S/W version
+typedef struct _GstCameraControlExifInfo {
+	/* Dynamic value */
+	guint32 exposure_time_numerator;    /* Exposure time, given in seconds */
+	guint32 exposure_time_denominator;
+	gint shutter_speed_numerator;       /* Shutter speed, given in APEX(Additive System Photographic Exposure) */
+	gint shutter_speed_denominator;
+	gint brigtness_numerator;           /* Value of brightness, before firing flash, given in APEX value */
+	gint brightness_denominator;
+	guint16 iso;                        /* Sensitivity value of sensor */
+	guint16 flash;                      /* Whether flash is fired(1) or not(0) */
+	gint metering_mode;                 /* metering mode in EXIF 2.2 */
+	gint exif_image_width;              /* Size of image */
+	gint exif_image_height;
+	gint exposure_bias_in_APEX;         /* Exposure bias in APEX standard */
+	gint software_used;                 /* Firmware S/W version */
 
-
-    /* Fixed value */
-    gint component_configuration;                //color components arrangement (YCbCr = 1230)
-    gint colorspace;                             //colorspace information (sRGB=1)
-    gint focal_len_numerator;                    //Lens focal length (f = 4.5mm)
-    gint focal_len_denominator;
-    gint aperture_f_num_numerator;               //Aperture value (f_num = 2.8)
-    gint aperture_f_num_denominator;
-    gint aperture_in_APEX;                       //Aperture value in APEX standard
-    gint max_lens_aperture_in_APEX;              //Max aperture value in APEX standard
+	/* Fixed value */
+	gint component_configuration;       /* color components arrangement */
+	gint colorspace;                    /* colorspace information */
+	gint focal_len_numerator;           /* Lens focal length */
+	gint focal_len_denominator;
+	gint aperture_f_num_numerator;      /* Aperture value */
+	gint aperture_f_num_denominator;
+	gint aperture_in_APEX;              /* Aperture value in APEX standard */
+	gint max_lens_aperture_in_APEX;     /* Max aperture value in APEX standard */
 } GstCameraControlExifInfo;
 
 
@@ -358,84 +374,88 @@ typedef struct _GstCameraControlClass {
 	GstCameraControlType camera_control_type;
 
 	/* virtual functions */
-	const GList*(* list_channels)		( GstCameraControl* control );
+	const GList*(*list_channels)                   (GstCameraControl *control);
 
-	gboolean	(* set_value)			( GstCameraControl* control, GstCameraControlChannel* control_channel );
-	gboolean	(* get_value)			( GstCameraControl* control, GstCameraControlChannel* control_channel );
-	gboolean	(* set_exposure)		( GstCameraControl* control, gint type, gint value1, gint value2 );
-	gboolean	(* get_exposure)		( GstCameraControl* control, gint type, gint* value1, gint* value2 );
-	gboolean	(* set_capture_mode)	( GstCameraControl* control, gint type, gint value );
-	gboolean	(* get_capture_mode)	( GstCameraControl* control, gint type, gint* value );	
-	gboolean	(* set_strobe)			( GstCameraControl* control, gint type, gint value );
-	gboolean	(* get_strobe)			( GstCameraControl* control, gint type, gint *value );
-	gboolean	(* set_detect)			( GstCameraControl* control, gint type, gint value );
-	gboolean	(* get_detect)			( GstCameraControl* control, gint type, gint* value );	
-	gboolean	(* set_zoom)			( GstCameraControl* control, gint type, gint value );
-	gboolean	(* get_zoom)			( GstCameraControl* control, gint type, gint* value );
-	gboolean	(* set_focus)			( GstCameraControl* control, gint mode, gint range );
-	gboolean	(* get_focus)			( GstCameraControl* control, gint* mode, gint* range );
-	gboolean	(* start_auto_focus)	( GstCameraControl* control);
-	gboolean	(* stop_auto_focus)		( GstCameraControl* control);
-	gboolean	(* set_focus_level)		( GstCameraControl* control, gint manual_level);
-	gboolean	(* get_focus_level)		( GstCameraControl* control, gint* manual_level);
-	gboolean	(* set_auto_focus_area)	( GstCameraControl* control, GstCameraControlRectType rect );
-	gboolean	(* get_auto_focus_area)	( GstCameraControl* control, GstCameraControlRectType* rect );
-	gboolean	(* set_wdr)				( GstCameraControl* control, gint value);
-	gboolean	(* get_wdr)				( GstCameraControl* control, gint *value);
-	gboolean	(* set_ahs)				( GstCameraControl* control, gint value);
-	gboolean	(* get_ahs)				( GstCameraControl* control, gint *value);
-	gboolean	(* set_part_color)		( GstCameraControl* control, gint type, gint value);
-	gboolean	(* get_part_color)		( GstCameraControl* control, gint type, gint* value);
-	gboolean	(* get_exif_info)		( GstCameraControl* control, GstCameraControlExifInfo* info);
-	gboolean	(* get_basic_dev_info)		( GstCameraControl* control, gint dev_id, GstCameraControlCapsInfoType* info);
-	gboolean	(* get_misc_dev_info)		( GstCameraControl* control, gint dev_id, GstCameraControlCtrlListInfoType* info);
-	gboolean	(* get_extra_dev_info)		( GstCameraControl* control, gint dev_id, GstCameraControlExtraInfoType* info);
-	void		(* set_capture_command)		( GstCameraControl* control, GstCameraControlCaptureCommand cmd );
+	gboolean	(*set_value)                   (GstCameraControl *control, GstCameraControlChannel *control_channel);
+	gboolean	(*get_value)                   (GstCameraControl *control, GstCameraControlChannel *control_channel);
+	gboolean	(*set_exposure)                (GstCameraControl *control, gint type, gint value1, gint value2);
+	gboolean	(*get_exposure)                (GstCameraControl *control, gint type, gint *value1, gint *value2);
+	gboolean	(*set_capture_mode)            (GstCameraControl *control, gint type, gint value);
+	gboolean	(*get_capture_mode)            (GstCameraControl *control, gint type, gint *value);
+	gboolean	(*set_strobe)                  (GstCameraControl *control, gint type, gint value);
+	gboolean	(*get_strobe)                  (GstCameraControl *control, gint type, gint *value);
+	gboolean	(*set_detect)                  (GstCameraControl *control, gint type, gint value);
+	gboolean	(*get_detect)                  (GstCameraControl *control, gint type, gint *value);
+	gboolean	(*set_zoom)                    (GstCameraControl *control, gint type, gint value);
+	gboolean	(*get_zoom)                    (GstCameraControl *control, gint type, gint *value);
+	gboolean	(*set_focus)                   (GstCameraControl *control, gint mode, gint range);
+	gboolean	(*get_focus)                   (GstCameraControl *control, gint *mode, gint *range);
+	gboolean	(*start_auto_focus)            (GstCameraControl *control);
+	gboolean	(*stop_auto_focus)             (GstCameraControl *control);
+	gboolean	(*set_focus_level)             (GstCameraControl *control, gint manual_level);
+	gboolean	(*get_focus_level)             (GstCameraControl *control, gint *manual_level);
+	gboolean	(*set_auto_focus_area)         (GstCameraControl *control, GstCameraControlRectType rect);
+	gboolean	(*get_auto_focus_area)         (GstCameraControl *control, GstCameraControlRectType *rect);
+	gboolean	(*set_wdr)                     (GstCameraControl *control, gint value);
+	gboolean	(*get_wdr)                     (GstCameraControl *control, gint *value);
+	gboolean	(*set_ahs)                     (GstCameraControl *control, gint value);
+	gboolean	(*get_ahs)                     (GstCameraControl *control, gint *value);
+	gboolean	(*set_part_color)              (GstCameraControl *control, gint type, gint value);
+	gboolean	(*get_part_color)              (GstCameraControl *control, gint type, gint *value);
+	gboolean	(*get_exif_info)               (GstCameraControl *control, GstCameraControlExifInfo *info);
+	gboolean	(*get_basic_dev_info)          (GstCameraControl *control, gint dev_id, GstCameraControlCapsInfoType *info);
+	gboolean	(*get_misc_dev_info)           (GstCameraControl *control, gint dev_id, GstCameraControlCtrlListInfoType *info);
+	gboolean	(*get_extra_dev_info)          (GstCameraControl *control, gint dev_id, GstCameraControlExtraInfoType *info);
+	void		(*set_capture_command)         (GstCameraControl *control, GstCameraControlCaptureCommand cmd);
+	gboolean	(*start_face_zoom)             (GstCameraControl *control, gint x, gint y, gint zoom_level);
+	gboolean	(*stop_face_zoom)              (GstCameraControl *control);
 
 	/* signals */
-	void (* value_changed)				( GstCameraControl* control, GstCameraControlChannel* channel, gint value );
+	void (* value_changed)                          (GstCameraControl *control, GstCameraControlChannel *channel, gint value);
 } GstCameraControlClass;
 
-GType   gst_camera_control_get_type      (void);
+GType gst_camera_control_get_type(void);
 
 /* virtual class function wrappers */
-const GList*	gst_camera_control_list_channels	( GstCameraControl* control );
+const GList*	gst_camera_control_list_channels        (GstCameraControl *control);
 
-gboolean	gst_camera_control_set_value		( GstCameraControl* control, GstCameraControlChannel* control_channel );
-gboolean	gst_camera_control_get_value		( GstCameraControl* control, GstCameraControlChannel* control_channel );
-gboolean	gst_camera_control_set_exposure		( GstCameraControl* control, gint type, gint value1, gint value2 );
-gboolean	gst_camera_control_get_exposure		( GstCameraControl* control, gint type, gint* value1, gint* value2 );
-gboolean	gst_camera_control_set_capture_mode	( GstCameraControl* control, gint type, gint value );
-gboolean	gst_camera_control_get_capture_mode	( GstCameraControl* control, gint type, gint* value );
-gboolean	gst_camera_control_set_strobe		( GstCameraControl* control, gint type, gint value );
-gboolean	gst_camera_control_get_strobe		( GstCameraControl* control, gint type, gint *value );
-gboolean	gst_camera_control_set_detect		( GstCameraControl* control, gint type, gint value );
-gboolean	gst_camera_control_get_detect		( GstCameraControl* control, gint type, gint* value );
-gboolean	gst_camera_control_set_zoom			( GstCameraControl* control, gint type, gint value );
-gboolean	gst_camera_control_get_zoom			( GstCameraControl* control, gint type, gint* value );
-gboolean	gst_camera_control_set_focus		( GstCameraControl* control, gint mode, gint range );
-gboolean	gst_camera_control_get_focus		( GstCameraControl* control, gint* mode, gint* range );
-gboolean	gst_camera_control_start_auto_focus	( GstCameraControl* control);
-gboolean	gst_camera_control_stop_auto_focus	( GstCameraControl* control);
-gboolean	gst_camera_control_set_focus_level	( GstCameraControl* control, gint manual_level );
-gboolean	gst_camera_control_get_focus_level	( GstCameraControl* control, gint* manual_level );
-gboolean	gst_camera_control_set_auto_focus_area	( GstCameraControl* control, GstCameraControlRectType rect );
-gboolean	gst_camera_control_get_auto_focus_area	( GstCameraControl* control, GstCameraControlRectType* rect );
-gboolean	gst_camera_control_set_wdr			( GstCameraControl* control, gint value);
-gboolean	gst_camera_control_get_wdr			( GstCameraControl* control, gint* value);
-gboolean	gst_camera_control_set_ahs			( GstCameraControl* control, gint value);
-gboolean	gst_camera_control_get_ahs			( GstCameraControl* control, gint* value);
-gboolean	gst_camera_control_set_part_color	( GstCameraControl* control, gint type, gint value);
-gboolean	gst_camera_control_get_part_color	( GstCameraControl* control, gint type, gint* value);
-gboolean	gst_camera_control_get_exif_info	( GstCameraControl* control, GstCameraControlExifInfo* info);
-gboolean	gst_camera_control_get_basic_dev_info	( GstCameraControl* control, gint dev_id, GstCameraControlCapsInfoType* info);
-gboolean	gst_camera_control_get_misc_dev_info	( GstCameraControl* control, gint dev_id, GstCameraControlCtrlListInfoType* info);
-gboolean	gst_camera_control_get_extra_dev_info	( GstCameraControl* control, gint dev_id, GstCameraControlExtraInfoType* info);
-void		gst_camera_control_set_capture_command	( GstCameraControl* control, GstCameraControlCaptureCommand cmd );
+gboolean	gst_camera_control_set_value            (GstCameraControl *control, GstCameraControlChannel *control_channel);
+gboolean	gst_camera_control_get_value            (GstCameraControl *control, GstCameraControlChannel *control_channel);
+gboolean	gst_camera_control_set_exposure         (GstCameraControl *control, gint type, gint value1, gint value2);
+gboolean	gst_camera_control_get_exposure         (GstCameraControl *control, gint type, gint *value1, gint *value2);
+gboolean	gst_camera_control_set_capture_mode     (GstCameraControl *control, gint type, gint value);
+gboolean	gst_camera_control_get_capture_mode     (GstCameraControl *control, gint type, gint *value);
+gboolean	gst_camera_control_set_strobe           (GstCameraControl *control, gint type, gint value);
+gboolean	gst_camera_control_get_strobe           (GstCameraControl *control, gint type, gint *value);
+gboolean	gst_camera_control_set_detect           (GstCameraControl *control, gint type, gint value);
+gboolean	gst_camera_control_get_detect           (GstCameraControl *control, gint type, gint *value);
+gboolean	gst_camera_control_set_zoom             (GstCameraControl *control, gint type, gint value);
+gboolean	gst_camera_control_get_zoom             (GstCameraControl *control, gint type, gint *value);
+gboolean	gst_camera_control_set_focus            (GstCameraControl *control, gint mode, gint range);
+gboolean	gst_camera_control_get_focus            (GstCameraControl *control, gint *mode, gint *range);
+gboolean	gst_camera_control_start_auto_focus     (GstCameraControl *control);
+gboolean	gst_camera_control_stop_auto_focus      (GstCameraControl *control);
+gboolean	gst_camera_control_set_focus_level      (GstCameraControl *control, gint manual_level);
+gboolean	gst_camera_control_get_focus_level      (GstCameraControl *control, gint *manual_level);
+gboolean	gst_camera_control_set_auto_focus_area  (GstCameraControl *control, GstCameraControlRectType rect);
+gboolean	gst_camera_control_get_auto_focus_area  (GstCameraControl *control, GstCameraControlRectType *rect);
+gboolean	gst_camera_control_set_wdr              (GstCameraControl *control, gint value);
+gboolean	gst_camera_control_get_wdr              (GstCameraControl *control, gint *value);
+gboolean	gst_camera_control_set_ahs              (GstCameraControl *control, gint value);
+gboolean	gst_camera_control_get_ahs              (GstCameraControl *control, gint *value);
+gboolean	gst_camera_control_set_part_color       (GstCameraControl *control, gint type, gint value);
+gboolean	gst_camera_control_get_part_color       (GstCameraControl *control, gint type, gint *value);
+gboolean	gst_camera_control_get_exif_info        (GstCameraControl *control, GstCameraControlExifInfo *info);
+gboolean	gst_camera_control_get_basic_dev_info   (GstCameraControl *control, gint dev_id, GstCameraControlCapsInfoType *info);
+gboolean	gst_camera_control_get_misc_dev_info    (GstCameraControl *control, gint dev_id, GstCameraControlCtrlListInfoType *info);
+gboolean	gst_camera_control_get_extra_dev_info   (GstCameraControl *control, gint dev_id, GstCameraControlExtraInfoType *info);
+void		gst_camera_control_set_capture_command  (GstCameraControl *control, GstCameraControlCaptureCommand cmd);
+gboolean	gst_camera_control_start_face_zoom      (GstCameraControl *control, gint x, gint y, gint zoom_level);
+gboolean	gst_camera_control_stop_face_zoom       (GstCameraControl *control);
 
 
 /* trigger signal */
-void		gst_camera_control_value_changed	( GstCameraControl* control, GstCameraControlChannel* control_channel, gint value );
+void		gst_camera_control_value_changed        (GstCameraControl *control, GstCameraControlChannel *control_channel, gint value);
 
 G_END_DECLS
 

@@ -1,4 +1,4 @@
-/* GStreamer Camera Control
+/* GStreamer Camera Control Channel Interface
  * Copyright (C) 2003 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *
  * cameracontrolchannel.h: individual channel object
@@ -40,24 +40,22 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_CLASS_TYPE ((klass), GST_TYPE_CAMERA_CONTROL_CHANNEL))
 
 typedef struct _GstCameraControlChannel {
-  GObject parent;
-
-  gchar  *label;
-  gint    min_value,
-          max_value;
+	GObject parent;
+	gchar *label;
+	gint min_value;
+	gint max_value;
 } GstCameraControlChannel;
 
 typedef struct _GstCameraControlChannelClass {
-  GObjectClass parent;
+	GObjectClass parent;
 
-  /* signals */
-  void (* value_changed) (GstCameraControlChannel *control_channel,
-                          gint                    value);
+	/* signals */
+	void (*value_changed)(GstCameraControlChannel *control_channel, gint value);
 
-  gpointer _gst_reserved[GST_PADDING];
+	gpointer _gst_reserved[GST_PADDING];
 } GstCameraControlChannelClass;
 
-GType   gst_camera_control_channel_get_type (void);
+GType gst_camera_control_channel_get_type(void);
 
 G_END_DECLS
 
