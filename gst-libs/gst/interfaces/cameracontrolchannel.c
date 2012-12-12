@@ -1,4 +1,4 @@
-/* GStreamer Camera Control
+/* GStreamer Camera Control Channel Interface
  * Copyright (C) 2003 Ronald Bultje <rbultje@ronald.bitfreak.net>
  *
  * cameracontrolchannel.c: cameracontrol channel object design
@@ -25,81 +25,85 @@
 
 #include "cameracontrolchannel.h"
 
-enum
-{
-  /* FILL ME */
-  SIGNAL_VALUE_CHANGED,
-  LAST_SIGNAL
+enum {
+	/* FILL ME */
+	SIGNAL_VALUE_CHANGED,
+	LAST_SIGNAL
 };
 
-static void gst_camera_control_channel_class_init( GstCameraControlChannelClass* klass );
-static void gst_camera_control_channel_init( GstCameraControlChannel* control_channel );
-static void gst_camera_control_channel_dispose( GObject* object );
+static void gst_camera_control_channel_class_init(GstCameraControlChannelClass* klass);
+static void gst_camera_control_channel_init(GstCameraControlChannel* control_channel);
+static void gst_camera_control_channel_dispose(GObject* object);
 
-static GObjectClass* parent_class = NULL;
+static GObjectClass *parent_class = NULL;
 static guint signals[LAST_SIGNAL] = { 0 };
 
-GType
-gst_camera_control_channel_get_type (void)
+GType gst_camera_control_channel_get_type(void)
 {
-  static GType gst_camera_control_channel_type = 0;
+	static GType gst_camera_control_channel_type = 0;
 
-  if (!gst_camera_control_channel_type) {
-    static const GTypeInfo camera_control_channel_info = {
-      sizeof (GstCameraControlChannelClass),
-      NULL,
-      NULL,
-      (GClassInitFunc) gst_camera_control_channel_class_init,
-      NULL,
-      NULL,
-      sizeof (GstCameraControlChannel),
-      0,
-      (GInstanceInitFunc) gst_camera_control_channel_init,
-      NULL
-    };
+	if (!gst_camera_control_channel_type) {
+		static const GTypeInfo camera_control_channel_info = {
+			sizeof (GstCameraControlChannelClass),
+			NULL,
+			NULL,
+			(GClassInitFunc) gst_camera_control_channel_class_init,
+			NULL,
+			NULL,
+			sizeof (GstCameraControlChannel),
+			0,
+			(GInstanceInitFunc) gst_camera_control_channel_init,
+			NULL
+		};
 
-    gst_camera_control_channel_type =
-        g_type_register_static (G_TYPE_OBJECT,
-        "GstCameraControlChannel", &camera_control_channel_info, 0);
-  }
+		gst_camera_control_channel_type = \
+			g_type_register_static(G_TYPE_OBJECT,
+			                       "GstCameraControlChannel",
+			                       &camera_control_channel_info,
+			                       0);
+	}
 
-  return gst_camera_control_channel_type;
+	return gst_camera_control_channel_type;
 }
 
-static void
-gst_camera_control_channel_class_init( GstCameraControlChannelClass* klass )
+static void gst_camera_control_channel_class_init(GstCameraControlChannelClass* klass)
 {
-  GObjectClass *object_klass = (GObjectClass*) klass;
+	GObjectClass *object_klass = (GObjectClass*) klass;
 
-  parent_class = g_type_class_peek_parent (klass);
+	parent_class = g_type_class_peek_parent (klass);
 
-  signals[SIGNAL_VALUE_CHANGED] =
-      g_signal_new ("control-value-changed", G_TYPE_FROM_CLASS (klass),
-      G_SIGNAL_RUN_LAST,
-      G_STRUCT_OFFSET (GstCameraControlChannelClass,
-          value_changed),
-      NULL, NULL, g_cclosure_marshal_VOID__INT, G_TYPE_NONE, 1, G_TYPE_INT);
+	signals[SIGNAL_VALUE_CHANGED] = \
+		g_signal_new("control-value-changed",
+		             G_TYPE_FROM_CLASS (klass),
+		             G_SIGNAL_RUN_LAST,
+		             G_STRUCT_OFFSET (GstCameraControlChannelClass, value_changed),
+		             NULL,
+		             NULL,
+		             g_cclosure_marshal_VOID__INT,
+		             G_TYPE_NONE,
+		             1,
+		             G_TYPE_INT);
 
-  object_klass->dispose = gst_camera_control_channel_dispose;
+	object_klass->dispose = gst_camera_control_channel_dispose;
 }
 
-static void
-gst_camera_control_channel_init( GstCameraControlChannel* control_channel )
+static void gst_camera_control_channel_init(GstCameraControlChannel* control_channel)
 {
-  control_channel->label = NULL;
-  control_channel->min_value = control_channel->max_value = 0;
+	control_channel->label = NULL;
+	control_channel->min_value = control_channel->max_value = 0;
 }
 
-static void
-gst_camera_control_channel_dispose( GObject* object )
+static void gst_camera_control_channel_dispose(GObject* object)
 {
-  GstCameraControlChannel *control_channel = GST_CAMERA_CONTROL_CHANNEL (object);
+	GstCameraControlChannel *control_channel = GST_CAMERA_CONTROL_CHANNEL(object);
 
-  if (control_channel->label)
-    g_free (control_channel->label);
+	if (control_channel->label) {
+		g_free (control_channel->label);
+	}
 
-  control_channel->label = NULL;
+	control_channel->label = NULL;
 
-  if (parent_class->dispose)
-    parent_class->dispose (object);
+	if (parent_class->dispose) {
+		parent_class->dispose (object);
+	}
 }
