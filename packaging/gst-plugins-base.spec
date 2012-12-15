@@ -13,7 +13,6 @@ Source2:        baselibs.conf
 BuildRequireS:  gstreamer-utils > 0.11
 BuildRequires:  glib2-devel >= 2.32
 BuildRequires:  gstreamer-devel >= 1.0.0
-BuildRequires:  gtk-doc >= 1.12
 BuildRequires:  libICE-devel
 BuildRequires:  libSM-devel
 BuildRequires:  libXext-devel
