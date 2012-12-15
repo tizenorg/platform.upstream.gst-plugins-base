@@ -1,3 +1,8 @@
+* Sat Dec 15 2012 Anas Nashif <anas.nashif@intel.com> submit/trunk/20121215.161708@ac9a53f
+- remove gtk-doc dependency
+- enable introspection based on project
+- fixed sub-package naming
+
 * Fri Nov 30 2012 Anas Nashif <anas.nashif@intel.com> submit/trunk/20121116.010141@dded93c
 - spec cleanup and removed patches
 - remove req on python-base
