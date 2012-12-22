@@ -106,7 +106,6 @@ gst_rtp_buffer_allocate_data (GstBuffer * buffer, guint payload_len,
 
   g_return_if_fail (csrc_count <= 15);
   g_return_if_fail (GST_IS_BUFFER (buffer));
-  g_return_if_fail (pad_len <= 255);
   g_return_if_fail (gst_buffer_is_writable (buffer));
 
   gst_buffer_remove_all_memory (buffer);
@@ -327,6 +326,9 @@ gst_rtp_buffer_map (GstBuffer * buffer, GstMapFlags flags, GstRTPBuffer * rtp)
   g_return_val_if_fail (rtp != NULL, FALSE);
   g_return_val_if_fail (rtp->buffer == NULL, FALSE);
 
+  if (gst_buffer_n_memory (buffer) < 1)
+    goto no_memory;
+
   /* map first memory, this should be the header */
   if (!gst_buffer_map_range (buffer, 0, 1, &rtp->map[0], flags))
     goto map_failed;
@@ -420,6 +422,11 @@ gst_rtp_buffer_map (GstBuffer * buffer, GstMapFlags flags, GstRTPBuffer * rtp)
   return TRUE;
 
   /* ERRORS */
+no_memory:
+  {
+    GST_ERROR ("buffer without memory");
+    return FALSE;
+  }
 map_failed:
   {
     GST_ERROR ("failed to map memory");
