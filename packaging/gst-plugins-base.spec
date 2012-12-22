@@ -1,8 +1,8 @@
 %bcond_with introspection
 
 Name:           gst-plugins-base
-Version:        1.0.2
-Release:        2.3
+Version:        1.0.4
+Release:        0
 %define gst_branch 1.0
 Url:            http://gstreamer.freedesktop.org/
 Summary:        GStreamer Streaming-Media Framework Plug-Ins

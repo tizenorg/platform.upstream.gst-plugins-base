@@ -1,3 +1,6 @@
+* Fri Dec 21 2012 Anas Nashif <anas.nashif@intel.com> upstream/1.0.4@cddb958
+- Update to 1.0.4
+
 * Sat Dec 15 2012 Anas Nashif <anas.nashif@intel.com> submit/trunk/20121215.161708@ac9a53f
 - remove gtk-doc dependency
 - enable introspection based on project
