@@ -4872,18 +4872,16 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
       g_mutex_lock( xvimagesink->x_lock );
 
       if (xvimagesink->visible && (g_value_get_boolean(value) == FALSE)) {
-        if (xvimagesink->xcontext) {
-          Atom atom_stream = XInternAtom( xvimagesink->xcontext->disp,
-                                          "_USER_WM_PORT_ATTRIBUTE_STREAM_OFF", False );
-          if (atom_stream != None) {
-            if (XvSetPortAttribute(xvimagesink->xcontext->disp,
-                                   xvimagesink->xcontext->xv_port_id,
-                                   atom_stream, 0 ) != Success) {
-              GST_WARNING_OBJECT( xvimagesink, "Set visible FALSE failed" );
-            }
-
-            XSync( xvimagesink->xcontext->disp, FALSE );
+        Atom atom_stream = XInternAtom( xvimagesink->xcontext->disp,
+                                        "_USER_WM_PORT_ATTRIBUTE_STREAM_OFF", False );
+        if (atom_stream != None) {
+          if (XvSetPortAttribute(xvimagesink->xcontext->disp,
+                                 xvimagesink->xcontext->xv_port_id,
+                                 atom_stream, 0 ) != Success) {
+            GST_WARNING_OBJECT( xvimagesink, "Set visible FALSE failed" );
           }
+
+          XSync( xvimagesink->xcontext->disp, FALSE );
         }
       } else if (!xvimagesink->visible && (g_value_get_boolean(value) == TRUE)) {
         g_mutex_unlock( xvimagesink->x_lock );
