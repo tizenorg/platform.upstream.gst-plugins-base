@@ -1,3 +1,6 @@
+* Tue Mar 19 18:07:35 UTC 2013 - tracy.graydon@intel.com
+- Added %{_libdir}/gstreamer-0.10/libgstvideo4linux.so ti=o files section to fix error with unpackaged file 
+
 * Thu Jul 19 2012 Yan Yin <yan.yin@intel.com> upstream/0.10.36@f8d5a6b
 - enable pango-based textoverlay for subtitle display
 
