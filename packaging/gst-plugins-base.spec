@@ -7,7 +7,7 @@ Release:        0
 Url:            http://gstreamer.freedesktop.org/
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 License:        LGPL-2.1+ and GPL-2.0+
-Group:          Productivity/Multimedia/Other
+Group:          Multimedia/Multimedia Framework
 Source:         http://download.gnome.org/sources/gst-plugins-base/1.0/%{name}-%{version}.tar.xz
 Source2:        baselibs.conf
 BuildRequireS:  gstreamer-utils > 0.11
@@ -48,7 +48,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n libgstapp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -61,7 +61,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstApp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstApp
 GStreamer is a streaming media framework based on graphs of filters
@@ -75,8 +75,7 @@ plug-ins.
 
 %package -n libgstaudio
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
-# We want to have base modules installed:
+Group:          Multimedia/Multimedia Framework
 Requires:       %{name}
 
 %description -n libgstaudio
@@ -88,7 +87,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstAudio
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstAudio
 GStreamer is a streaming media framework based on graphs of filters
@@ -102,8 +101,7 @@ plug-ins.
 
 %package -n libgstfft
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
-# We want to have base modules installed:
+Group:          Multimedia/Multimedia Framework
 Requires:       %{name}
 
 %description -n libgstfft
@@ -115,7 +113,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstFft
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstFft
 GStreamer is a streaming media framework based on graphs of filters
@@ -129,8 +127,7 @@ plug-ins.
 
 %package -n libgstpbutils
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
-# We want to have base modules installed:
+Group:          Multimedia/Multimedia Framework
 Requires:       %{name}
 
 %description -n libgstpbutils
@@ -142,7 +139,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstPbutils
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstPbutils
 GStreamer is a streaming media framework based on graphs of filters
@@ -156,8 +153,7 @@ plug-ins.
 
 %package -n libgstriff
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
-# We want to have base modules installed:
+Group:          Multimedia/Multimedia Framework
 Requires:       %{name}
 
 %description -n libgstriff
@@ -169,7 +165,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstRiff
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstRiff
 GStreamer is a streaming media framework based on graphs of filters
@@ -183,7 +179,7 @@ plug-ins.
 
 %package -n libgstrtp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -196,7 +192,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstRtp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstRtp
 GStreamer is a streaming media framework based on graphs of filters
@@ -210,7 +206,7 @@ plug-ins.
 
 %package -n libgstrtsp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -223,7 +219,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstRtsp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstRtsp
 GStreamer is a streaming media framework based on graphs of filters
@@ -237,7 +233,7 @@ plug-ins.
 
 %package -n libgstsdp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -250,7 +246,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstSdp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstSdp
 GStreamer is a streaming media framework based on graphs of filters
@@ -264,7 +260,7 @@ plug-ins.
 
 %package -n libgsttag
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -277,7 +273,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstTag
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstTag
 GStreamer is a streaming media framework based on graphs of filters
@@ -291,7 +287,7 @@ plug-ins.
 
 %package -n libgstvideo
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -304,7 +300,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstVideo
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          System/Libraries
+Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstVideo
 GStreamer is a streaming media framework based on graphs of filters
@@ -318,7 +314,7 @@ plug-ins.
 
 %package devel
 Summary:        Include files and libraries mandatory for development with gstreamer-plugins-base
-Group:          Development/Libraries/C and C++
+Group:          Development/Libraries
 Requires:       libgstapp = %{version}
 Requires:       libgstaudio = %{version}
 Requires:       libgstfft = %{version}
@@ -349,7 +345,7 @@ to compile and link applications that use gstreamer-plugins-base.
 
 %package doc
 Summary:        Documentation for gstreamer-plugins-base
-Group:          Development/Libraries/C and C++
+Group:          Development/Libraries
 Requires:       %{name} = %{version}
 Provides:       gst-plugins-base-doc = %{version}
 
@@ -357,7 +353,6 @@ Provides:       gst-plugins-base-doc = %{version}
 This package contains documentation for the gstreamer-plugins-base
 package.
 
-%lang_package
 %prep
 %setup -q -n %{name}-%{version}
 
@@ -423,9 +418,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %postun -n libgstvideo -p /sbin/ldconfig
 
+%lang_package
+
 %files
 %defattr(-, root, root)
-%doc AUTHORS COPYING COPYING.LIB NEWS README RELEASE REQUIREMENTS
+%license COPYING COPYING.LIB
 %{_bindir}/gst-discoverer-%{gst_branch}
 %{_libdir}/gstreamer-%{gst_branch}/libgstadder.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstalsa.so
