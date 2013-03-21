@@ -64,7 +64,6 @@ export CFLAGS+=" -DGST_EXT_TEXTRENDER_ENHANCEMENT  -DGST_EXT_XV_ENHANCEMENT"
 	--disable-gdp 				\
 	--disable-cdparanoia 			\
 	--disable-gnome_vfs 			\
-	--disable-gio 				\
 	--disable-libvisual 			\
 	--disable-freetypetest 			\
 	--disable-rpath 				\
@@ -131,6 +130,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgstvorbis.so
 %{_libdir}/gstreamer-0.10/libgstximagesink.so
 %{_libdir}/gstreamer-0.10/libgstpango.so
+%{_libdir}/gstreamer-0.10/libgstgio.so
 
 %files devel
 %manifest gst-plugins-base.manifest
