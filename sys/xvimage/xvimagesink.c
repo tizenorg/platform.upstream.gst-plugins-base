@@ -140,9 +140,10 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <xf86drm.h>
+#include <xf86drmMode.h>
 #include <X11/Xmd.h>
 #include <dri2/dri2.h>
-#include <libdrm/drm.h>
 
 typedef enum {
 	BUF_SHARE_METHOD_PADDR = 0,
