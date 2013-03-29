@@ -1,26 +1,28 @@
+#
+
 %bcond_with introspection
 
 Name:           gst-plugins-base
 Version:        1.0.5
 Release:        0
+License:        LGPL-2.1+ and GPL-2.0+
+Summary:        GStreamer Streaming-Media Framework Plug-Ins
 %define gst_branch 1.0
 Url:            http://gstreamer.freedesktop.org/
-Summary:        GStreamer Streaming-Media Framework Plug-Ins
-License:        LGPL-2.1+ and GPL-2.0+
 Group:          Multimedia/Multimedia Framework
 Source:         http://download.gnome.org/sources/gst-plugins-base/1.0/%{name}-%{version}.tar.xz
 Source2:        baselibs.conf
-BuildRequireS:  gstreamer-utils > 0.11
+BuildRequires:  gettext-tools
 BuildRequires:  glib2-devel >= 2.32
 BuildRequires:  gstreamer-devel >= 1.0.0
-BuildRequires:  libICE-devel
-BuildRequires:  libSM-devel
-BuildRequires:  libXext-devel
-BuildRequires:  libXv-devel
+BuildRequires:  gstreamer-utils > 0.11
 BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
-BuildRequires:  gettext-tools
+#BuildRequires:  pkgconfig(ice)
+#BuildRequires:  pkgconfig(sm)
+#BuildRequires:  pkgconfig(xext)
+#BuildRequires:  pkgconfig(xv)
 %if %{with introspection}
 BuildRequires:  gobject-introspection-devel >= 1.31.1
 %endif
@@ -354,12 +356,12 @@ This package contains documentation for the gstreamer-plugins-base
 package.
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q
 
 %build
 # FIXME: GTKDOC_CFLAGS, GST_OBJ_CFLAGS:
 # Silently ignored compilation of uninstalled gtk-doc scanners without RPM_OPT_FLAGS.
-export CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
+export CFLAGS="%{optflags} -fno-strict-aliasing"
 %configure\
 	--disable-static\
 	--enable-experimental\
@@ -368,15 +370,12 @@ export CFLAGS="$RPM_OPT_FLAGS -fno-strict-aliasing"
     --enable-introspection\
 %endif
 	--disable-examples
-make %{?jobs:-j%jobs}
+make %{?_smp_mflags}
 
 %install
 %make_install
 %find_lang %{name}-%{gst_branch}
 mv %{name}-%{gst_branch}.lang %{name}.lang
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %post -n libgstapp -p /sbin/ldconfig
 
@@ -431,14 +430,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/gstreamer-%{gst_branch}/libgstaudioresample.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstaudiotestsrc.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstaudiorate.so
-#%{_libdir}/gstreamer-%{gst_branch}/libgstcdparanoia.so
-#%{_libdir}/gstreamer-%{gst_branch}/libgstdecodebin.so
-#%{_libdir}/gstreamer-%{gst_branch}/libgstdecodebin2.so
-#%{_libdir}/gstreamer-%{gst_branch}/libgstffmpegcolorspace.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstgio.so
-#%{_libdir}/gstreamer-%{gst_branch}/libgstlibvisual.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstogg.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstpango.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstplayback.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstsubparse.so
 %{_libdir}/gstreamer-%{gst_branch}/libgsttcp.so
@@ -450,17 +443,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/gstreamer-%{gst_branch}/libgstvideotestsrc.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvolume.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvorbis.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstxvimagesink.so
-#Moved to -bad for now... likely to come pack later
-#%{_libdir}/gstreamer-%{gst_branch}/libgstgdp.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstencodebin.so
 %doc %{_mandir}/man1/gst-discoverer-*
+
+%{_libdir}/gstreamer-%{gst_branch}/libgstpango.so
+%{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
+%{_libdir}/gstreamer-%{gst_branch}/libgstxvimagesink.so
 
 %files -n libgstapp
 %defattr(-, root, root)
 %{_libdir}/libgstapp*.so.*
-
 
 %files -n libgstaudio
 %defattr(-, root, root)
@@ -469,7 +461,6 @@ rm -rf $RPM_BUILD_ROOT
 %files -n libgstfft
 %defattr(-, root, root)
 %{_libdir}/libgstfft*.so.*
-
 
 %if %{with introspection}
 %files -n typelib-GstApp
