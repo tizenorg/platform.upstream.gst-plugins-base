@@ -1,9 +1,7 @@
-#
-
 %bcond_with introspection
 
 Name:           gst-plugins-base
-Version:        1.0.5
+Version:        1.0.6
 Release:        0
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
@@ -19,10 +17,10 @@ BuildRequires:  gstreamer-utils > 0.11
 BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
-#BuildRequires:  pkgconfig(ice)
-#BuildRequires:  pkgconfig(sm)
-#BuildRequires:  pkgconfig(xext)
-#BuildRequires:  pkgconfig(xv)
+BuildRequires:  pkgconfig(ice)
+BuildRequires:  pkgconfig(sm)
+BuildRequires:  pkgconfig(xext)
+BuildRequires:  pkgconfig(xv)
 %if %{with introspection}
 BuildRequires:  gobject-introspection-devel >= 1.31.1
 %endif
