@@ -4071,6 +4071,12 @@ reuse_last_caps:
   }
 
   if (!xvimage) {
+#ifdef GST_EXT_XV_ENHANCEMENT
+    /* init aligned size */
+    xvimagesink->aligned_width = 0;
+    xvimagesink->aligned_height = 0;
+#endif /* GST_EXT_XV_ENHANCEMENT */
+
     /* We found no suitable image in the pool. Creating... */
     GST_DEBUG_OBJECT (xvimagesink, "no usable image in pool, creating xvimage");
     xvimage = gst_xvimagesink_xvimage_new (xvimagesink, intersection);
