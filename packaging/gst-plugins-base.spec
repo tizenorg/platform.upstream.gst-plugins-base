@@ -56,22 +56,25 @@ cp %{SOURCE1001} .
 export CFLAGS+=" -DGST_EXT_TEXTRENDER_ENHANCEMENT  -DGST_EXT_XV_ENHANCEMENT"
 %autogen --noconfigure
 %configure \
-	--disable-static 				\
+	--disable-static 			\
 	--disable-nls 				\
-	--with-html-dir=/tmp/dump 		\
+	--with-html-dir=/tmp/dump 	\
 	--disable-examples 			\
-	--disable-audiorate 			\
+	--disable-audiorate 		\
 	--disable-gdp 				\
-	--disable-cdparanoia 			\
-	--disable-gnome_vfs 			\
-	--disable-libvisual 			\
-	--disable-freetypetest 			\
-	--disable-rpath 				\
+	--disable-cdparanoia 		\
+	--disable-gnome_vfs 		\
+	--disable-libvisual 		\
+	--disable-freetypetest 		\
+	--disable-rpath 			\
 	--disable-valgrind 			\
 	--disable-gcov 				\
 	--disable-gtk-doc 			\
-	--disable-debug 				\
-    	--with-audioresample-format=int 
+	--disable-debug 			\
+	--disable-gst_v4l			\
+   	--with-audioresample-format=int 
+
+
 
 make %{?jobs:-j%jobs}
 
@@ -113,7 +116,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgstplaybin.so
 %{_libdir}/gstreamer-0.10/libgsttypefindfunctions.so
 %{_libdir}/gstreamer-0.10/libgstvideotestsrc.so
-%{_libdir}/gstreamer-0.10/libgstvideo4linux.so
+#%{_libdir}/gstreamer-0.10/libgstvideo4linux.so
 %{_libdir}/gstreamer-0.10/libgstsubparse.so
 %{_libdir}/gstreamer-0.10/libgstvolume.so
 %{_libdir}/gstreamer-0.10/libgstvideorate.so
