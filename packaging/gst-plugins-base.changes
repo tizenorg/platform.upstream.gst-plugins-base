@@ -1,3 +1,6 @@
+* Wed May  1 22:11:09 UTC 2013 - tracy.graydon@intel.com
+- disable the video4linux in the configure options, and comment out the files reference
+
 * Fri Mar 22 03:31:20 UTC 2013 - tracy.graydon@intel.com
 - Undo the libgstvideo4linux.so fix. No longer needed 
 

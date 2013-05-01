@@ -70,7 +70,8 @@ export CFLAGS+=" -DGST_EXT_TEXTRENDER_ENHANCEMENT  -DGST_EXT_XV_ENHANCEMENT"
 	--disable-valgrind 			\
 	--disable-gcov 				\
 	--disable-gtk-doc 			\
-	--disable-debug 			\
+	--disable-debug				\
+	--disable-gst_v4l			\
    	--with-audioresample-format=int 
 
 
@@ -115,7 +116,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgstplaybin.so
 %{_libdir}/gstreamer-0.10/libgsttypefindfunctions.so
 %{_libdir}/gstreamer-0.10/libgstvideotestsrc.so
-%{_libdir}/gstreamer-0.10/libgstvideo4linux.so
+#%{_libdir}/gstreamer-0.10/libgstvideo4linux.so
 %{_libdir}/gstreamer-0.10/libgstsubparse.so
 %{_libdir}/gstreamer-0.10/libgstvolume.so
 %{_libdir}/gstreamer-0.10/libgstvideorate.so
