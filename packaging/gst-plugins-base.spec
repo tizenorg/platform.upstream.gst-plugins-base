@@ -113,6 +113,7 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgstplaybin.so
 %{_libdir}/gstreamer-0.10/libgsttypefindfunctions.so
 %{_libdir}/gstreamer-0.10/libgstvideotestsrc.so
+%{_libdir}/gstreamer-0.10/libgstvideo4linux.so
 %{_libdir}/gstreamer-0.10/libgstsubparse.so
 %{_libdir}/gstreamer-0.10/libgstvolume.so
 %{_libdir}/gstreamer-0.10/libgstvideorate.so
