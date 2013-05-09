@@ -2174,7 +2174,7 @@ gst_xvimagesink_xwindow_clear (GstXvImageSink * xvimagesink,
 
   XvStopVideo (xvimagesink->xcontext->disp, xvimagesink->xcontext->xv_port_id,
       xwindow->win);
-#ifdef GST_EXT_XV_ENHANCEMENT
+#ifndef GST_EXT_XV_ENHANCEMENT
   /* Preview area is not updated before other UI is updated in the screen. */
   XSetForeground (xvimagesink->xcontext->disp, xwindow->gc,
       xvimagesink->xcontext->black);
