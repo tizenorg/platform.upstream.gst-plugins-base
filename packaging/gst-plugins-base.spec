@@ -26,7 +26,7 @@ BuildRequires:  gobject-introspection-devel >= 1.31.1
 %endif
 BuildRequires:  pkgconfig(alsa) >= 0.9.1
 BuildRequires:  pkgconfig(freetype2) >= 2.0.9
-BuildRequires:  pkgconfig(iso-codes)
+#BuildRequires:  pkgconfig(iso-codes)
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(ogg) >= 1.0
 BuildRequires:  pkgconfig(pango) >= 1.22.0
