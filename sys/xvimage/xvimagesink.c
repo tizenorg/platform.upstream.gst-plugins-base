@@ -4887,14 +4887,6 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
                                  atom_stream, 0 ) != Success) {
             GST_WARNING_OBJECT( xvimagesink, "Set visible FALSE failed" );
           }
-          if ( !xvimagesink->get_pixmap_cb ) {
-            XSetForeground (xvimagesink->xcontext->disp, xvimagesink->xwindow->gc,
-                xvimagesink->xcontext->black);
-
-            XFillRectangle (xvimagesink->xcontext->disp, xvimagesink->xwindow->win, xvimagesink->xwindow->gc,
-                xvimagesink->render_rect.x, xvimagesink->render_rect.y,
-                xvimagesink->render_rect.w, xvimagesink->render_rect.h);
-          }
 
           XSync( xvimagesink->xcontext->disp, FALSE );
         }
