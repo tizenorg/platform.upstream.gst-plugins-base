@@ -3245,8 +3245,12 @@ gst_ogg_demux_get_duration_push (GstOggDemux * ogg, int flags)
      granpos there, but it's fairly likely */
   position =
       ogg->push_byte_length - DURATION_CHUNK_OFFSET - EOS_AVOIDANCE_THRESHOLD;
-  if (position < 0)
-    position = 0;
+  if (position < 0) {
+    if (ogg->push_byte_length > EOS_AVOIDANCE_THRESHOLD)
+      position = ogg->push_byte_length - (EOS_AVOIDANCE_THRESHOLD / 2);
+   else
+      position = 0;
+  }
 
   GST_DEBUG_OBJECT (ogg,
       "Getting duration, seeking near the end, to %" G_GINT64_FORMAT, position);
