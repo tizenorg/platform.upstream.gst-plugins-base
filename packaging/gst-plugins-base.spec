@@ -1,4 +1,5 @@
 %bcond_with introspection
+%bcond_with cdparanoia
 
 Name:           gst-plugins-base
 Version:        1.0.7
@@ -24,6 +25,9 @@ BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xv)
 %if %{with introspection}
 BuildRequires:  gobject-introspection-devel >= 1.31.1
+%endif
+%if %{with cdparanoia}
+BuildRequires:  pkgconfig(cdparanoia-3)
 %endif
 BuildRequires:  pkgconfig(alsa) >= 0.9.1
 BuildRequires:  pkgconfig(freetype2) >= 2.0.9
@@ -423,6 +427,9 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_libdir}/gstreamer-%{gst_branch}/libgstpango.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstxvimagesink.so
+%if %{with cdparanoia}
+%{_libdir}/gstreamer-%{gst_branch}/libgstcdparanoia.so
+%endif
 
 %files -n libgstapp
 %defattr(-, root, root)
