@@ -1,16 +1,17 @@
 %bcond_with introspection
 
 Name:           gst-plugins-base
-Version:        1.0.6
+Version:        1.0.7
 Release:        0
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 %define gst_branch 1.0
 Url:            http://gstreamer.freedesktop.org/
-Group:          Multimedia/Multimedia Framework
+Group:          Multimedia/Audio
 Source:         http://download.gnome.org/sources/gst-plugins-base/1.0/%{name}-%{version}.tar.xz
 Source2:        baselibs.conf
 BuildRequires:  gettext-tools
+BuildRequires:  gst-common
 BuildRequires:  glib2-devel >= 2.32
 BuildRequires:  gstreamer-devel >= 1.0.0
 BuildRequires:  gstreamer-utils > 0.11
@@ -48,7 +49,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n libgstapp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -61,7 +61,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstApp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstApp
 GStreamer is a streaming media framework based on graphs of filters
@@ -75,7 +74,6 @@ plug-ins.
 
 %package -n libgstaudio
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 Requires:       %{name}
 
 %description -n libgstaudio
@@ -87,7 +85,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstAudio
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstAudio
 GStreamer is a streaming media framework based on graphs of filters
@@ -101,7 +98,6 @@ plug-ins.
 
 %package -n libgstfft
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 Requires:       %{name}
 
 %description -n libgstfft
@@ -113,7 +109,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstFft
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstFft
 GStreamer is a streaming media framework based on graphs of filters
@@ -127,7 +122,6 @@ plug-ins.
 
 %package -n libgstpbutils
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 Requires:       %{name}
 
 %description -n libgstpbutils
@@ -139,7 +133,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstPbutils
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstPbutils
 GStreamer is a streaming media framework based on graphs of filters
@@ -153,7 +146,6 @@ plug-ins.
 
 %package -n libgstriff
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 Requires:       %{name}
 
 %description -n libgstriff
@@ -165,7 +157,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstRiff
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstRiff
 GStreamer is a streaming media framework based on graphs of filters
@@ -179,7 +170,6 @@ plug-ins.
 
 %package -n libgstrtp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -192,7 +182,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstRtp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstRtp
 GStreamer is a streaming media framework based on graphs of filters
@@ -206,7 +195,6 @@ plug-ins.
 
 %package -n libgstrtsp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -219,7 +207,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstRtsp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstRtsp
 GStreamer is a streaming media framework based on graphs of filters
@@ -233,7 +220,6 @@ plug-ins.
 
 %package -n libgstsdp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -246,7 +232,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstSdp
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstSdp
 GStreamer is a streaming media framework based on graphs of filters
@@ -260,7 +245,6 @@ plug-ins.
 
 %package -n libgsttag
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -273,7 +257,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstTag
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstTag
 GStreamer is a streaming media framework based on graphs of filters
@@ -287,7 +270,6 @@ plug-ins.
 
 %package -n libgstvideo
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-Group:          Multimedia/Multimedia Framework
 # We want to have base modules installed:
 Requires:       %{name}
 
@@ -300,7 +282,6 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package -n typelib-GstVideo
 Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
-Group:          Multimedia/Multimedia Framework
 
 %description -n typelib-GstVideo
 GStreamer is a streaming media framework based on graphs of filters
@@ -313,8 +294,7 @@ This package provides the GObject Introspection bindings for GStreamer
 plug-ins.
 
 %package devel
-Summary:        Include files and libraries mandatory for development with gstreamer-plugins-base
-Group:          Development/Libraries
+Summary:        Include files and Libraries
 Requires:       libgstapp = %{version}
 Requires:       libgstaudio = %{version}
 Requires:       libgstfft = %{version}
@@ -343,22 +323,18 @@ Provides:       gst-plugins-base-devel = %{version}
 This package contains all necessary include files and libraries needed
 to compile and link applications that use gstreamer-plugins-base.
 
-%package doc
-Summary:        Documentation for gstreamer-plugins-base
-Group:          Development/Libraries
-Requires:       %{name} = %{version}
-Provides:       gst-plugins-base-doc = %{version}
-
-%description doc
-This package contains documentation for the gstreamer-plugins-base
-package.
 
 %prep
 %setup -q
+rm -rf common
+cp -a %{_datadir}/gst-common common
+find common -exec touch {} \;
 
 %build
 # FIXME: GTKDOC_CFLAGS, GST_OBJ_CFLAGS:
 # Silently ignored compilation of uninstalled gtk-doc scanners without RPM_OPT_FLAGS.
+export V=1
+NOCONFIGURE=1 ./autogen.sh
 export CFLAGS="%{optflags} -fno-strict-aliasing"
 %configure\
 	--disable-static\
@@ -550,7 +526,3 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_datadir}/gir-1.0/*.gir
 %endif
 
-%files doc
-%defattr(-, root, root)
-%{_datadir}/gtk-doc/html/gst-plugins-base-libs-%{gst_branch}
-%{_datadir}/gtk-doc/html/gst-plugins-base-plugins-%{gst_branch}
