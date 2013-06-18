@@ -1,4 +1,4 @@
-Name:       gst-plugins-base
+Name:       gst-plugins-base0.10
 Summary:    GStreamer streaming media framework base plug-ins
 Version:    0.10.36
 Release:    23
