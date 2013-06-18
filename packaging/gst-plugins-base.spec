@@ -1,7 +1,7 @@
 Name:       gst-plugins-base
 Summary:    GStreamer streaming media framework base plug-ins
 Version:    0.10.36
-Release:    23
+Release:    24
 Group:      Applications/Multimedia
 License:    LGPLv2+
 Source0:    %{name}-%{version}.tar.gz
@@ -129,7 +129,6 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgstvideorate.so
 %{_libdir}/gstreamer-0.10/libgstvideoscale.so
 %{_libdir}/gstreamer-0.10/libgsttcp.so
-%{_libdir}/gstreamer-0.10/libgstvideo4linux.so
 %{_libdir}/gstreamer-0.10/libgstaudioresample.so
 %{_libdir}/gstreamer-0.10/libgstapp.so
 %{_libdir}/gstreamer-0.10/libgstxvimagesink.so
