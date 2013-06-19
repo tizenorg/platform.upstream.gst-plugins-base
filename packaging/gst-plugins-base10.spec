@@ -3,9 +3,8 @@ Summary:    GStreamer streaming media framework base plug-ins
 Version:    0.10.36
 Release:    23
 Group:      Applications/Multimedia
-License:    LGPLv2+
+License:    LGPL-2.0+
 Source0:    %{name}-%{version}.tar.gz
-#Patch0:     Samsung-feature-bugs.patch
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig(ogg)
@@ -53,8 +52,6 @@ Separate sub-package contaning helper applications of gstreamer base plugins.
 %prep
 %setup -q 
 
-#%patch0 -p1
-
 %build
 %autogen --noconfigure
 
@@ -88,7 +85,7 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
-
+rm -rf %{buildroot}%{_libdir}/libgstcdda-0.10.so.*
 rm -rf %{buildroot}/tmp/dump
 
 %post -p /sbin/ldconfig
@@ -99,11 +96,10 @@ rm -rf %{buildroot}/tmp/dump
 %files
 %manifest gst-plugins-base.manifest
 %defattr(-,root,root,-)
-#%doc COPYING 
+%license  COPYING.LIB
 # libraries
 %{_libdir}/libgstinterfaces-0.10.so.*
 %{_libdir}/libgstaudio-0.10.so.*
-%exclude %{_libdir}/libgstcdda-0.10.so.*
 %{_libdir}/libgstfft-0.10.so.*
 %{_libdir}/libgstriff-0.10.so.*
 %{_libdir}/libgsttag-0.10.so.*
