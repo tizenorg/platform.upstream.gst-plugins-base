@@ -664,8 +664,18 @@ gst_xvimagesink_handle_xerror (Display * display, XErrorEvent * xevent)
 {
   char error_msg[1024];
 
+#ifdef GST_EXT_XV_ENHANCEMENT
+  if (xevent) {
+    XGetErrorText (display, xevent->error_code, error_msg, 1024);
+    error_msg[1023] = '\0';
+    GST_DEBUG ("xvimagesink triggered an XError. error: %s", error_msg);
+  } else {
+    GST_ERROR("CAUTION:xevent is NULL");
+  }
+#else /* GST_EXT_XV_ENHANCEMENT */
   XGetErrorText (display, xevent->error_code, error_msg, 1024);
   GST_DEBUG ("xvimagesink triggered an XError. error: %s", error_msg);
+#endif /* GST_EXT_XV_ENHANCEMENT */
   error_caught = TRUE;
   return 0;
 }
