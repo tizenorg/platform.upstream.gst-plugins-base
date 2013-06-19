@@ -3,9 +3,8 @@ Summary:    GStreamer streaming media framework base plug-ins
 Version:    0.10.36
 Release:    30
 Group:      Applications/Multimedia
-License:    LGPLv2+
+License:    LGPL-2.0+
 Source0:    %{name}-%{version}.tar.gz
-#Patch0:     Samsung-feature-bugs.patch
 Requires(post): /sbin/ldconfig
 Requires(postun): /sbin/ldconfig
 BuildRequires:  pkgconfig(ogg)
@@ -54,8 +53,6 @@ Separate sub-package contaning helper applications of gstreamer base plugins.
 %prep
 %setup -q 
 
-#%patch0 -p1
-
 %build
 %autogen --noconfigure
 
@@ -89,7 +86,10 @@ make %{?jobs:-j%jobs}
 rm -rf %{buildroot}
 %make_install
 
-
+rm -rf %{buildroot}%{_libdir}/libgstcdda-0.10.so.*
+rm -rf %{buildroot}%{_libdir}/gstreamer-0.10/libgstencodebin.so
+rm -rf %{buildroot}%{_bindir}/gst-visualise-0.10
+rm -rf  %{buildroot}%{_mandir}/man1/gst-visualise-0.10*
 rm -rf %{buildroot}/tmp/dump
 
 %post -p /sbin/ldconfig
@@ -100,11 +100,10 @@ rm -rf %{buildroot}/tmp/dump
 %files
 %manifest gst-plugins-base.manifest
 %defattr(-,root,root,-)
-#%doc COPYING 
+%license  COPYING.LIB
 # libraries
 %{_libdir}/libgstinterfaces-0.10.so.*
 %{_libdir}/libgstaudio-0.10.so.*
-%exclude %{_libdir}/libgstcdda-0.10.so.*
 %{_libdir}/libgstfft-0.10.so.*
 %{_libdir}/libgstriff-0.10.so.*
 %{_libdir}/libgsttag-0.10.so.*
@@ -134,7 +133,6 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgstaudioresample.so
 %{_libdir}/gstreamer-0.10/libgstapp.so
 %{_libdir}/gstreamer-0.10/libgstxvimagesink.so
-%exclude %{_libdir}/gstreamer-0.10/libgstencodebin.so
 # base plugins with dependencies
 %{_libdir}/gstreamer-0.10/libgstalsa.so
 %{_libdir}/gstreamer-0.10/libgstogg.so
@@ -259,8 +257,5 @@ rm -rf %{buildroot}/tmp/dump
 %files tools
 %manifest gst-plugins-base-tools.manifest
 %defattr(-,root,root,-)
-# helper programs
 %{_bindir}/gst-discoverer-0.10
-%exclude %{_bindir}/gst-visualise-0.10
-%exclude %{_mandir}/man1/gst-visualise-0.10*
 
