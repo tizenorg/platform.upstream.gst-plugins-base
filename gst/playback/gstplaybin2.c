@@ -522,6 +522,7 @@ enum
   PROP_AV_OFFSET,
   PROP_RING_BUFFER_MAX_SIZE,
   PROP_FORCE_ASPECT_RATIO,
+  PROP_ROLE,
   PROP_LAST
 };
 
@@ -897,6 +898,18 @@ gst_play_bin_class_init (GstPlayBinClass * klass)
   g_object_class_install_property (gobject_klass, PROP_FORCE_ASPECT_RATIO,
       g_param_spec_boolean ("force-aspect-ratio", "Force Aspect Ratio",
           "When enabled, scaling will respect original aspect ratio", TRUE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * GstPlayBin:role
+   *
+   * Set the role of the stream. This property is used by the platform policy subsystem
+   * to make policy decisions that affect the stream (for example routing and enforced 
+   * pause/playback).
+   */
+  g_object_class_install_property (gobject_klass, PROP_ROLE,
+      g_param_spec_string ("role", "Stream role",
+          "Stream role for the platform policy sybsystem", NULL,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /**
@@ -2140,6 +2153,10 @@ gst_play_bin_set_property (GObject * object, guint prop_id,
       g_object_set (playbin->playsink, "force-aspect-ratio",
           g_value_get_boolean (value), NULL);
       break;
+    case PROP_ROLE:
+      gst_child_proxy_set_property (GST_CHILD_PROXY (playbin),
+          "playsink::policy::actual-policy::role", value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -2343,6 +2360,10 @@ gst_play_bin_get_property (GObject * object, guint prop_id, GValue * value,
       g_value_set_boolean (value, v);
       break;
     }
+    case PROP_ROLE:
+      gst_child_proxy_get_property (GST_CHILD_PROXY (playbin),
+          "playsink::policy::actual-policy::role", value);
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;

@@ -192,6 +192,7 @@ struct _GstPlaySink
   GstPlayFlags flags;
 
   GstStreamSynchronizer *stream_synchronizer;
+  GstElement *policy;
 
   /* chains */
   GstPlayAudioChain *audiochain;
@@ -206,6 +207,8 @@ struct _GstPlaySink
   gboolean audio_pad_blocked;
   GstPad *audio_srcpad_stream_synchronizer;
   GstPad *audio_sinkpad_stream_synchronizer;
+  GstPad *audio_sinkpad_policy;
+  GstPad *audio_srcpad_policy;
   gulong audio_block_id;
   /* audio tee */
   GstElement *audio_tee;
@@ -218,12 +221,16 @@ struct _GstPlaySink
   gboolean video_pad_blocked;
   GstPad *video_srcpad_stream_synchronizer;
   GstPad *video_sinkpad_stream_synchronizer;
+  GstPad *video_sinkpad_policy;
+  GstPad *video_srcpad_policy;
   gulong video_block_id;
   /* text */
   GstPad *text_pad;
   gboolean text_pad_blocked;
   GstPad *text_srcpad_stream_synchronizer;
   GstPad *text_sinkpad_stream_synchronizer;
+  GstPad *text_sinkpad_policy;
+  GstPad *text_srcpad_policy;
   gulong text_block_id;
 
   guint32 pending_blocked_pads;
@@ -655,6 +662,9 @@ gst_play_sink_init (GstPlaySink * playsink)
   gst_bin_add (GST_BIN_CAST (playsink),
       GST_ELEMENT_CAST (playsink->stream_synchronizer));
 
+  playsink->policy = gst_element_factory_make ("autopolicy", "policy");
+  gst_bin_add (GST_BIN_CAST (playsink), playsink->policy);
+
   g_rec_mutex_init (&playsink->lock);
   GST_OBJECT_FLAG_SET (playsink, GST_ELEMENT_FLAG_SINK);
 
@@ -787,6 +797,7 @@ gst_play_sink_dispose (GObject * object)
   playsink->subtitle_encoding = NULL;
 
   playsink->stream_synchronizer = NULL;
+  playsink->policy = NULL;
 
   g_list_foreach (playsink->colorbalance_channels, (GFunc) gst_object_unref,
       NULL);
@@ -2940,6 +2951,72 @@ link_failed:
   }
 }
 
+static void
+policy_pad_added_cb (GstElement * gstelement,
+    GstPad * new_pad, gpointer user_data)
+{
+  GstPad **ppad;
+  ppad = user_data;
+  if (gst_pad_get_direction (new_pad) == GST_PAD_SRC) {
+    gst_object_ref (new_pad);
+    *ppad = new_pad;
+  }
+}
+
+static void
+remove_policy_and_synchronizer_pads (GstPlaySink * playsink,
+    GstPad ** sinkpad_stream_synchronizer,
+    GstPad ** srcpad_stream_synchronizer,
+    GstPad ** sinkpad_policy, GstPad ** srcpad_policy)
+{
+  if (*sinkpad_stream_synchronizer) {
+    gst_pad_unlink (*srcpad_stream_synchronizer, *sinkpad_policy);
+    gst_element_release_request_pad (GST_ELEMENT_CAST
+        (playsink->stream_synchronizer), *sinkpad_stream_synchronizer);
+    gst_element_release_request_pad (playsink->policy, *sinkpad_policy);
+    gst_object_unref (*sinkpad_stream_synchronizer);
+    *sinkpad_stream_synchronizer = NULL;
+    gst_object_unref (*srcpad_stream_synchronizer);
+    *srcpad_stream_synchronizer = NULL;
+    gst_object_unref (*sinkpad_policy);
+    *sinkpad_policy = NULL;
+    gst_object_unref (*srcpad_policy);
+    *srcpad_policy = NULL;
+  }
+}
+
+static void
+add_policy_and_synchronizer_pads (GstPlaySink * playsink,
+    GstPad ** sinkpad_stream_synchronizer,
+    GstPad ** srcpad_stream_synchronizer,
+    GstPad ** sinkpad_policy, GstPad ** srcpad_policy)
+{
+  if (!*sinkpad_stream_synchronizer) {
+    GValue item = { 0, };
+    GstIterator *it;
+
+    *sinkpad_stream_synchronizer =
+        gst_element_get_request_pad (GST_ELEMENT_CAST
+        (playsink->stream_synchronizer), "sink_%u");
+    it = gst_pad_iterate_internal_links (*sinkpad_stream_synchronizer);
+    g_assert (it);
+    gst_iterator_next (it, &item);
+    *srcpad_stream_synchronizer = g_value_dup_object (&item);
+    g_value_unset (&item);
+    g_assert (*srcpad_stream_synchronizer);
+    gst_iterator_free (it);
+
+    g_signal_connect (G_OBJECT (playsink->policy), "pad-added",
+        G_CALLBACK (policy_pad_added_cb), srcpad_policy);
+    *sinkpad_policy = gst_element_get_request_pad (playsink->policy, "sink_%u");
+    g_assert (*sinkpad_policy);
+    gst_pad_link_full (*srcpad_stream_synchronizer,
+        *sinkpad_policy, GST_PAD_LINK_CHECK_NOTHING);
+    g_signal_handlers_disconnect_by_func (playsink->policy,
+        G_CALLBACK (policy_pad_added_cb), srcpad_policy);
+  }
+}
+
 /* this function is called when all the request pads are requested and when we
  * have to construct the final pipeline. Based on the flags we construct the
  * final output pipelines.
@@ -3031,16 +3108,10 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
     if (playsink->videochain) {
       /* try to reactivate the chain */
       if (!setup_video_chain (playsink, raw, async)) {
-        if (playsink->video_sinkpad_stream_synchronizer) {
-          gst_element_release_request_pad (GST_ELEMENT_CAST
-              (playsink->stream_synchronizer),
-              playsink->video_sinkpad_stream_synchronizer);
-          gst_object_unref (playsink->video_sinkpad_stream_synchronizer);
-          playsink->video_sinkpad_stream_synchronizer = NULL;
-          gst_object_unref (playsink->video_srcpad_stream_synchronizer);
-          playsink->video_srcpad_stream_synchronizer = NULL;
-        }
-
+        remove_policy_and_synchronizer_pads (playsink,
+            &playsink->video_sinkpad_stream_synchronizer,
+            &playsink->video_srcpad_stream_synchronizer,
+            &playsink->video_sinkpad_policy, &playsink->video_srcpad_policy);
         add_chain (GST_PLAY_CHAIN (playsink->videochain), FALSE);
 
         /* Remove the sink from the bin to keep its state
@@ -3073,22 +3144,10 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
     if (!playsink->videochain)
       goto no_chain;
 
-    if (!playsink->video_sinkpad_stream_synchronizer) {
-      GValue item = { 0, };
-      GstIterator *it;
-
-      playsink->video_sinkpad_stream_synchronizer =
-          gst_element_get_request_pad (GST_ELEMENT_CAST
-          (playsink->stream_synchronizer), "sink_%u");
-      it = gst_pad_iterate_internal_links
-          (playsink->video_sinkpad_stream_synchronizer);
-      g_assert (it);
-      gst_iterator_next (it, &item);
-      playsink->video_srcpad_stream_synchronizer = g_value_dup_object (&item);
-      g_value_unset (&item);
-      g_assert (playsink->video_srcpad_stream_synchronizer);
-      gst_iterator_free (it);
-    }
+    add_policy_and_synchronizer_pads (playsink,
+        &playsink->video_sinkpad_stream_synchronizer,
+        &playsink->video_srcpad_stream_synchronizer,
+        &playsink->video_sinkpad_policy, &playsink->video_srcpad_policy);
 
     if (playsink->video_pad)
       gst_ghost_pad_set_target (GST_GHOST_PAD_CAST (playsink->video_pad),
@@ -3108,9 +3167,9 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
       add_chain (GST_PLAY_CHAIN (playsink->videodeinterlacechain), TRUE);
       activate_chain (GST_PLAY_CHAIN (playsink->videodeinterlacechain), TRUE);
 
-      gst_pad_unlink (playsink->video_srcpad_stream_synchronizer,
+      gst_pad_unlink (playsink->video_srcpad_policy,
           playsink->videochain->sinkpad);
-      gst_pad_link_full (playsink->video_srcpad_stream_synchronizer,
+      gst_pad_link_full (playsink->video_srcpad_policy,
           playsink->videodeinterlacechain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
     } else {
       if (playsink->videodeinterlacechain) {
@@ -3127,7 +3186,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
     if (!need_vis && !need_text && (!playsink->textchain
             || !playsink->text_pad)) {
       GST_DEBUG_OBJECT (playsink, "ghosting video sinkpad");
-      gst_pad_unlink (playsink->video_srcpad_stream_synchronizer,
+      gst_pad_unlink (playsink->video_srcpad_policy,
           playsink->videochain->sinkpad);
       if (playsink->videodeinterlacechain
           && playsink->videodeinterlacechain->srcpad)
@@ -3137,7 +3196,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
         gst_pad_link_full (playsink->videodeinterlacechain->srcpad,
             playsink->videochain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
       else
-        gst_pad_link_full (playsink->video_srcpad_stream_synchronizer,
+        gst_pad_link_full (playsink->video_srcpad_policy,
             playsink->videochain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
     }
   } else {
@@ -3162,15 +3221,10 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
         gst_pad_unlink (srcpad, playsink->videochain->sinkpad);
       }
 
-      if (playsink->video_sinkpad_stream_synchronizer) {
-        gst_element_release_request_pad (GST_ELEMENT_CAST
-            (playsink->stream_synchronizer),
-            playsink->video_sinkpad_stream_synchronizer);
-        gst_object_unref (playsink->video_sinkpad_stream_synchronizer);
-        playsink->video_sinkpad_stream_synchronizer = NULL;
-        gst_object_unref (playsink->video_srcpad_stream_synchronizer);
-        playsink->video_srcpad_stream_synchronizer = NULL;
-      }
+      remove_policy_and_synchronizer_pads (playsink,
+          &playsink->video_sinkpad_stream_synchronizer,
+          &playsink->video_srcpad_stream_synchronizer,
+          &playsink->video_sinkpad_policy, &playsink->video_srcpad_policy);
 
       add_chain (GST_PLAY_CHAIN (playsink->videochain), FALSE);
       activate_chain (GST_PLAY_CHAIN (playsink->videochain), FALSE);
@@ -3221,15 +3275,10 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
           playsink->audio_tee_asrc = NULL;
         }
 
-        if (playsink->audio_sinkpad_stream_synchronizer) {
-          gst_element_release_request_pad (GST_ELEMENT_CAST
-              (playsink->stream_synchronizer),
-              playsink->audio_sinkpad_stream_synchronizer);
-          gst_object_unref (playsink->audio_sinkpad_stream_synchronizer);
-          playsink->audio_sinkpad_stream_synchronizer = NULL;
-          gst_object_unref (playsink->audio_srcpad_stream_synchronizer);
-          playsink->audio_srcpad_stream_synchronizer = NULL;
-        }
+        remove_policy_and_synchronizer_pads (playsink,
+            &playsink->audio_sinkpad_stream_synchronizer,
+            &playsink->audio_srcpad_stream_synchronizer,
+            &playsink->audio_sinkpad_policy, &playsink->audio_srcpad_policy);
 
         add_chain (GST_PLAY_CHAIN (playsink->audiochain), FALSE);
 
@@ -3257,22 +3306,10 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
       playsink->audiochain = gen_audio_chain (playsink, raw);
     }
 
-    if (!playsink->audio_sinkpad_stream_synchronizer) {
-      GValue item = { 0, };
-      GstIterator *it;
-
-      playsink->audio_sinkpad_stream_synchronizer =
-          gst_element_get_request_pad (GST_ELEMENT_CAST
-          (playsink->stream_synchronizer), "sink_%u");
-      it = gst_pad_iterate_internal_links
-          (playsink->audio_sinkpad_stream_synchronizer);
-      g_assert (it);
-      gst_iterator_next (it, &item);
-      playsink->audio_srcpad_stream_synchronizer = g_value_dup_object (&item);
-      g_value_unset (&item);
-      g_assert (playsink->audio_srcpad_stream_synchronizer);
-      gst_iterator_free (it);
-    }
+    add_policy_and_synchronizer_pads (playsink,
+        &playsink->audio_sinkpad_stream_synchronizer,
+        &playsink->audio_srcpad_stream_synchronizer,
+        &playsink->audio_sinkpad_policy, &playsink->audio_srcpad_policy);
 
     if (playsink->audiochain) {
       GST_DEBUG_OBJECT (playsink, "adding audio chain");
@@ -3285,7 +3322,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
       gst_pad_link_full (playsink->audio_tee_asrc,
           playsink->audio_sinkpad_stream_synchronizer,
           GST_PAD_LINK_CHECK_NOTHING);
-      gst_pad_link_full (playsink->audio_srcpad_stream_synchronizer,
+      gst_pad_link_full (playsink->audio_srcpad_policy,
           playsink->audiochain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
     }
   } else {
@@ -3301,15 +3338,10 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
         playsink->audio_tee_asrc = NULL;
       }
 
-      if (playsink->audio_sinkpad_stream_synchronizer) {
-        gst_element_release_request_pad (GST_ELEMENT_CAST
-            (playsink->stream_synchronizer),
-            playsink->audio_sinkpad_stream_synchronizer);
-        gst_object_unref (playsink->audio_sinkpad_stream_synchronizer);
-        playsink->audio_sinkpad_stream_synchronizer = NULL;
-        gst_object_unref (playsink->audio_srcpad_stream_synchronizer);
-        playsink->audio_srcpad_stream_synchronizer = NULL;
-      }
+      remove_policy_and_synchronizer_pads (playsink,
+          &playsink->audio_sinkpad_stream_synchronizer,
+          &playsink->audio_srcpad_stream_synchronizer,
+          &playsink->audio_sinkpad_policy, &playsink->audio_srcpad_policy);
 
       if (playsink->audiochain->sink_volume) {
         disconnect_chain (playsink->audiochain, playsink);
@@ -3346,7 +3378,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
           playsink->vischain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
       gst_pad_link_full (srcpad, playsink->video_sinkpad_stream_synchronizer,
           GST_PAD_LINK_CHECK_NOTHING);
-      gst_pad_link_full (playsink->video_srcpad_stream_synchronizer,
+      gst_pad_link_full (playsink->video_srcpad_policy,
           playsink->videochain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
       gst_object_unref (srcpad);
     }
@@ -3372,34 +3404,21 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
       playsink->textchain = gen_text_chain (playsink);
     }
     if (playsink->textchain) {
-      GstIterator *it;
-
       GST_DEBUG_OBJECT (playsink, "adding text chain");
       if (playsink->textchain->overlay)
         g_object_set (G_OBJECT (playsink->textchain->overlay), "silent", FALSE,
             NULL);
       add_chain (GST_PLAY_CHAIN (playsink->textchain), TRUE);
 
-      if (!playsink->text_sinkpad_stream_synchronizer) {
-        GValue item = { 0, };
+      add_policy_and_synchronizer_pads (playsink,
+          &playsink->text_sinkpad_stream_synchronizer,
+          &playsink->text_srcpad_stream_synchronizer,
+          &playsink->text_sinkpad_policy, &playsink->text_srcpad_policy);
 
-        playsink->text_sinkpad_stream_synchronizer =
-            gst_element_get_request_pad (GST_ELEMENT_CAST
-            (playsink->stream_synchronizer), "sink_%u");
-        it = gst_pad_iterate_internal_links
-            (playsink->text_sinkpad_stream_synchronizer);
-        g_assert (it);
-        gst_iterator_next (it, &item);
-        playsink->text_srcpad_stream_synchronizer = g_value_dup_object (&item);
-        g_value_unset (&item);
-        g_assert (playsink->text_srcpad_stream_synchronizer);
-        gst_iterator_free (it);
-
-        gst_ghost_pad_set_target (GST_GHOST_PAD_CAST (playsink->text_pad),
-            playsink->text_sinkpad_stream_synchronizer);
-        gst_pad_link_full (playsink->text_srcpad_stream_synchronizer,
-            playsink->textchain->textsinkpad, GST_PAD_LINK_CHECK_NOTHING);
-      }
+      gst_ghost_pad_set_target (GST_GHOST_PAD_CAST (playsink->text_pad),
+          playsink->text_sinkpad_stream_synchronizer);
+      gst_pad_link_full (playsink->text_srcpad_policy,
+          playsink->textchain->textsinkpad, GST_PAD_LINK_CHECK_NOTHING);
 
       if (need_vis || need_video) {
         if (need_vis) {
@@ -3416,7 +3435,7 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
             gst_pad_link_full (playsink->videodeinterlacechain->srcpad,
                 playsink->textchain->videosinkpad, GST_PAD_LINK_CHECK_NOTHING);
           else
-            gst_pad_link_full (playsink->video_srcpad_stream_synchronizer,
+            gst_pad_link_full (playsink->video_srcpad_policy,
                 playsink->textchain->videosinkpad, GST_PAD_LINK_CHECK_NOTHING);
         }
         gst_pad_link_full (playsink->textchain->srcpad,
@@ -3429,15 +3448,10 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
     GST_DEBUG_OBJECT (playsink, "no text needed");
     /* we have no subtitles/text or we are requested to not show them */
 
-    if (playsink->text_sinkpad_stream_synchronizer) {
-      gst_element_release_request_pad (GST_ELEMENT_CAST
-          (playsink->stream_synchronizer),
-          playsink->text_sinkpad_stream_synchronizer);
-      gst_object_unref (playsink->text_sinkpad_stream_synchronizer);
-      playsink->text_sinkpad_stream_synchronizer = NULL;
-      gst_object_unref (playsink->text_srcpad_stream_synchronizer);
-      playsink->text_srcpad_stream_synchronizer = NULL;
-    }
+    remove_policy_and_synchronizer_pads (playsink,
+        &playsink->text_sinkpad_stream_synchronizer,
+        &playsink->text_srcpad_stream_synchronizer,
+        &playsink->text_sinkpad_policy, &playsink->text_srcpad_policy);
 
     if (playsink->textchain) {
       if (playsink->text_pad == NULL) {
@@ -3454,15 +3468,10 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
       }
     }
     if (!need_video && playsink->video_pad) {
-      if (playsink->video_sinkpad_stream_synchronizer) {
-        gst_element_release_request_pad (GST_ELEMENT_CAST
-            (playsink->stream_synchronizer),
-            playsink->video_sinkpad_stream_synchronizer);
-        gst_object_unref (playsink->video_sinkpad_stream_synchronizer);
-        playsink->video_sinkpad_stream_synchronizer = NULL;
-        gst_object_unref (playsink->video_srcpad_stream_synchronizer);
-        playsink->video_srcpad_stream_synchronizer = NULL;
-      }
+      remove_policy_and_synchronizer_pads (playsink,
+          &playsink->video_sinkpad_stream_synchronizer,
+          &playsink->video_srcpad_stream_synchronizer,
+          &playsink->video_sinkpad_policy, &playsink->video_srcpad_policy);
 
       gst_ghost_pad_set_target (GST_GHOST_PAD_CAST (playsink->video_pad), NULL);
     }
@@ -4498,33 +4507,18 @@ gst_play_sink_change_state (GstElement * element, GstStateChange transition)
       playsink->need_async_start = TRUE;
       break;
     case GST_STATE_CHANGE_PAUSED_TO_READY:{
-      if (playsink->video_sinkpad_stream_synchronizer) {
-        gst_element_release_request_pad (GST_ELEMENT_CAST
-            (playsink->stream_synchronizer),
-            playsink->video_sinkpad_stream_synchronizer);
-        gst_object_unref (playsink->video_sinkpad_stream_synchronizer);
-        playsink->video_sinkpad_stream_synchronizer = NULL;
-        gst_object_unref (playsink->video_srcpad_stream_synchronizer);
-        playsink->video_srcpad_stream_synchronizer = NULL;
-      }
-      if (playsink->audio_sinkpad_stream_synchronizer) {
-        gst_element_release_request_pad (GST_ELEMENT_CAST
-            (playsink->stream_synchronizer),
-            playsink->audio_sinkpad_stream_synchronizer);
-        gst_object_unref (playsink->audio_sinkpad_stream_synchronizer);
-        playsink->audio_sinkpad_stream_synchronizer = NULL;
-        gst_object_unref (playsink->audio_srcpad_stream_synchronizer);
-        playsink->audio_srcpad_stream_synchronizer = NULL;
-      }
-      if (playsink->text_sinkpad_stream_synchronizer) {
-        gst_element_release_request_pad (GST_ELEMENT_CAST
-            (playsink->stream_synchronizer),
-            playsink->text_sinkpad_stream_synchronizer);
-        gst_object_unref (playsink->text_sinkpad_stream_synchronizer);
-        playsink->text_sinkpad_stream_synchronizer = NULL;
-        gst_object_unref (playsink->text_srcpad_stream_synchronizer);
-        playsink->text_srcpad_stream_synchronizer = NULL;
-      }
+      remove_policy_and_synchronizer_pads (playsink,
+          &playsink->video_sinkpad_stream_synchronizer,
+          &playsink->video_srcpad_stream_synchronizer,
+          &playsink->video_sinkpad_policy, &playsink->video_srcpad_policy);
+      remove_policy_and_synchronizer_pads (playsink,
+          &playsink->audio_sinkpad_stream_synchronizer,
+          &playsink->audio_srcpad_stream_synchronizer,
+          &playsink->audio_sinkpad_policy, &playsink->audio_srcpad_policy);
+      remove_policy_and_synchronizer_pads (playsink,
+          &playsink->text_sinkpad_stream_synchronizer,
+          &playsink->text_srcpad_stream_synchronizer,
+          &playsink->text_sinkpad_policy, &playsink->text_srcpad_policy);
     }
       /* fall through */
     case GST_STATE_CHANGE_READY_TO_NULL:

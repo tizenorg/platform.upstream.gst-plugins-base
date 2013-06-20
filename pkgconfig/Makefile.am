@@ -4,6 +4,7 @@ pcverfiles =  \
 	gstreamer-app-@GST_API_VERSION@.pc \
 	gstreamer-fft-@GST_API_VERSION@.pc \
 	gstreamer-pbutils-@GST_API_VERSION@.pc \
+	gstreamer-policy-@GST_API_VERSION@.pc \
 	gstreamer-riff-@GST_API_VERSION@.pc \
 	gstreamer-rtp-@GST_API_VERSION@.pc \
 	gstreamer-rtsp-@GST_API_VERSION@.pc \
@@ -16,6 +17,7 @@ pcverfiles_uninstalled = \
 	gstreamer-app-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-fft-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-pbutils-@GST_API_VERSION@-uninstalled.pc \
+	gstreamer-policy-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-riff-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-rtp-@GST_API_VERSION@-uninstalled.pc \
 	gstreamer-rtsp-@GST_API_VERSION@-uninstalled.pc \
@@ -45,6 +47,7 @@ pcinfiles = \
            gstreamer-app.pc.in gstreamer-app-uninstalled.pc.in \
            gstreamer-fft.pc.in gstreamer-fft-uninstalled.pc.in \
            gstreamer-pbutils.pc.in gstreamer-pbutils-uninstalled.pc.in \
+           gstreamer-policy.pc.in gstreamer-policy-uninstalled.pc.in \
            gstreamer-riff.pc.in gstreamer-riff-uninstalled.pc.in \
            gstreamer-rtp.pc.in gstreamer-rtp-uninstalled.pc.in \
            gstreamer-rtsp.pc.in gstreamer-rtsp-uninstalled.pc.in \
