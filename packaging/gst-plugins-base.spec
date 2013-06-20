@@ -100,6 +100,32 @@ processing capabilities can be added simply by installing new plug-ins.
 This package provides the GObject Introspection bindings for GStreamer
 plug-ins.
 
+%package -n libgstpolicy
+Summary:        GStreamer Streaming-Media Framework Plug-Ins
+Group:          Multimedia/Multimedia Framework
+Requires:       %{name}
+
+%description -n libgstpolicy
+GStreamer is a streaming media framework based on graphs of filters
+that operate on media data. Applications using this library can do
+anything media-related, from real-time sound processing to playing
+videos. Its plug-in-based architecture means that new data types or
+processing capabilities can be added simply by installing new plug-ins.
+
+%package -n typelib-GstPolicy
+Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
+Group:          Multimedia/Multimedia Framework
+
+%description -n typelib-GstPolicy
+GStreamer is a streaming media framework based on graphs of filters
+that operate on media data. Applications using this library can do
+anything media-related, from real-time sound processing to playing
+videos. Its plug-in-based architecture means that new data types or
+processing capabilities can be added simply by installing new plug-ins.
+
+This package provides the GObject Introspection bindings for GStreamer
+plug-ins.
+
 %package -n libgstfft
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 Requires:       %{name}
@@ -303,6 +329,7 @@ Requires:       libgstapp = %{version}
 Requires:       libgstaudio = %{version}
 Requires:       libgstfft = %{version}
 Requires:       libgstpbutils = %{version}
+Requires:       libgstpolicy = %{version}
 Requires:       libgstriff = %{version}
 Requires:       libgstrtp = %{version}
 Requires:       libgstrtsp = %{version}
@@ -314,6 +341,7 @@ Requires:       typelib-GstApp = %{version}
 Requires:       typelib-GstAudio = %{version}
 Requires:       typelib-GstFft = %{version}
 Requires:       typelib-GstPbutils = %{version}
+Requires:       typelib-GstPolicy = %{version}
 Requires:       typelib-GstRiff = %{version}
 Requires:       typelib-GstRtp = %{version}
 Requires:       typelib-GstRtsp = %{version}
@@ -371,6 +399,10 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 
 %postun -n libgstpbutils -p /sbin/ldconfig
 
+%post -n libgstpolicy -p /sbin/ldconfig
+
+%postun -n libgstpolicy -p /sbin/ldconfig
+
 %post -n libgstriff -p /sbin/ldconfig
 
 %postun -n libgstriff -p /sbin/ldconfig
@@ -411,6 +443,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_libdir}/gstreamer-%{gst_branch}/libgstgio.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstogg.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstplayback.so
+%{_libdir}/gstreamer-%{gst_branch}/libgstpolicy.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstsubparse.so
 %{_libdir}/gstreamer-%{gst_branch}/libgsttcp.so
 %{_libdir}/gstreamer-%{gst_branch}/libgsttheora.so
@@ -484,12 +517,19 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstPbutils-*.typelib
 
+%files -n typelib-GstPolicy
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstPolicy-*.typelib
+
 %endif
 
 %files -n libgstpbutils
 %defattr(-, root, root)
 %{_libdir}/libgstpbutils*.so.*
 
+%files -n libgstpolicy
+%defattr(-, root, root)
+%{_libdir}/libgstpolicy*.so.*
 
 %files -n libgstriff
 %defattr(-, root, root)
