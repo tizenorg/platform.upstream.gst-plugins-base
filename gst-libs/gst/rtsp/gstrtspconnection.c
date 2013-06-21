@@ -1408,9 +1408,10 @@ message_to_string (GstRTSPConnection * conn, GstRTSPMessage * message)
   switch (message->type) {
     case GST_RTSP_MESSAGE_REQUEST:
       /* create request string, add CSeq */
-      g_string_append_printf (str, "%s %s RTSP/1.0\r\n",
+      g_string_append_printf (str, "%s %s RTSP/1.0\r\n" 
+      "CSeq: %d\r\n",
       gst_rtsp_method_as_text (message->type_data.request.method),
-      message->type_data.request.uri);
+      message->type_data.request.uri, conn->cseq++);
       /* add session id if we have one */
       if (conn->session_id[0] != '\0') {
         gst_rtsp_message_remove_header (message, GST_RTSP_HDR_SESSION, -1);

@@ -1,7 +1,7 @@
 Name:       gst-plugins-base
 Summary:    GStreamer streaming media framework base plug-ins
 Version:    0.10.36
-Release:    25
+Release:    26
 Group:      Applications/Multimedia
 License:    LGPLv2+
 Source0:    %{name}-%{version}.tar.gz
