@@ -11,6 +11,7 @@ Url:            http://gstreamer.freedesktop.org/
 Group:          Multimedia/Audio
 Source:         http://download.gnome.org/sources/gst-plugins-base/1.0/%{name}-%{version}.tar.xz
 Source2:        baselibs.conf
+Source1001: 	gst-plugins-base.manifest
 BuildRequires:  gettext-tools
 BuildRequires:  gst-common
 BuildRequires:  glib2-devel >= 2.32
@@ -330,6 +331,7 @@ to compile and link applications that use gstreamer-plugins-base.
 
 %prep
 %setup -q
+cp %{SOURCE1001} .
 rm -rf common
 cp -a %{_datadir}/gst-common common
 find common -exec touch {} \;
@@ -398,6 +400,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %lang_package
 
 %files
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %license COPYING COPYING.LIB
 %{_bindir}/gst-discoverer-%{gst_branch}
@@ -432,86 +435,105 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %endif
 
 %files -n libgstapp
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstapp*.so.*
 
 %files -n libgstaudio
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstaudio*.so.*
 
 %files -n libgstfft
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstfft*.so.*
 
 %if %{with introspection}
 %files -n typelib-GstApp
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstApp-*.typelib
 
 %files -n typelib-GstAudio
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstAudio-*.typelib
 
 %files -n typelib-GstFft
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstFft-*.typelib
 
 %files -n typelib-GstRiff
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstRiff-*.typelib
 
 %files -n typelib-GstRtp
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstRtp-*.typelib
 
 %files -n typelib-GstRtsp
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstRtsp-*.typelib
 
 %files -n typelib-GstSdp
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstSdp-*.typelib
 
 %files -n typelib-GstTag
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstTag-*.typelib
 
 %files -n typelib-GstVideo
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstVideo-*.typelib
 
 %files -n typelib-GstPbutils
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstPbutils-*.typelib
 
 %endif
 
 %files -n libgstpbutils
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstpbutils*.so.*
 
 
 %files -n libgstriff
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstriff*.so.*
 
 
 %files -n libgstrtp
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstrtp*.so.*
 
 
 %files -n libgstrtsp
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstrtsp*.so.*
 
 
 %files -n libgstsdp
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstsdp*.so.*
 
 
 %files -n libgsttag
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgsttag*.so.*
 %dir %{_datadir}/gst-plugins-base/
@@ -520,11 +542,13 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 
 
 %files -n libgstvideo
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/libgstvideo*.so.*
 
 
 %files devel
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_includedir}/gstreamer-%{gst_branch}/*
 %{_libdir}/*.so
