@@ -4899,17 +4899,17 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
           }
 
           XSync( xvimagesink->xcontext->disp, FALSE );
+          xvimagesink->visible = g_value_get_boolean (value);
         }
       } else if (!xvimagesink->visible && (g_value_get_boolean(value) == TRUE)) {
         g_mutex_unlock( xvimagesink->x_lock );
         g_mutex_unlock( xvimagesink->flow_lock );
         GST_INFO_OBJECT( xvimagesink, "Set visible as TRUE. Update it." );
+        xvimagesink->visible = g_value_get_boolean (value);
         gst_xvimagesink_xvimage_put (xvimagesink, xvimagesink->xvimage);
         g_mutex_lock( xvimagesink->flow_lock );
         g_mutex_lock( xvimagesink->x_lock );
       }
-
-      xvimagesink->visible = g_value_get_boolean (value);
 
       g_mutex_unlock( xvimagesink->x_lock );
       g_mutex_unlock( xvimagesink->flow_lock );
