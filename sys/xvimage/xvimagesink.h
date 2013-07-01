@@ -46,6 +46,7 @@
 #ifdef GST_EXT_XV_ENHANCEMENT
 #include <X11/Xatom.h>
 #include <stdio.h>
+#include "xv_types.h"
 #endif
 
 #include <string.h>
@@ -66,12 +67,14 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_CLASS_TYPE((klass), GST_TYPE_XVIMAGESINK))
 
 #ifdef GST_EXT_XV_ENHANCEMENT
-#define XV_SCREEN_SIZE_WIDTH 4096
-#define XV_SCREEN_SIZE_HEIGHT 4096
+#define XV_SCREEN_SIZE_WIDTH            4096
+#define XV_SCREEN_SIZE_HEIGHT           4096
+#define DISPLAYING_BUFFERS_MAX_NUM      10
 
 #define MAX_PIXMAP_NUM 10
 typedef uint (*get_pixmap_callback)(void *user_data);
 typedef struct _GstXPixmap GstXPixmap;
+typedef struct _GstXvImageDisplayingBuffer GstXvImageDisplayingBuffer;
 #endif /* GST_EXT_XV_ENHANCEMENT */
 
 typedef struct _GstXContext GstXContext;
@@ -179,6 +182,15 @@ struct _GstXPixmap {
 	gint width, height;
 	GC gc;
 };
+
+struct _GstXvImageDisplayingBuffer {
+	GstBuffer *buffer;
+	unsigned int dmabuf_fd[XV_BUF_PLANE_NUM];
+	unsigned int gem_name[XV_BUF_PLANE_NUM];
+	unsigned int gem_handle[XV_BUF_PLANE_NUM];
+	void *bo[XV_BUF_PLANE_NUM];
+	unsigned int ref_count;
+};
 #endif
 
 /**
@@ -218,6 +230,9 @@ struct _GstXvImageBuffer {
 
   gint width, height, im_format;
   size_t size;
+#ifdef GST_EXT_XV_ENHANCEMENT
+  GstBuffer *current_buffer;
+#endif /* GST_EXT_XV_ENHANCEMENT */
 };
 
 #ifdef GST_EXT_XV_ENHANCEMENT
@@ -330,6 +345,7 @@ struct _GstXvImageSink {
   /* display mode */
   gboolean xid_updated;
   guint display_mode;
+  guint csc_range;
   guint display_geometry_method;
   guint flip;
   guint rotate_angle;
@@ -347,12 +363,30 @@ struct _GstXvImageSink {
   guint aligned_width;
   guint aligned_height;
   gint drm_fd;
-  unsigned int gem_handle[MAX_PLANE_NUM];
   /* for using multiple pixmaps */
   GstXPixmap *xpixmap[MAX_PIXMAP_NUM];
   gint current_pixmap_idx;
   get_pixmap_callback get_pixmap_cb;
   void* get_pixmap_cb_user_data;
+
+  /* for sync displaying buffers */
+  GstXvImageDisplayingBuffer displaying_buffers[DISPLAYING_BUFFERS_MAX_NUM];
+  GMutex *display_buffer_lock;
+  GCond *display_buffer_cond;
+
+  /* buffer count check */
+  guint displayed_buffer_count;
+  guint displaying_buffer_count;
+
+  /* zero copy format */
+  gboolean is_zero_copy_format;
+
+  /* secure contents path */
+  gboolean is_secure_path;
+
+  /* display request time */
+  struct timeval request_time[DISPLAYING_BUFFERS_MAX_NUM];
+
 #endif /* GST_EXT_XV_ENHANCEMENT */
 };
 
