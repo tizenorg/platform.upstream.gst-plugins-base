@@ -1,0 +1,8 @@
+Change-Id: Ifcc27bf3992578a470a0f68c30f113e515fc3a72
+Code-Review+2: Ryan Ware <ware@linux.intel.com>
+Verified+1: Ryan Ware <ware@linux.intel.com>
+Submitted-by: Ryan Ware <ware@linux.intel.com>
+Submitted-at: Mon, 08 Jul 2013 09:40:26 -0700
+Reviewed-on: https://review.tizen.org/gerrit/4783
+Project: platform/upstream/gst-plugins-base
+Branch: refs/heads/tizen
