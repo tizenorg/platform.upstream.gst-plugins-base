@@ -5564,7 +5564,13 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
           }
 #endif
           xvimagesink->visible = g_value_get_boolean (value);
-          XvStopVideo(xvimagesink->xcontext->disp, xvimagesink->xcontext->xv_port_id, xvimagesink->xwindow->win);
+          if ( xvimagesink->get_pixmap_cb ) {
+            if (xvimagesink->xpixmap[0] && xvimagesink->xpixmap[0]->pixmap) {
+              XvStopVideo (xvimagesink->xcontext->disp, xvimagesink->xcontext->xv_port_id, xvimagesink->xpixmap[0]->pixmap);
+              }
+          } else {
+            XvStopVideo(xvimagesink->xcontext->disp, xvimagesink->xcontext->xv_port_id, xvimagesink->xwindow->win);
+          }
           XSync( xvimagesink->xcontext->disp, FALSE );
         } else {
           GST_WARNING_OBJECT( xvimagesink, "xcontext is null, failed to set visible");
