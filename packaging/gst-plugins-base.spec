@@ -1,7 +1,7 @@
 Name:       gst-plugins-base
 Summary:    GStreamer streaming media framework base plug-ins
 Version:    0.10.36
-Release:    30
+Release:    31
 Group:      Applications/Multimedia
 License:    LGPLv2+
 Source0:    %{name}-%{version}.tar.gz
@@ -87,6 +87,8 @@ make %{?jobs:-j%jobs}
 
 %install
 rm -rf %{buildroot}
+mkdir -p %{buildroot}/usr/share/license
+cp COPYING.LIB %{buildroot}/usr/share/license/%{name}
 %make_install
 
 
@@ -144,7 +146,8 @@ rm -rf %{buildroot}/tmp/dump
 %{_libdir}/gstreamer-0.10/libgstgio.so
 # data
 %{_datadir}/gst-plugins-base/license-translations.dict
-
+# license
+%{_datadir}/license/%{name}
 
 %files devel
 %defattr(-,root,root,-)
