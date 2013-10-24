@@ -354,6 +354,8 @@ struct _GstXvImageSink {
   guint zoom;
   guint rotation;
   guint rotate_cnt;
+  guint orientation;
+  guint dst_roi_mode;
   GstVideoRectangle dst_roi;
   XImage* xim_transparenter;
   guint scr_w, scr_h;

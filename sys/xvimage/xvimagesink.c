@@ -310,10 +310,18 @@ enum {
     DISP_GEO_METHOD_FULL_SCREEN,
     DISP_GEO_METHOD_CROPPED_FULL_SCREEN,
     DISP_GEO_METHOD_ORIGIN_SIZE_OR_LETTER_BOX,
-    DISP_GEO_METHOD_CUSTOM_ROI,
+    DISP_GEO_METHOD_CUSTOM_DST_ROI,
     DISP_GEO_METHOD_NUM,
 };
-#define DEF_DISPLAY_GEOMETRY_METHOD DISP_GEO_METHOD_LETTER_BOX
+
+enum {
+    ROI_DISP_GEO_METHOD_FULL_SCREEN = 0,
+    ROI_DISP_GEO_METHOD_LETTER_BOX,
+    ROI_DISP_GEO_METHOD_NUM,
+};
+
+#define DEF_DISPLAY_GEOMETRY_METHOD         DISP_GEO_METHOD_LETTER_BOX
+#define DEF_ROI_DISPLAY_GEOMETRY_METHOD     ROI_DISP_GEO_METHOD_FULL_SCREEN
 
 enum {
     FLIP_NONE = 0,
@@ -325,6 +333,7 @@ enum {
 #define DEF_DISPLAY_FLIP            FLIP_NONE
 
 #define GST_TYPE_XVIMAGESINK_DISPLAY_GEOMETRY_METHOD (gst_xvimagesink_display_geometry_method_get_type())
+#define GST_TYPE_XVIMAGESINK_ROI_DISPLAY_GEOMETRY_METHOD (gst_xvimagesink_roi_display_geometry_method_get_type())
 #define GST_TYPE_XVIMAGESINK_FLIP                    (gst_xvimagesink_flip_get_type())
 
 static GType
@@ -337,7 +346,7 @@ gst_xvimagesink_display_geometry_method_get_type(void)
 		{ 2, "Full-screen", "FULL_SCREEN"},
 		{ 3, "Cropped full-screen", "CROPPED_FULL_SCREEN"},
 		{ 4, "Origin size(if screen size is larger than video size(width/height)) or Letter box(if video size(width/height) is larger than screen size)", "ORIGIN_SIZE_OR_LETTER_BOX"},
-		{ 5, "Explicitly described destination ROI", "CUSTOM_ROI"},
+		{ 5, "Explicitly described destination ROI", "CUSTOM_DST_ROI"},
 		{ 6, NULL, NULL},
 	};
 
@@ -346,6 +355,23 @@ gst_xvimagesink_display_geometry_method_get_type(void)
 	}
 
 	return xvimagesink_display_geometry_method_type;
+}
+
+static GType
+gst_xvimagesink_roi_display_geometry_method_get_type(void)
+{
+	static GType xvimagesink_roi_display_geometry_method_type = 0;
+	static const GEnumValue roi_display_geometry_method_type[] = {
+		{ 0, "ROI-Full-screen", "FULL_SCREEN"},
+		{ 1, "ROI-Letter box", "LETTER_BOX"},
+		{ 2, NULL, NULL},
+	};
+
+	if (!xvimagesink_roi_display_geometry_method_type) {
+		xvimagesink_roi_display_geometry_method_type = g_enum_register_static("GstXVImageSinkROIDisplayGeometryMethodType", roi_display_geometry_method_type);
+	}
+
+	return xvimagesink_roi_display_geometry_method_type;
 }
 
 static GType
@@ -492,6 +518,8 @@ enum
   PROP_DISPLAY_GEOMETRY_METHOD,
   PROP_VISIBLE,
   PROP_ZOOM,
+  PROP_ORIENTATION,
+  PROP_DST_ROI_MODE,
   PROP_DST_ROI_X,
   PROP_DST_ROI_Y,
   PROP_DST_ROI_W,
@@ -1160,6 +1188,7 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
   GstVideoRectangle src = { 0, 0, 0, 0};
   GstVideoRectangle dst = { 0, 0, 0, 0};
 
+  gint res_rotate_angle = 0;
   int rotate        = 0;
   int ret           = 0;
   int idx           = 0;
@@ -1231,7 +1260,7 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
       xvimage = xvimagesink->cur_image;
     } else {
 #ifdef GST_EXT_XV_ENHANCEMENT
-      GST_INFO_OBJECT(xvimagesink, "cur_image is NULL. Skip xvimage_put.");
+      GST_WARNING_OBJECT(xvimagesink, "cur_image is NULL. Skip xvimage_put.");
       /* no need to release gem handle */
 #endif /* GST_EXT_XV_ENHANCEMENT */
       g_mutex_unlock (xvimagesink->flow_lock);
@@ -1255,6 +1284,8 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
       return TRUE;
     }
   }
+
+  res_rotate_angle = xvimagesink->rotate_angle;
 
   src.x = src.y = 0;
   src_origin.x = src_origin.y = src_input.x = src_input.y = 0;
@@ -1330,69 +1361,103 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
       }
       break;
 
-    case DISP_GEO_METHOD_CUSTOM_ROI:
-#ifdef GST_EXT_XV_ENHANCEMENT_ROI_MODE
+    case DISP_GEO_METHOD_CUSTOM_DST_ROI:
+    {
+      GstVideoRectangle dst_roi_cmpns;
+      dst_roi_cmpns.w = xvimagesink->dst_roi.w;
+      dst_roi_cmpns.h = xvimagesink->dst_roi.h;
+      dst_roi_cmpns.x = xvimagesink->dst_roi.x;
+      dst_roi_cmpns.y = xvimagesink->dst_roi.y;
+
+      /* setting for DST ROI mode */
+      switch (xvimagesink->dst_roi_mode) {
+      case ROI_DISP_GEO_METHOD_FULL_SCREEN:
+        break;
+      case ROI_DISP_GEO_METHOD_LETTER_BOX:
+       {
+        GstVideoRectangle roi_result;
+        if (xvimagesink->orientation == DEGREE_0 ||
+            xvimagesink->orientation == DEGREE_180) {
+          src.w = src_origin.w;
+          src.h = src_origin.h;
+        } else {
+          src.w = src_origin.h;
+          src.h = src_origin.w;
+        }
+        dst.w = xvimagesink->dst_roi.w;
+        dst.h = xvimagesink->dst_roi.h;
+
+        gst_video_sink_center_rect (src, dst, &roi_result, TRUE);
+        dst_roi_cmpns.w = roi_result.w;
+        dst_roi_cmpns.h = roi_result.h;
+        dst_roi_cmpns.x = xvimagesink->dst_roi.x + roi_result.x;
+        dst_roi_cmpns.y = xvimagesink->dst_roi.y + roi_result.y;
+       }
+        break;
+      default:
+        break;
+      }
+
+      /* calculating coordinates according to rotation angle for DST ROI */
       switch (xvimagesink->rotate_angle) {
       case DEGREE_90:
-        result.w = xvimagesink->dst_roi.h;
-        result.h = xvimagesink->dst_roi.w;
+        result.w = dst_roi_cmpns.h;
+        result.h = dst_roi_cmpns.w;
 
-        result.x = xvimagesink->dst_roi.y;
+        result.x = dst_roi_cmpns.y;
         if (!xvimagesink->get_pixmap_cb) {
-          result.y = xvimagesink->xwindow->height - xvimagesink->dst_roi.x - xvimagesink->dst_roi.w;
+          result.y = xvimagesink->xwindow->height - dst_roi_cmpns.x - dst_roi_cmpns.w;
         } else {
-          result.y = xvimagesink->xpixmap[idx]->height - xvimagesink->dst_roi.x - xvimagesink->dst_roi.w;
+          result.y = xvimagesink->xpixmap[idx]->height - dst_roi_cmpns.x - dst_roi_cmpns.w;
         }
         break;
       case DEGREE_180:
-        result.w = xvimagesink->dst_roi.w;
-        result.h = xvimagesink->dst_roi.h;
+        result.w = dst_roi_cmpns.w;
+        result.h = dst_roi_cmpns.h;
 
         if (!xvimagesink->get_pixmap_cb) {
-          result.x = xvimagesink->xwindow->width - result.w - xvimagesink->dst_roi.x;
-          result.y = xvimagesink->xwindow->height - result.h - xvimagesink->dst_roi.y;
+          result.x = xvimagesink->xwindow->width - result.w - dst_roi_cmpns.x;
+          result.y = xvimagesink->xwindow->height - result.h - dst_roi_cmpns.y;
         } else {
-          result.x = xvimagesink->xpixmap[idx]->width - result.w - xvimagesink->dst_roi.x;
-          result.y = xvimagesink->xpixmap[idx]->height - result.h - xvimagesink->dst_roi.y;
+          result.x = xvimagesink->xpixmap[idx]->width - result.w - dst_roi_cmpns.x;
+          result.y = xvimagesink->xpixmap[idx]->height - result.h - dst_roi_cmpns.y;
         }
         break;
       case DEGREE_270:
-        result.w = xvimagesink->dst_roi.h;
-        result.h = xvimagesink->dst_roi.w;
+        result.w = dst_roi_cmpns.h;
+        result.h = dst_roi_cmpns.w;
 
         if (!xvimagesink->get_pixmap_cb) {
-          result.x = xvimagesink->xwindow->width - xvimagesink->dst_roi.y - xvimagesink->dst_roi.h;
+          result.x = xvimagesink->xwindow->width - dst_roi_cmpns.y - dst_roi_cmpns.h;
         } else {
-          result.x = xvimagesink->xpixmap[idx]->width - xvimagesink->dst_roi.y - xvimagesink->dst_roi.h;
+          result.x = xvimagesink->xpixmap[idx]->width - dst_roi_cmpns.y - dst_roi_cmpns.h;
         }
-        result.y = xvimagesink->dst_roi.x;
+        result.y = dst_roi_cmpns.x;
         break;
       default:
-        result.x = xvimagesink->dst_roi.x;
-        result.y = xvimagesink->dst_roi.y;
-        result.w = xvimagesink->dst_roi.w;
-        result.h = xvimagesink->dst_roi.h;
+        result.x = dst_roi_cmpns.x;
+        result.y = dst_roi_cmpns.y;
+        result.w = dst_roi_cmpns.w;
+        result.h = dst_roi_cmpns.h;
         break;
       }
 
-      GST_LOG_OBJECT(xvimagesink, "rotate[%d], ROI input[%d,%d,%dx%d] > result[%d,%d,%dx%d]",
-                     xvimagesink->rotate_angle,
+      /* orientation setting for auto rotation in DST ROI */
+      if (xvimagesink->orientation) {
+        res_rotate_angle = (xvimagesink->rotate_angle - xvimagesink->orientation);
+        if (res_rotate_angle < 0) {
+          res_rotate_angle += DEGREE_NUM;
+        }
+        GST_LOG_OBJECT(xvimagesink, "changing rotation value internally by ROI orientation[%d] : rotate[%d->%d]",
+                     xvimagesink->orientation, xvimagesink->rotate_angle, res_rotate_angle);
+      }
+
+      GST_LOG_OBJECT(xvimagesink, "rotate[%d], dst ROI: orientation[%d], mode[%d], input[%d,%d,%dx%d]->result[%d,%d,%dx%d]",
+                     xvimagesink->rotate_angle, xvimagesink->orientation, xvimagesink->dst_roi_mode,
                      xvimagesink->dst_roi.x, xvimagesink->dst_roi.y, xvimagesink->dst_roi.w, xvimagesink->dst_roi.h,
                      result.x, result.y, result.w, result.h);
-#else /* GST_EXT_XV_ENHANCEMENT_ROI_MODE */
-      result.x = xvimagesink->dst_roi.x;
-      result.y = xvimagesink->dst_roi.y;
-      result.w = xvimagesink->dst_roi.w;
-      result.h = xvimagesink->dst_roi.h;
-
-      if (xvimagesink->rotate_angle == DEGREE_90 ||
-          xvimagesink->rotate_angle == DEGREE_270) {
-        result.w = xvimagesink->dst_roi.h;
-        result.h = xvimagesink->dst_roi.w;
-      }
-#endif /* GST_EXT_XV_ENHANCEMENT_ROI_MODE */
       break;
-
+    }
     default:
       break;
   }
@@ -1445,7 +1510,7 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
         xvimagesink->render_rect.w, xvimagesink->render_rect.h, xvimage);
 
 #ifdef GST_EXT_XV_ENHANCEMENT
-    switch( xvimagesink->rotate_angle )
+    switch( res_rotate_angle )
     {
       /* There's slightly weired code (CCW? CW?) */
       case DEGREE_0:
@@ -1461,7 +1526,7 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
         break;
       default:
         GST_WARNING_OBJECT( xvimagesink, "Unsupported rotation [%d]... set DEGREE 0.",
-          xvimagesink->rotate_angle );
+          res_rotate_angle );
         break;
     }
 
@@ -5593,6 +5658,14 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
     case PROP_ZOOM:
       xvimagesink->zoom = g_value_get_int (value);
       break;
+    case PROP_ORIENTATION:
+      xvimagesink->orientation = g_value_get_enum (value);
+      GST_INFO("Orientation(%d) is changed", xvimagesink->orientation);
+      break;
+    case PROP_DST_ROI_MODE:
+      xvimagesink->dst_roi_mode = g_value_get_enum (value);
+      GST_INFO("Overlay geometry(%d) for ROI is changed", xvimagesink->dst_roi_mode);
+      break;
     case PROP_DST_ROI_X:
       xvimagesink->dst_roi.x = g_value_get_int (value);
       break;
@@ -5631,6 +5704,21 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
       void *cb_func;
       cb_func = g_value_get_pointer(value);
       if (cb_func) {
+        if (xvimagesink->get_pixmap_cb) {
+          int i = 0;
+          if (xvimagesink->xpixmap[0] && xvimagesink->xpixmap[0]->pixmap) {
+            g_mutex_lock (xvimagesink->x_lock);
+            GST_WARNING_OBJECT( xvimagesink, "calling XvStopVideo()" );
+            XvStopVideo (xvimagesink->xcontext->disp, xvimagesink->xcontext->xv_port_id, xvimagesink->xpixmap[0]->pixmap);
+            g_mutex_unlock (xvimagesink->x_lock);
+          }
+          for (i = 0; i < MAX_PIXMAP_NUM; i++) {
+            if (xvimagesink->xpixmap[i]) {
+              gst_xvimagesink_xpixmap_destroy (xvimagesink, xvimagesink->xpixmap[i]);
+              xvimagesink->xpixmap[i] = NULL;
+            }
+          }
+        }
         xvimagesink->get_pixmap_cb = cb_func;
         GST_INFO_OBJECT (xvimagesink, "Set callback(0x%x) for getting pixmap id", xvimagesink->get_pixmap_cb);
       }
@@ -5756,6 +5844,12 @@ gst_xvimagesink_get_property (GObject * object, guint prop_id,
       break;
     case PROP_ZOOM:
       g_value_set_int (value, xvimagesink->zoom);
+      break;
+    case PROP_ORIENTATION:
+      g_value_set_enum (value, xvimagesink->orientation);
+      break;
+    case PROP_DST_ROI_MODE:
+      g_value_set_enum (value, xvimagesink->dst_roi_mode);
       break;
     case PROP_DST_ROI_X:
       g_value_set_int (value, xvimagesink->dst_roi.x);
@@ -5956,6 +6050,8 @@ gst_xvimagesink_init (GstXvImageSink * xvimagesink,
   xvimagesink->visible = TRUE;
   xvimagesink->zoom = 1;
   xvimagesink->rotation = -1;
+  xvimagesink->dst_roi_mode = DEF_ROI_DISPLAY_GEOMETRY_METHOD;
+  xvimagesink->orientation = DEGREE_0;
   xvimagesink->dst_roi.x = 0;
   xvimagesink->dst_roi.y = 0;
   xvimagesink->dst_roi.w = 0;
@@ -6223,6 +6319,28 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
       g_param_spec_int ("zoom", "Zoom",
           "Zooms screen as nX", 1, 9, 1,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * GstXvImageSink:dst-roi-mode
+   *
+   * Display geometrical method of ROI setting
+   */
+  g_object_class_install_property(gobject_class, PROP_DST_ROI_MODE,
+    g_param_spec_enum("dst-roi-mode", "Display geometry method of ROI",
+      "Geometrical method of ROI for display",
+      GST_TYPE_XVIMAGESINK_ROI_DISPLAY_GEOMETRY_METHOD, DEF_ROI_DISPLAY_GEOMETRY_METHOD,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * GstXvImageSink:orientation
+   *
+   * Orientation information which will be used for ROI/ZOOM
+   */
+  g_object_class_install_property(gobject_class, PROP_ORIENTATION,
+    g_param_spec_enum("orientation", "Orientation information used for ROI/ZOOM",
+      "Orientation information for display",
+      GST_TYPE_XVIMAGESINK_ROTATE_ANGLE, DEGREE_0,
+      G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /**
    * GstXvImageSink:dst-roi-x
