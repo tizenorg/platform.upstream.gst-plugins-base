@@ -518,6 +518,8 @@ enum
   PROP_DISPLAY_GEOMETRY_METHOD,
   PROP_VISIBLE,
   PROP_ZOOM,
+  PROP_ZOOM_POS_X,
+  PROP_ZOOM_POS_Y,
   PROP_ORIENTATION,
   PROP_DST_ROI_MODE,
   PROP_DST_ROI_X,
@@ -1462,11 +1464,58 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
       break;
   }
 
-  if (xvimagesink->zoom > 1 && xvimagesink->zoom < 10) {
-    src_input.x += (src_input.w-(src_input.w/xvimagesink->zoom))>>1;
-    src_input.y += (src_input.h-(src_input.h/xvimagesink->zoom))>>1;
-    src_input.w /= xvimagesink->zoom;
-    src_input.h /= xvimagesink->zoom;
+  if (xvimagesink->zoom > 1.0 && xvimagesink->zoom <= 9.0) {
+    GST_LOG_OBJECT(xvimagesink, "before zoom[%lf], src_input[x:%d,y:%d,w:%d,h:%d]",
+                   xvimagesink->zoom, src_input.x, src_input.y, src_input.w, src_input.h);
+    gint default_offset_x = 0;
+    gint default_offset_y = 0;
+    gfloat w = (gfloat)src_input.w;
+    gfloat h = (gfloat)src_input.h;
+    if (xvimagesink->orientation == DEGREE_0 ||
+        xvimagesink->orientation == DEGREE_180) {
+      default_offset_x = ((gint)(w - (w/xvimagesink->zoom)))>>1;
+      default_offset_y = ((gint)(h - (h/xvimagesink->zoom)))>>1;
+    } else {
+      default_offset_y = ((gint)(w - (w/xvimagesink->zoom)))>>1;
+      default_offset_x = ((gint)(h - (h/xvimagesink->zoom)))>>1;
+    }
+    GST_LOG_OBJECT(xvimagesink, "default offset x[%d] y[%d], orientation[%d]", default_offset_x, default_offset_y, xvimagesink->orientation);
+    if (xvimagesink->zoom_pos_x == -1) {
+      src_input.x += default_offset_x;
+    } else {
+      if (xvimagesink->orientation == DEGREE_0 ||
+          xvimagesink->orientation == DEGREE_180) {
+        if ((w/xvimagesink->zoom) > w - xvimagesink->zoom_pos_x) {
+          xvimagesink->zoom_pos_x = w - (w/xvimagesink->zoom);
+        }
+        src_input.x += xvimagesink->zoom_pos_x;
+      } else {
+        if ((h/xvimagesink->zoom) > h - xvimagesink->zoom_pos_x) {
+          xvimagesink->zoom_pos_x = h - (h/xvimagesink->zoom);
+        }
+        src_input.y += (h - h/xvimagesink->zoom) - xvimagesink->zoom_pos_x;
+      }
+    }
+    if (xvimagesink->zoom_pos_y == -1) {
+      src_input.y += default_offset_y;
+    } else {
+      if (xvimagesink->orientation == DEGREE_0 ||
+          xvimagesink->orientation == DEGREE_180) {
+        if ((h/xvimagesink->zoom) > h - xvimagesink->zoom_pos_y) {
+          xvimagesink->zoom_pos_y = h - (h/xvimagesink->zoom);
+        }
+        src_input.y += xvimagesink->zoom_pos_y;
+      } else {
+        if ((w/xvimagesink->zoom) > w - xvimagesink->zoom_pos_y) {
+          xvimagesink->zoom_pos_y = w - (w/xvimagesink->zoom);
+        }
+        src_input.x += (xvimagesink->zoom_pos_y);
+      }
+    }
+    src_input.w = (gint)(w/xvimagesink->zoom);
+    src_input.h = (gint)(h/xvimagesink->zoom);
+    GST_LOG_OBJECT(xvimagesink, "after zoom[%lf], src_input[x:%d,y:%d,w:%d,h%d], zoom_pos[x:%d,y:%d]",
+                   xvimagesink->zoom, src_input.x, src_input.y, src_input.w, src_input.h, xvimagesink->zoom_pos_x, xvimagesink->zoom_pos_y);
   }
 
 #else /* GST_EXT_XV_ENHANCEMENT */
@@ -1539,7 +1588,7 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
     }
 
     if (!xvimagesink->get_pixmap_cb) {
-      GST_LOG_OBJECT( xvimagesink, "screen[%dx%d],window[%d,%d,%dx%d],method[%d],rotate[%d],zoom[%d],dp_mode[%d],src[%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
+      GST_LOG_OBJECT( xvimagesink, "screen[%dx%d],window[%d,%d,%dx%d],method[%d],rotate[%d],zoom[%f],dp_mode[%d],src[%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
         xvimagesink->scr_w, xvimagesink->scr_h,
         xvimagesink->xwindow->x, xvimagesink->xwindow->y, xvimagesink->xwindow->width, xvimagesink->xwindow->height,
         xvimagesink->display_geometry_method, rotate, xvimagesink->zoom, xvimagesink->display_mode,
@@ -1548,7 +1597,7 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
         src_input.x, src_input.y, src_input.w, src_input.h,
         result.x, result.y, result.w, result.h );
     } else {
-      GST_LOG_OBJECT( xvimagesink, "pixmap[%d,%d,%dx%d],method[%d],rotate[%d],zoom[%d],dp_mode[%d],src[%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
+      GST_LOG_OBJECT( xvimagesink, "pixmap[%d,%d,%dx%d],method[%d],rotate[%d],zoom[%f],dp_mode[%d],src[%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
       xvimagesink->xpixmap[idx]->x, xvimagesink->xpixmap[idx]->y, xvimagesink->xpixmap[idx]->width, xvimagesink->xpixmap[idx]->height,
       xvimagesink->display_geometry_method, rotate, xvimagesink->zoom, xvimagesink->display_mode,
       src_origin.w, src_origin.h,
@@ -4169,21 +4218,6 @@ gst_xvimagesink_change_state (GstElement * element, GstStateChange transition)
       break;
     case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
 #ifdef GST_EXT_XV_ENHANCEMENT
-      GST_WARNING("PAUSED_TO_PLAYING start");
-#if 0 /* This is removed in Xorg */
-      g_mutex_lock (xvimagesink->x_lock);
-      atom_preemption = XInternAtom( xvimagesink->xcontext->disp,
-                                     "_USER_WM_PORT_ATTRIBUTE_PREEMPTION", False );
-      if (atom_preemption != None) {
-         if (XvSetPortAttribute(xvimagesink->xcontext->disp,
-                                xvimagesink->xcontext->xv_port_id,
-                                atom_preemption, 1 ) != Success) {
-            GST_ERROR_OBJECT(xvimagesink, "%d: XvSetPortAttribute: preemption failed.\n", atom_preemption);
-         }
-         XSync (xvimagesink->xcontext->disp, FALSE);
-      }
-      g_mutex_unlock (xvimagesink->x_lock);
-#endif
       GST_WARNING("PAUSED_TO_PLAYING done");
 #endif /* GST_EXT_XV_ENHANCEMENT */
       break;
@@ -4205,21 +4239,6 @@ gst_xvimagesink_change_state (GstElement * element, GstStateChange transition)
     case GST_STATE_CHANGE_PLAYING_TO_PAUSED:
 #ifdef GST_EXT_XV_ENHANCEMENT
       GST_WARNING("PLAYING_TO_PAUSED start");
-      xvimagesink->rotate_changed = TRUE;
-#if 0 /* This is removed in Xorg */
-      g_mutex_lock (xvimagesink->x_lock);
-      atom_preemption = XInternAtom( xvimagesink->xcontext->disp,
-                                     "_USER_WM_PORT_ATTRIBUTE_PREEMPTION", False );
-      if (atom_preemption != None) {
-         if (XvSetPortAttribute(xvimagesink->xcontext->disp,
-                                xvimagesink->xcontext->xv_port_id,
-                                atom_preemption, 0 ) != Success) {
-            GST_ERROR_OBJECT(xvimagesink, "%d: XvSetPortAttribute: preemption failed.\n", atom_preemption);
-         }
-         XSync (xvimagesink->xcontext->disp, FALSE);
-      }
-      g_mutex_unlock (xvimagesink->x_lock);
-#endif
       /* init displayed buffer count */
       xvimagesink->displayed_buffer_count = 0;
 
@@ -5599,14 +5618,18 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
     case PROP_DISPLAY_GEOMETRY_METHOD:
       xvimagesink->display_geometry_method = g_value_get_enum (value);
       GST_LOG("Overlay geometry changed. update it");
-      gst_xvimagesink_xvimage_put (xvimagesink, xvimagesink->xvimage);
+      if (GST_STATE(xvimagesink) == GST_STATE_PAUSED) {
+        gst_xvimagesink_xvimage_put (xvimagesink, xvimagesink->xvimage);
+      }
       break;
     case PROP_FLIP:
       xvimagesink->flip = g_value_get_enum(value);
       break;
     case PROP_ROTATE_ANGLE:
       xvimagesink->rotate_angle = g_value_get_enum (value);
-      xvimagesink->rotate_changed = TRUE;
+      if (GST_STATE(xvimagesink) == GST_STATE_PAUSED) {
+        gst_xvimagesink_xvimage_put (xvimagesink, xvimagesink->xvimage);
+      }
       break;
     case PROP_VISIBLE:
       g_mutex_lock( xvimagesink->flow_lock );
@@ -5656,7 +5679,19 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
       g_mutex_unlock( xvimagesink->flow_lock );
       break;
     case PROP_ZOOM:
-      xvimagesink->zoom = g_value_get_int (value);
+      xvimagesink->zoom = g_value_get_float (value);
+      if (GST_STATE(xvimagesink) == GST_STATE_PAUSED) {
+        gst_xvimagesink_xvimage_put (xvimagesink, xvimagesink->xvimage);
+      }
+      break;
+    case PROP_ZOOM_POS_X:
+      xvimagesink->zoom_pos_x = g_value_get_int (value);
+      break;
+    case PROP_ZOOM_POS_Y:
+      xvimagesink->zoom_pos_y = g_value_get_int (value);
+      if (GST_STATE(xvimagesink) == GST_STATE_PAUSED) {
+        gst_xvimagesink_xvimage_put (xvimagesink, xvimagesink->xvimage);
+      }
       break;
     case PROP_ORIENTATION:
       xvimagesink->orientation = g_value_get_enum (value);
@@ -5843,7 +5878,13 @@ gst_xvimagesink_get_property (GObject * object, guint prop_id,
       g_value_set_boolean (value, xvimagesink->visible);
       break;
     case PROP_ZOOM:
-      g_value_set_int (value, xvimagesink->zoom);
+      g_value_set_float (value, xvimagesink->zoom);
+      break;
+    case PROP_ZOOM_POS_X:
+      g_value_set_int (value, xvimagesink->zoom_pos_x);
+      break;
+    case PROP_ZOOM_POS_Y:
+      g_value_set_int (value, xvimagesink->zoom_pos_y);
       break;
     case PROP_ORIENTATION:
       g_value_set_enum (value, xvimagesink->orientation);
@@ -6043,12 +6084,13 @@ gst_xvimagesink_init (GstXvImageSink * xvimagesink,
   xvimagesink->xid_updated = FALSE;
   xvimagesink->display_mode = DISPLAY_MODE_DEFAULT;
   xvimagesink->csc_range = CSC_RANGE_NARROW;
-  xvimagesink->rotate_changed = TRUE;
   xvimagesink->display_geometry_method = DEF_DISPLAY_GEOMETRY_METHOD;
   xvimagesink->flip = DEF_DISPLAY_FLIP;
   xvimagesink->rotate_angle = DEGREE_270;
   xvimagesink->visible = TRUE;
-  xvimagesink->zoom = 1;
+  xvimagesink->zoom = 1.0;
+  xvimagesink->zoom_pos_x = -1;
+  xvimagesink->zoom_pos_y = -1;
   xvimagesink->rotation = -1;
   xvimagesink->dst_roi_mode = DEF_ROI_DISPLAY_GEOMETRY_METHOD;
   xvimagesink->orientation = DEGREE_0;
@@ -6313,11 +6355,31 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
   /**
    * GstXvImageSink:zoom
    *
-   * Scale small area of screen to 2X, 3X, ... , 9X
+   * Scale small area of screen to 1X~ 9X
    */
   g_object_class_install_property (gobject_class, PROP_ZOOM,
-      g_param_spec_int ("zoom", "Zoom",
-          "Zooms screen as nX", 1, 9, 1,
+      g_param_spec_float ("zoom", "Zoom",
+          "Zooms screen as nX", 1.0, 9.0, 1.0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * GstXvImageSink:zoom-pos-x
+   *
+   * Standard x-position of zoom
+   */
+  g_object_class_install_property (gobject_class, PROP_ZOOM_POS_X,
+      g_param_spec_int ("zoom-pos-x", "Zoom Position X",
+          "Standard x-position of zoom", 0, 3840, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+
+  /**
+   * GstXvImageSink:zoom-pos-y
+   *
+   * Standard y-position of zoom
+   */
+  g_object_class_install_property (gobject_class, PROP_ZOOM_POS_Y,
+      g_param_spec_int ("zoom-pos-y", "Zoom Position Y",
+          "Standard y-position of zoom", 0, 3840, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 
   /**

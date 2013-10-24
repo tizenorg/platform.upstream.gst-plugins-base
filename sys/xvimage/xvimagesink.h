@@ -349,9 +349,10 @@ struct _GstXvImageSink {
   guint display_geometry_method;
   guint flip;
   guint rotate_angle;
-  gboolean rotate_changed;
   gboolean visible;
-  guint zoom;
+  gfloat zoom;
+  guint zoom_pos_x;
+  guint zoom_pos_y;
   guint rotation;
   guint rotate_cnt;
   guint orientation;
