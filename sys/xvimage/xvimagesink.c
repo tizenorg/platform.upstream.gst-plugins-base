@@ -1228,16 +1228,6 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
 #endif /* GST_EXT_XV_ENHANCEMENT */
   }
 
-#ifdef GST_EXT_XV_ENHANCEMENT
-  if (xvimagesink->visible == FALSE ||
-      xvimagesink->is_hided) {
-    GST_INFO("visible[%d] or is_hided[%d]. Skip xvimage_put.",
-             xvimagesink->visible, xvimagesink->is_hided);
-    g_mutex_unlock(xvimagesink->flow_lock);
-    return TRUE;
-  }
-#endif /* GST_EXT_XV_ENHANCEMENT */
-
   /* Draw borders when displaying the first frame. After this
      draw borders only on expose event or after a size change. */
   if (!xvimagesink->cur_image || xvimagesink->redraw_border) {
@@ -1271,6 +1261,14 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink,
   }
 
 #ifdef GST_EXT_XV_ENHANCEMENT
+  if (xvimagesink->visible == FALSE ||
+      xvimagesink->is_hided) {
+    GST_INFO("visible[%d] or is_hided[%d]. Skip xvimage_put.",
+             xvimagesink->visible, xvimagesink->is_hided);
+    g_mutex_unlock(xvimagesink->flow_lock);
+    return TRUE;
+  }
+
   if (!xvimagesink->get_pixmap_cb) {
     gst_xvimagesink_xwindow_update_geometry( xvimagesink );
   } else {
