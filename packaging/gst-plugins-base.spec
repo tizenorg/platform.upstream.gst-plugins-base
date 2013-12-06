@@ -18,7 +18,6 @@ BuildRequires:  gettext-tools
 BuildRequires:  glib2-devel >= 2.32
 BuildRequires:  gstreamer-devel >= 1.0.0
 BuildRequires:  gstreamer-utils > 0.11
-BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
 %if %{with x}
