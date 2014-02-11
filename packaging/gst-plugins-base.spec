@@ -21,9 +21,9 @@ BuildRequires:  gstreamer-utils > 0.11
 BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
+%if %{with x}
 BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(sm)
-%if %{with x}
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xv)
 %endif
