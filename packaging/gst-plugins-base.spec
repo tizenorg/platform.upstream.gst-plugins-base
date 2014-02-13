@@ -1,5 +1,6 @@
 %bcond_with introspection
 %bcond_with cdparanoia
+%bcond_with x
 
 Name:           gst-plugins-base
 Version:        1.2.0
@@ -20,10 +21,12 @@ BuildRequires:  gstreamer-utils > 0.11
 BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
+%if %{with x}
 BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(sm)
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xv)
+%endif
 %if %{with introspection}
 BuildRequires:  gobject-introspection-devel >= 1.31.1
 %endif
@@ -457,8 +460,10 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %doc %{_mandir}/man1/gst-play-*
 
 %{_libdir}/gstreamer-%{gst_branch}/libgstpango.so
+%if %{with x}
 %{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstxvimagesink.so
+%endif
 %if %{with cdparanoia}
 %{_libdir}/gstreamer-%{gst_branch}/libgstcdparanoia.so
 %endif
