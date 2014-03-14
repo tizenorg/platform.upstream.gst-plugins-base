@@ -450,6 +450,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_libdir}/gstreamer-%{gst_branch}/libgsttheora.so
 %{_libdir}/gstreamer-%{gst_branch}/libgsttypefindfunctions.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvideoconvert.so
+%{_libdir}/gstreamer-%{gst_branch}/libgstvspfilter.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvideorate.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvideoscale.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvideotestsrc.so
