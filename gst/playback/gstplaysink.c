@@ -230,6 +230,8 @@ struct _GstPlaySink
   GstPad *text_sinkpad_stream_synchronizer;
   gulong text_block_id;
 
+  gulong vis_pad_block_id;
+
   guint32 pending_blocked_pads;
 
   /* properties */
@@ -937,6 +939,8 @@ gst_play_sink_vis_blocked (GstPad * tee_pad, GstPadProbeInfo * info,
       chain->vissrcpad);
 
 done:
+  playsink->vis_pad_block_id = 0;
+
   GST_PLAY_SINK_UNLOCK (playsink);
 
   /* remove the probe and unblock the pad */
@@ -977,8 +981,11 @@ gst_play_sink_set_vis_plugin (GstPlaySink * playsink, GstElement * vis)
    * function returns FALSE but the previous pad block will do the right thing
    * anyway. */
   GST_DEBUG_OBJECT (playsink, "blocking vis pad");
-  gst_pad_add_probe (chain->blockpad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
-      gst_play_sink_vis_blocked, playsink, NULL);
+  if (!playsink->vis_pad_block_id && !playsink->audio_block_id
+      && !playsink->video_block_id && !playsink->text_block_id)
+    playsink->vis_pad_block_id =
+        gst_pad_add_probe (chain->blockpad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
+        gst_play_sink_vis_blocked, playsink, NULL);
 done:
   GST_PLAY_SINK_UNLOCK (playsink);
 
@@ -1573,6 +1580,22 @@ update_colorbalance (GstPlaySink * playsink)
   gst_object_unref (balance);
 }
 
+#ifdef GST_EXT_LINK_FIMCCONVERT
+static gint
+compare_name (GstElement * element, const gchar * name)
+{
+  gchar *str;
+  GST_OBJECT_LOCK (element);
+  str = g_strrstr(GST_ELEMENT_NAME (element), name);
+  GST_OBJECT_UNLOCK (element);
+
+  if (str)
+    return 0;
+  else
+    return -1;
+}
+#endif
+
 /* make the element (bin) that contains the elements needed to perform
  * video display.
  *
@@ -1593,6 +1616,7 @@ gen_video_chain (GstPlaySink * playsink, gboolean raw, gboolean async)
   GstBin *bin;
   GstPad *pad;
   GstElement *head = NULL, *prev = NULL, *elem = NULL;
+  GstPlugin *p;
 
   chain = g_new0 (GstPlayVideoChain, 1);
   chain->chain.playsink = playsink;
@@ -1730,9 +1754,22 @@ gen_video_chain (GstPlaySink * playsink, gboolean raw, gboolean async)
         && (playsink->flags & GST_PLAY_FLAG_SOFT_COLORBALANCE);
 
     GST_DEBUG_OBJECT (playsink, "creating videoconverter");
+#ifdef GST_EXT_LINK_FIMCCONVERT
+    GstIterator *iter = gst_bin_iterate_recurse (gst_element_get_parent(playsink));
+    GValue val;
+    gboolean e = gst_iterator_find_custom (iter, (GCompareFunc) compare_name, &val, "omx");
+    gst_iterator_free (iter);
+    if (e) {
+      chain->conv = gst_element_factory_make ("fimcconvert", "vconv");
+      gst_object_unref(p);
+    } else
+      chain->conv = gst_element_factory_make (COLORSPACE, "vconv");
+#else
     chain->conv =
         g_object_new (GST_TYPE_PLAY_SINK_VIDEO_CONVERT, "name", "vconv",
         "use-converters", use_converters, "use-balance", use_balance, NULL);
+#endif
+
 
     GST_OBJECT_LOCK (playsink);
     if (use_balance && GST_PLAY_SINK_VIDEO_CONVERT (chain->conv)->balance) {
@@ -2847,6 +2884,8 @@ gen_vis_chain (GstPlaySink * playsink)
     GST_DEBUG_OBJECT (playsink, "trying goom");
     elem = gst_element_factory_make ("goom", "vis");
     chain->vis = try_element (playsink, elem, TRUE);
+    gst_object_replace ((GstObject **) & playsink->visualisation,
+        (GstObject *) elem);
   }
   if (chain->vis == NULL)
     goto no_goom;
@@ -3339,21 +3378,54 @@ gst_play_sink_do_reconfigure (GstPlaySink * playsink)
 
     if (playsink->vischain) {
       GST_DEBUG_OBJECT (playsink, "setting up vis chain");
-      srcpad =
-          gst_element_get_static_pad (playsink->vischain->chain.bin, "src");
-      add_chain (GST_PLAY_CHAIN (playsink->vischain), TRUE);
-      activate_chain (GST_PLAY_CHAIN (playsink->vischain), TRUE);
-      if (playsink->audio_tee_vissrc == NULL) {
-        playsink->audio_tee_vissrc =
-            gst_element_get_request_pad (playsink->audio_tee, "src_%u");
+
+      /* Just change vis plugin or set up chain? */
+      if (playsink->vischain->vis != playsink->visualisation) {
+        /* unlink the old plugin and unghost the pad */
+        gst_pad_unlink (playsink->vischain->vispeerpad,
+            playsink->vischain->vissinkpad);
+        gst_ghost_pad_set_target (GST_GHOST_PAD_CAST (playsink->
+                vischain->srcpad), NULL);
+
+        /* set the old plugin to NULL and remove */
+        gst_element_set_state (playsink->vischain->vis, GST_STATE_NULL);
+        gst_bin_remove (GST_BIN_CAST (playsink->vischain->chain.bin),
+            playsink->vischain->vis);
+
+        /* add new plugin and set state to playing */
+        playsink->vischain->vis = playsink->visualisation;
+        gst_bin_add (GST_BIN_CAST (playsink->vischain->chain.bin),
+            playsink->vischain->vis);
+        gst_element_set_state (playsink->vischain->vis, GST_STATE_PLAYING);
+
+        /* get pads */
+        playsink->vischain->vissinkpad =
+            gst_element_get_static_pad (playsink->vischain->vis, "sink");
+        playsink->vischain->vissrcpad =
+            gst_element_get_static_pad (playsink->vischain->vis, "src");
+
+        /* link pads */
+        gst_pad_link_full (playsink->vischain->vispeerpad,
+            playsink->vischain->vissinkpad, GST_PAD_LINK_CHECK_NOTHING);
+        gst_ghost_pad_set_target (GST_GHOST_PAD_CAST (playsink->
+                vischain->srcpad), playsink->vischain->vissrcpad);
+      } else {
+        srcpad =
+            gst_element_get_static_pad (playsink->vischain->chain.bin, "src");
+        add_chain (GST_PLAY_CHAIN (playsink->vischain), TRUE);
+        activate_chain (GST_PLAY_CHAIN (playsink->vischain), TRUE);
+        if (playsink->audio_tee_vissrc == NULL) {
+          playsink->audio_tee_vissrc =
+              gst_element_get_request_pad (playsink->audio_tee, "src_%u");
+        }
+        gst_pad_link_full (playsink->audio_tee_vissrc,
+            playsink->vischain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
+        gst_pad_link_full (srcpad, playsink->video_sinkpad_stream_synchronizer,
+            GST_PAD_LINK_CHECK_NOTHING);
+        gst_pad_link_full (playsink->video_srcpad_stream_synchronizer,
+            playsink->videochain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
+        gst_object_unref (srcpad);
       }
-      gst_pad_link_full (playsink->audio_tee_vissrc,
-          playsink->vischain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
-      gst_pad_link_full (srcpad, playsink->video_sinkpad_stream_synchronizer,
-          GST_PAD_LINK_CHECK_NOTHING);
-      gst_pad_link_full (playsink->video_srcpad_stream_synchronizer,
-          playsink->videochain->sinkpad, GST_PAD_LINK_CHECK_NOTHING);
-      gst_object_unref (srcpad);
     }
   } else {
     GST_DEBUG_OBJECT (playsink, "no vis needed");
@@ -3802,6 +3874,11 @@ video_set_blocked (GstPlaySink * playsink, gboolean blocked)
         GST_PAD_CAST (gst_proxy_pad_get_internal (GST_PROXY_PAD
             (playsink->video_pad)));
     if (blocked && playsink->video_block_id == 0) {
+      if (playsink->vis_pad_block_id)
+        gst_pad_remove_probe (((GstPlayVisChain *) playsink->
+                vischain)->blockpad, playsink->vis_pad_block_id);
+      playsink->vis_pad_block_id = 0;
+
       playsink->video_block_id =
           gst_pad_add_probe (opad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
           sinkpad_blocked_cb, playsink, NULL);
@@ -3824,10 +3901,20 @@ audio_set_blocked (GstPlaySink * playsink, gboolean blocked)
         GST_PAD_CAST (gst_proxy_pad_get_internal (GST_PROXY_PAD
             (playsink->audio_pad)));
     if (blocked && playsink->audio_block_id == 0) {
+      if (playsink->vis_pad_block_id)
+        gst_pad_remove_probe (((GstPlayVisChain *) playsink->
+                vischain)->blockpad, playsink->vis_pad_block_id);
+      playsink->vis_pad_block_id = 0;
+
       playsink->audio_block_id =
           gst_pad_add_probe (opad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
           sinkpad_blocked_cb, playsink, NULL);
     } else if (!blocked && playsink->audio_block_id) {
+      if (playsink->vis_pad_block_id)
+        gst_pad_remove_probe (((GstPlayVisChain *) playsink->
+                vischain)->blockpad, playsink->vis_pad_block_id);
+      playsink->vis_pad_block_id = 0;
+
       gst_pad_remove_probe (opad, playsink->audio_block_id);
       PENDING_FLAG_UNSET (playsink, GST_PLAY_SINK_TYPE_AUDIO_RAW);
       PENDING_FLAG_UNSET (playsink, GST_PLAY_SINK_TYPE_AUDIO);
@@ -3846,6 +3933,11 @@ text_set_blocked (GstPlaySink * playsink, gboolean blocked)
         GST_PAD_CAST (gst_proxy_pad_get_internal (GST_PROXY_PAD
             (playsink->text_pad)));
     if (blocked && playsink->text_block_id == 0) {
+      if (playsink->vis_pad_block_id)
+        gst_pad_remove_probe (((GstPlayVisChain *) playsink->
+                vischain)->blockpad, playsink->vis_pad_block_id);
+      playsink->vis_pad_block_id = 0;
+
       playsink->text_block_id =
           gst_pad_add_probe (opad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
           sinkpad_blocked_cb, playsink, NULL);
@@ -3995,6 +4087,11 @@ gst_play_sink_refresh_pad (GstPlaySink * playsink, GstPad * pad,
     GstPad *blockpad =
         GST_PAD_CAST (gst_proxy_pad_get_internal (GST_PROXY_PAD (pad)));
 
+    if (playsink->vis_pad_block_id)
+      gst_pad_remove_probe (((GstPlayVisChain *) playsink->vischain)->blockpad,
+          playsink->vis_pad_block_id);
+    playsink->vis_pad_block_id = 0;
+
     *block_id =
         gst_pad_add_probe (blockpad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
         sinkpad_blocked_cb, playsink, NULL);
@@ -4127,6 +4224,11 @@ gst_play_sink_request_pad (GstPlaySink * playsink, GstPlaySinkType type)
     if (block_id && *block_id == 0) {
       GstPad *blockpad =
           GST_PAD_CAST (gst_proxy_pad_get_internal (GST_PROXY_PAD (res)));
+
+      if (playsink->vis_pad_block_id)
+        gst_pad_remove_probe (((GstPlayVisChain *) playsink->
+                vischain)->blockpad, playsink->vis_pad_block_id);
+      playsink->vis_pad_block_id = 0;
 
       *block_id =
           gst_pad_add_probe (blockpad, GST_PAD_PROBE_TYPE_BLOCK_DOWNSTREAM,
@@ -4433,6 +4535,11 @@ gst_play_sink_change_state (GstElement * element, GstStateChange transition)
       video_set_blocked (playsink, FALSE);
       audio_set_blocked (playsink, FALSE);
       text_set_blocked (playsink, FALSE);
+      if (playsink->vis_pad_block_id)
+        gst_pad_remove_probe (((GstPlayVisChain *) playsink->
+                vischain)->blockpad, playsink->vis_pad_block_id);
+      playsink->vis_pad_block_id = 0;
+
       GST_PLAY_SINK_UNLOCK (playsink);
       /* fall through */
     case GST_STATE_CHANGE_READY_TO_NULL:

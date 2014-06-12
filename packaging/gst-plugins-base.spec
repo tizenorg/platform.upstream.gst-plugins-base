@@ -3,7 +3,7 @@
 %bcond_with x
 
 Name:           gst-plugins-base
-Version:        1.2.0
+Version:        1.2.2
 Release:        0
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
@@ -22,10 +22,15 @@ BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
 %if %{with x}
+BuildRequires:  pkgconfig(dri2proto)
 BuildRequires:  pkgconfig(ice)
+BuildRequires:  pkgconfig(libdri2)
+BuildRequires:  pkgconfig(libtbm)
+BuildRequires:  pkgconfig(mm-ta)
 BuildRequires:  pkgconfig(sm)
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xv)
+BuildRequires:  pkgconfig(xfixes)
 %endif
 %if %{with introspection}
 BuildRequires:  gobject-introspection-devel >= 1.31.1

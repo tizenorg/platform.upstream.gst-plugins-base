@@ -17,6 +17,9 @@ lib_LTLIBRARIES = libgstvideo-@GST_API_VERSION@.la
 CLEANFILES = $(BUILT_SOURCES)
 
 libgstvideo_@GST_API_VERSION@_la_SOURCES = \
+	cameracontrol.c         \
+	cameracontrolchannel.c  \
+	propertyprobe.c         \
 	colorbalance.c   	\
 	colorbalancechannel.c   \
 	navigation.c            \
@@ -44,6 +47,9 @@ nodist_libgstvideo_@GST_API_VERSION@_la_SOURCES = $(BUILT_SOURCES)
 
 libgstvideo_@GST_API_VERSION@includedir = $(includedir)/gstreamer-@GST_API_VERSION@/gst/video
 libgstvideo_@GST_API_VERSION@include_HEADERS = \
+	cameracontrol.h         \
+	cameracontrolchannel.h  \
+	propertyprobe.h         \
 	colorbalance.h 		\
 	colorbalancechannel.h	\
 	navigation.h            \

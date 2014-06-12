@@ -1,8 +1,8 @@
 
-Release notes for GStreamer Base Plugins 1.2.0
+Release notes for GStreamer Base Plugins 1.2.2
 
 
-The GStreamer team is proud to announce a new feature release
+The GStreamer team is proud to announce a new bug-fix release
 in the 1.x stable series of the
 core of the GStreamer streaming media framework.
 
@@ -60,10 +60,15 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 708667 : rtspconnection: leaks file descriptors/child sources
-      * 708372 : dmabuf: sys/mman.h: No such file or directory
-      * 708590 : adder: Should send its segment before checking for eos
-      * 708606 : video-frame: offsets are not copied from metadata
+      * 715138 : xvimagesink 1.2 ignores resize events when used on a QWidget
+      * 708200 : multiqueue: Switching audio tracks doesn't work on some files
+      * 707621 : decodebin: stream-id can't be retrieved from autoplug-continue signal
+      * 709965 : vorbisdec: Does not put timestamps on first buffer sometimes
+      * 711819 : rtpbuffer: gst_rtp_buffer_ext_timestamp() returns wrong value when compiled with clang 5 on iOS/ARM
+      * 712280 : playsink: Unable to play audio stream with visualization plugin
+      * 712796 : videodecoder: incorrect timestamps sequence
+      * 712805 : subparse: crashes when loading a sami subtitle
+      * 678011 : typefinding: some mpeg files are not identified as mpeg files
 
 ==== Download ====
 
@@ -100,9 +105,10 @@ subscribe to the gstreamer-devel list.
         
 Contributors to this release
     
-      * Edward Hervey
-      * Mathieu Duponchelle
-      * Ognyan Tonchev
+      * Jihyun Cho
+      * Justin Joy
+      * Mark Nauwelaerts
+      * Reynaldo H. Verdejo Pinochet
       * Sebastian Dröge
       * Tim-Philipp Müller
       * Wim Taymans

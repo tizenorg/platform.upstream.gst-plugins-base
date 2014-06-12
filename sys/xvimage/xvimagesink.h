@@ -1,5 +1,6 @@
 /* GStreamer
  * Copyright (C) <2005> Julien Moutte <julien@moutte.net>
+ * Copyright (C) 2012, 2013 Samsung Electronics Co., Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -15,6 +16,11 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA 02110-1301, USA.
+ *
+ * Modifications by Samsung Electronics Co., Ltd.
+ * 1. Add display related properties
+ * 2. Support samsung extension format to improve performance
+ * 3. Support video texture overlay of OSP layer
  */
 
 #ifndef __GST_XVIMAGESINK_H__
@@ -36,6 +42,11 @@ G_BEGIN_DECLS
   (G_TYPE_CHECK_INSTANCE_TYPE((obj), GST_TYPE_XVIMAGESINK))
 #define GST_IS_XVIMAGESINK_CLASS(klass) \
   (G_TYPE_CHECK_CLASS_TYPE((klass), GST_TYPE_XVIMAGESINK))
+
+#ifdef GST_EXT_XV_ENHANCEMENT
+#define XV_SCREEN_SIZE_WIDTH 4096
+#define XV_SCREEN_SIZE_HEIGHT 4096
+#endif /* GST_EXT_XV_ENHANCEMENT */
 
 typedef struct _GstXvImageSink GstXvImageSink;
 typedef struct _GstXvImageSinkClass GstXvImageSinkClass;
@@ -120,6 +131,25 @@ struct _GstXvImageSink
 
   /* stream metadata */
   gchar *media_title;
+#ifdef GST_EXT_XV_ENHANCEMENT
+  gboolean xid_updated;
+  guint display_geometry_method;
+  guint flip;
+  guint rotate_angle;
+  gboolean visible;
+  gfloat zoom;
+  guint zoom_pos_x;
+  guint zoom_pos_y;
+  guint orientation;
+  guint dst_roi_mode;
+  GstVideoRectangle dst_roi;
+
+  /* zero copy format */
+  gboolean is_zero_copy_format;
+
+  /* secure contents path */
+  gboolean is_secure_path;
+#endif /* GST_EXT_XV_ENHANCEMENT */
 };
 
 struct _GstXvImageSinkClass

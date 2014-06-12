@@ -1483,6 +1483,10 @@ gst_rtsp_connection_set_proxy
 gst_rtsp_connection_get_read_socket
 gst_rtsp_connection_get_write_socket
 
+gst_rtsp_connection_get_tls
+gst_rtsp_connection_set_tls_validation_flags
+gst_rtsp_connection_get_tls_validation_flags
+
 GstRTSPWatch
 GstRTSPWatchFuncs
 gst_rtsp_watch_new
@@ -2507,6 +2511,7 @@ gst_video_decoder_get_allocator
 gst_video_decoder_get_buffer_pool
 gst_video_decoder_drop_frame
 gst_video_decoder_finish_frame
+gst_video_decoder_release_frame
 gst_video_decoder_negotiate
 gst_video_decoder_get_frame
 gst_video_decoder_get_frames

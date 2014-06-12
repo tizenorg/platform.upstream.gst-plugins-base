@@ -5,7 +5,7 @@ dnl please read gstreamer/docs/random/autotools before changing this file
 dnl initialize autoconf
 dnl releases only do -Wall, git and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for git/prerelease
-AC_INIT([GStreamer Base Plug-ins],[1.2.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-base])
+AC_INIT([GStreamer Base Plug-ins],[1.2.2],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-base])
 
 AG_GST_INIT
 
@@ -56,7 +56,7 @@ dnl      1.2.5 => 205
 dnl      1.10.9 (who knows) => 1009
 dnl
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 200, 0, 200)
+AS_LIBTOOL(GST, 202, 0, 202)
 
 dnl *** required versions of GStreamer stuff ***
 GST_REQ=1.2.0
@@ -190,7 +190,6 @@ AC_LINK_IFELSE([
 AC_LANG_PROGRAM([[
   #include <arm_neon.h>
   int32x4_t testfunc(int16_t *a, int16_t *b) {
-      asm volatile ("vmull.s16 q0, d0, d0" : : : "q0");
       return vmull_s16(vld1_s16(a), vld1_s16(b));
   }
 ]])],
@@ -817,6 +816,30 @@ dnl this really should only contain flags, not libs - they get added before
 dnl whatevertarget_LIBS and -L flags here affect the rest of the linking
 GST_PLUGIN_LDFLAGS="-module -avoid-version -export-symbols-regex '^[_]*gst_plugin_.*' $GST_ALL_LDFLAGS"
 AC_SUBST(GST_PLUGIN_LDFLAGS)
+
+dnl use xfixes
+PKG_CHECK_MODULES(XFIXES, xfixes)
+AC_SUBST(XFIXES_CFLAGS)
+AC_SUBST(XFIXES_LIBS)
+
+dnl use dri2proto
+PKG_CHECK_MODULES(DRI2PROTO, dri2proto)
+AC_SUBST(DRI2PROTO_CFLAGS)
+AC_SUBST(DRI2PROTO_LIBS)
+
+dnl use dri2
+PKG_CHECK_MODULES(DRI2, libdri2)
+AC_SUBST(DRI2_CFLAGS)
+AC_SUBST(DRI2_LIBS)
+
+dnl use tbm
+PKG_CHECK_MODULES(TBM, libtbm)
+AC_SUBST(TBM_CFLAGS)
+AC_SUBST(TBM_LIBS)
+
+PKG_CHECK_MODULES(MMTA, mm-ta)
+AC_SUBST(MMTA_CFLAGS)
+AC_SUBST(MMTA_LIBS)
 
 dnl *** output files ***
 
