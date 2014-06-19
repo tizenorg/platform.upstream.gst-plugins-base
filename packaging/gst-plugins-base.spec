@@ -3,7 +3,7 @@
 %bcond_with x
 
 Name:           gst-plugins-base
-Version:        1.2.0
+Version:        1.2.4
 Release:        0
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
