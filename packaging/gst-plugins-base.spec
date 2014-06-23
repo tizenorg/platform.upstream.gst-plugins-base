@@ -26,6 +26,9 @@ BuildRequires:  pkgconfig(ice)
 BuildRequires:  pkgconfig(sm)
 BuildRequires:  pkgconfig(xext)
 BuildRequires:  pkgconfig(xv)
+BuildRequires:  pkgconfig(xfixes)
+BuildRequires:  pkgconfig(dri2proto)
+BuildRequires:  pkgconfig(libdri2)
 %endif
 %if %{with introspection}
 BuildRequires:  gobject-introspection-devel >= 1.31.1
@@ -45,6 +48,8 @@ BuildRequires:  pkgconfig(theoraenc) >= 1.1
 BuildRequires:  pkgconfig(vorbis) >= 1.0
 BuildRequires:  pkgconfig(vorbisenc) >= 1.0
 BuildRequires:  pkgconfig(zlib)
+BuildRequires:  pkgconfig(libtbm)
+BuildRequires:  pkgconfig(mm-ta)
 Requires:       gstreamer >= 1.0.0
 Supplements:    gstreamer
 
@@ -367,7 +372,11 @@ cp %{SOURCE1001} .
 # Silently ignored compilation of uninstalled gtk-doc scanners without RPM_OPT_FLAGS.
 export V=1
 NOCONFIGURE=1 ./autogen.sh
-export CFLAGS="%{optflags} -fno-strict-aliasing"
+export CFLAGS="%{optflags} -fno-strict-aliasing\
+ -DGST_EXT_XV_ENHANCEMENT\
+ -DGST_EXT_LINK_FIMCCONVERT\
+ -DGST_EXT_TYPEFIND_ENHANCEMENT\
+ -DGST_EXT_MIME_TYPES"
 %configure\
 	--disable-static\
 	--enable-experimental\

@@ -3,6 +3,7 @@
  * This file:
  * Copyright (C) 2003 Ronald Bultje <rbultje@ronald.bitfreak.net>
  * Copyright (C) 2010 David Schleef <ds@schleef.org>
+ * Copyright (C) 2012, 2013 Samsung Electronics Co., Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -18,6 +19,9 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA 02110-1301, USA.
+ *
+ * Modifications by Samsung Electronics Co., Ltd.
+ * 1. Support samsung extension format
  */
 
 /**
@@ -63,7 +67,9 @@ enum
 };
 
 #define CSP_VIDEO_CAPS GST_VIDEO_CAPS_MAKE (GST_VIDEO_FORMATS_ALL) ";" \
-    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", GST_VIDEO_FORMATS_ALL)
+    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", GST_VIDEO_FORMATS_ALL) ";" \
+    GST_VIDEO_CAPS_MAKE("{ SUYV , SYVY , S420 , ITLV }") ";" \
+    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", "{ SUYV , SYVY , S420 , ITLV }")
 
 static GstStaticPadTemplate gst_video_convert_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",

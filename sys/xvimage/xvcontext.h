@@ -69,6 +69,11 @@ struct _GstXvContextConfig
   gint hue;
   gint saturation;
   gboolean cb_changed;
+
+#ifdef GST_EXT_XV_ENHANCEMENT
+  /* display mode */
+  guint display_mode;
+#endif /* GST_EXT_XV_ENHANCEMENT */
 };
 
 /**
@@ -89,6 +94,21 @@ struct _GstXvImageFormat
 #define GST_IS_XVCONTEXT(obj)   (GST_IS_MINI_OBJECT_TYPE(obj, GST_TYPE_XVCONTEXT))
 #define GST_XVCONTEXT_CAST(obj) ((GstXvContext *)obj)
 #define GST_XVCONTEXT(obj)      (GST_XVCONTEXT_CAST(obj))
+
+#ifdef GST_EXT_XV_ENHANCEMENT
+#define DISPLAYING_BUFFERS_MAX_NUM 10
+
+#include "xv_types.h"
+
+typedef struct {
+       GstBuffer *buffer;
+       unsigned int dmabuf_fd[XV_BUF_PLANE_NUM];
+       unsigned int gem_name[XV_BUF_PLANE_NUM];
+       unsigned int gem_handle[XV_BUF_PLANE_NUM];
+       void *bo[XV_BUF_PLANE_NUM];
+       unsigned int ref_count;
+} GstXvImageDisplayingBuffer;
+#endif /* GST_EXT_XV_ENHANCEMENT */
 
 /*
  * GstXvContext:
@@ -168,6 +188,22 @@ struct _GstXvContext
   gint last_format;
   gint last_width;
   gint last_height;
+#ifdef GST_EXT_XV_ENHANCEMENT
+  XImage* xim_transparenter;
+  gint drm_fd;
+
+  /* for sync displaying buffers */
+  GstXvImageDisplayingBuffer displaying_buffers[DISPLAYING_BUFFERS_MAX_NUM];
+  GMutex *display_buffer_lock;
+  GCond *display_buffer_cond;
+
+  /* buffer count check */
+  guint displayed_buffer_count;
+  guint displaying_buffer_count;
+
+  /* display request time */
+  struct timeval request_time[DISPLAYING_BUFFERS_MAX_NUM];
+#endif /* GST_EXT_XV_ENHANCEMENT */
 };
 
 GType gst_xvcontext_get_type (void);
@@ -243,7 +279,12 @@ void           gst_xwindow_clear                (GstXWindow * window);
 
 void           gst_xwindow_set_render_rectangle (GstXWindow * window,
                                                  gint x, gint y, gint width, gint height);
-
-
+#ifdef GST_EXT_XV_ENHANCEMENT
+gboolean gst_xvcontext_set_display_mode(GstXvContext *context, int set_mode);
+void gst_xvcontext_drm_init(GstXvContext *context);
+void gst_xvcontext_drm_fini(GstXvContext *context);
+void gst_xvcontext_add_displaying_buffer(GstXvContext *context, XV_DATA_PTR img_data, GstBuffer *buffer);
+void gst_xvcontext_remove_displaying_buffer(GstXvContext *context, unsigned int *gem_name);
+#endif /* GST_EXT_XV_ENHANCEMENT */
 
 #endif /* __GST_XVCONTEXT_H__ */

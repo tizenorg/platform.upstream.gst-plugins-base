@@ -1580,6 +1580,22 @@ update_colorbalance (GstPlaySink * playsink)
   gst_object_unref (balance);
 }
 
+#ifdef GST_EXT_LINK_FIMCCONVERT
+static gint
+compare_name (GstElement * element, const gchar * name)
+{
+  gchar *str;
+  GST_OBJECT_LOCK (element);
+  str = g_strrstr(GST_ELEMENT_NAME (element), name);
+  GST_OBJECT_UNLOCK (element);
+
+  if (str)
+    return 0;
+  else
+    return -1;
+}
+#endif
+
 /* make the element (bin) that contains the elements needed to perform
  * video display.
  *
@@ -1600,6 +1616,7 @@ gen_video_chain (GstPlaySink * playsink, gboolean raw, gboolean async)
   GstBin *bin;
   GstPad *pad;
   GstElement *head = NULL, *prev = NULL, *elem = NULL;
+  GstPlugin *p;
 
   chain = g_new0 (GstPlayVideoChain, 1);
   chain->chain.playsink = playsink;
@@ -1737,9 +1754,22 @@ gen_video_chain (GstPlaySink * playsink, gboolean raw, gboolean async)
         && (playsink->flags & GST_PLAY_FLAG_SOFT_COLORBALANCE);
 
     GST_DEBUG_OBJECT (playsink, "creating videoconverter");
+#ifdef GST_EXT_LINK_FIMCCONVERT
+    GstIterator *iter = gst_bin_iterate_recurse (gst_element_get_parent(playsink));
+    GValue val;
+    gboolean e = gst_iterator_find_custom (iter, (GCompareFunc) compare_name, &val, "omx");
+    gst_iterator_free (iter);
+    if (e) {
+      chain->conv = gst_element_factory_make ("fimcconvert", "vconv");
+      gst_object_unref(p);
+    } else
+      chain->conv = gst_element_factory_make (COLORSPACE, "vconv");
+#else
     chain->conv =
         g_object_new (GST_TYPE_PLAY_SINK_VIDEO_CONVERT, "name", "vconv",
         "use-converters", use_converters, "use-balance", use_balance, NULL);
+#endif
+
 
     GST_OBJECT_LOCK (playsink);
     if (use_balance && GST_PLAY_SINK_VIDEO_CONVERT (chain->conv)->balance) {
