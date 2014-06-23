@@ -818,6 +818,30 @@ dnl whatevertarget_LIBS and -L flags here affect the rest of the linking
 GST_PLUGIN_LDFLAGS="-module -avoid-version -export-symbols-regex '^[_]*gst_plugin_.*' $GST_ALL_LDFLAGS"
 AC_SUBST(GST_PLUGIN_LDFLAGS)
 
+dnl use xfixes
+PKG_CHECK_MODULES(XFIXES, xfixes)
+AC_SUBST(XFIXES_CFLAGS)
+AC_SUBST(XFIXES_LIBS)
+
+dnl use dri2proto
+PKG_CHECK_MODULES(DRI2PROTO, dri2proto)
+AC_SUBST(DRI2PROTO_CFLAGS)
+AC_SUBST(DRI2PROTO_LIBS)
+
+dnl use dri2
+PKG_CHECK_MODULES(DRI2, libdri2)
+AC_SUBST(DRI2_CFLAGS)
+AC_SUBST(DRI2_LIBS)
+
+dnl use tbm
+PKG_CHECK_MODULES(TBM, libtbm)
+AC_SUBST(TBM_CFLAGS)
+AC_SUBST(TBM_LIBS)
+
+PKG_CHECK_MODULES(MMTA, mm-ta)
+AC_SUBST(MMTA_CFLAGS)
+AC_SUBST(MMTA_LIBS)
+
 dnl *** output files ***
 
 $MKDIR_P tests/check/orc

@@ -39,6 +39,9 @@
 
 /* Object header */
 #include "xvimageallocator.h"
+#ifdef GST_EXT_XV_ENHANCEMENT
+#include "xv_types.h"
+#endif /* GST_EXT_XV_ENHANCEMENT */
 
 /* Debugging category */
 #include <gst/gstinfo.h>
@@ -56,6 +59,10 @@ struct _GstXvImageMemory
 
   gint im_format;
   GstVideoRectangle crop;
+
+#ifdef GST_EXT_XV_ENHANCEMENT
+  GstBuffer *current_buffer;
+#endif /* GST_EXT_XV_ENHANCEMENT */
 
   XvImage *xvimage;
 
@@ -431,6 +438,17 @@ gst_xvimage_allocator_alloc (GstXvImageAllocator * allocator, gint im_format,
       case GST_MAKE_FOURCC ('U', 'Y', 'V', 'Y'):
         expected_size = padded_height * GST_ROUND_UP_4 (padded_width * 2);
         break;
+#ifdef GST_EXT_XV_ENHANCEMENT
+      case GST_MAKE_FOURCC ('S', 'T', '1', '2'):
+      case GST_MAKE_FOURCC ('S', 'N', '1', '2'):
+      case GST_MAKE_FOURCC ('S', 'N', '2', '1'):
+      case GST_MAKE_FOURCC ('S', 'U', 'Y', 'V'):
+      case GST_MAKE_FOURCC ('S', 'U', 'Y', '2'):
+      case GST_MAKE_FOURCC ('S', '4', '2', '0'):
+      case GST_MAKE_FOURCC ('S', 'Y', 'V', 'Y'):
+        expected_size = sizeof(SCMN_IMGB);
+        break;
+#endif /* GST_EXT_XV_ENHANCEMENT */
       default:
         expected_size = 0;
         break;
@@ -614,6 +632,11 @@ gst_xvimage_memory_render (GstXvImageMemory * mem, GstVideoRectangle * src_crop,
 {
   GstXvContext *context;
   XvImage *xvimage;
+#ifdef GST_EXT_XV_ENHANCEMENT
+  int ret           = 0;
+  int (*handler) (Display *, XErrorEvent *) = NULL;
+  XV_DATA_PTR img_data = NULL;
+#endif /* GST_EXT_XV_ENHANCEMENT */
 
   context = window->context;
 
@@ -629,12 +652,54 @@ gst_xvimage_memory_render (GstXvImageMemory * mem, GstVideoRectangle * src_crop,
         GST_PTR_FORMAT, src_crop->w, src_crop->h,
         window->render_rect.w, window->render_rect.h, mem);
 
+#ifdef GST_EXT_XV_ENHANCEMENT
+    /* set error handler */
+    error_caught = FALSE;
+    handler = XSetErrorHandler(gst_xvimage_handle_xerror);
+
+    /* src input indicates the status when degree is 0 */
+    /* dst input indicates the area that src will be shown regardless of rotate */
+    if (context->xim_transparenter) {
+      GST_LOG_OBJECT( mem, "Transparent related issue." );
+      XPutImage(context->disp,
+        window->win,
+        window->gc,
+        context->xim_transparenter,
+        0, 0,
+        dst_crop->x, dst_crop->y, dst_crop->w, dst_crop->h);
+    }
+
+    /* store buffer */
+    img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(mem)->data;
+    if (img_data->BufType == XV_BUF_TYPE_DMABUF) {
+        gst_xvcontext_add_displaying_buffer(context, img_data, gst_xvimage_memory_get_buffer(mem));
+        gst_xvimage_memory_set_buffer(mem, NULL);
+    }
+
+    g_mutex_lock(context->display_buffer_lock);
+    if (context->displaying_buffer_count > 3) {
+      g_mutex_unlock(context->display_buffer_lock);
+      GST_WARNING("too many buffers are pushed. skip this... [displaying_buffer_count %d]",
+                  context->displaying_buffer_count);
+      ret = -1;
+    }
+    g_mutex_unlock(context->display_buffer_lock);
+
+    ret = XvShmPutImage (context->disp,
+      context->xv_port_id,
+      window->win,
+      window->gc, xvimage,
+      src_crop->x, src_crop->y, src_crop->w, src_crop->h,
+      dst_crop->x, dst_crop->y, dst_crop->w, dst_crop->h, FALSE);
+    GST_LOG_OBJECT( mem, "XvShmPutImage return value [%d]", ret );
+#else /* GST_EXT_XV_ENHANCEMENT */
     XvShmPutImage (context->disp,
         context->xv_port_id,
         window->win,
         window->gc, xvimage,
         src_crop->x, src_crop->y, src_crop->w, src_crop->h,
         dst_crop->x, dst_crop->y, dst_crop->w, dst_crop->h, FALSE);
+#endif /* GST_EXT_XV_ENHANCEMENT */
   } else
 #endif /* HAVE_XSHM */
   {
@@ -647,5 +712,40 @@ gst_xvimage_memory_render (GstXvImageMemory * mem, GstVideoRectangle * src_crop,
   }
   XSync (context->disp, FALSE);
 
+#ifdef HAVE_XSHM
+#ifdef GST_EXT_XV_ENHANCEMENT
+  if (ret || error_caught) {
+    GST_WARNING("putimage error : ret %d, error_caught %d, displaying buffer count %d",
+                ret, error_caught, context->displaying_buffer_count);
+
+  /* release gem handle */
+  img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(mem)->data;
+  if (img_data && img_data->BufType == XV_BUF_TYPE_DMABUF) {
+    unsigned int gem_name[XV_BUF_PLANE_NUM] = { 0, };
+    gem_name[0] = img_data->YBuf;
+    gem_name[1] = img_data->CbBuf;
+    gem_name[2] = img_data->CrBuf;
+    gst_xvcontext_remove_displaying_buffer(context, gem_name);
+     }
+  }
+
+  /* Reset error handler */
+  error_caught = FALSE;
+  XSetErrorHandler (handler);
+#endif /* GST_EXT_XV_ENHANCEMENT */
+#endif /* HAVE_XSHM */
+
   g_mutex_unlock (&context->lock);
 }
+
+#ifdef GST_EXT_XV_ENHANCEMENT
+GstBuffer* gst_xvimage_memory_get_buffer(GstXvImageMemory *mem) {
+    g_return_val_if_fail (mem, NULL);
+    return mem->current_buffer;
+}
+
+void gst_xvimage_memory_set_buffer(GstXvImageMemory *mem, GstBuffer *new_buf) {
+    g_return_if_fail (mem);
+    mem->current_buffer = new_buf;
+}
+#endif /* GST_EXT_XV_ENHANCEMENT */
