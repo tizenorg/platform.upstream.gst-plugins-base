@@ -1503,6 +1503,7 @@ gst_riff_create_audio_caps (guint16 codec_id,
     case GST_RIFF_WAVE_FORMAT_AAC:
     case GST_RIFF_WAVE_FORMAT_AAC_AC:
     case GST_RIFF_WAVE_FORMAT_AAC_pm:
+    case GST_RIFF_WAVE_FORMAT_AAC_PR:
     {
       channels_max = 8;
       caps = gst_caps_new_simple ("audio/mpeg",

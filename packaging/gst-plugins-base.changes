@@ -1,3 +1,17 @@
+* Wed Jun 24 2014 Andrey Shelest <a.shelest@samsung.com> tizen
+- Added Samsung specific code:
+
+	xvimagesink.c		Add display related properties.
+				Support samsung extension format to improve performance.
+				Support video texture overlay of OSP layer.
+	xvimageallocator.c	Add enhancement for additional samsung video formats.
+	xvcontext.c		DRM display functional was implemented.
+	gstvideoconvert.c	Added convertion into samsung extension formats.
+	gsttypefindfunctions.c	Add typefind functions for MIDI audio formats
+	gstplaysink.c		Using fimcconvert plugin for converting video from Sasung specific formats.
+	cameracontrol.c		Interface for camera control.
+	riff-ids.c		Defininition of Microsoft Playready format.
+
 * Tue Jun 18 2013 Anas Nashif <anas.nashif@intel.com> 1.0.7@763b3e2
 - Update to 1.0.7
 
