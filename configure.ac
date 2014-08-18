@@ -543,6 +543,45 @@ translit(dnm, m, l) AM_CONDITIONAL(USE_X, true)
 AG_GST_CHECK_FEATURE(X, [X libraries and plugins],
                   [ximagesink], [
   AG_GST_CHECK_X
+  AC_PATH_XTRA
+  ac_cflags_save="$CFLAGS"
+  ac_cppflags_save="$CPPFLAGS"
+  CFLAGS="$CFLAGS $X_CFLAGS"
+  CPPFLAGS="$CPPFLAGS $X_CFLAGS"
+
+  dnl now try to find the HEADER
+  AC_CHECK_HEADER([X11/Xlib.h], [HAVE_X="yes"], [HAVE_X="no"], [AC_INCLUDES_DEFAULT])
+
+  if test "x$HAVE_X" = "xno"
+  then
+    AC_MSG_NOTICE([cannot find X11 development files])
+  else
+    dnl this is much more than we want
+    X_LIBS="$X_LIBS $X_PRE_LIBS $X_EXTRA_LIBS"
+    dnl AC_PATH_XTRA only defines the path needed to find the X libs,
+    dnl it does not add the libs; therefore we add them here
+    X_LIBS="$X_LIBS -lX11"
+    AC_SUBST(X_CFLAGS)
+    AC_SUBST(X_LIBS)
+
+    dnl use xfixes
+    PKG_CHECK_MODULES(XFIXES, xfixes)
+    AC_SUBST(XFIXES_CFLAGS)
+    AC_SUBST(XFIXES_LIBS)
+
+    dnl use dri2proto
+    PKG_CHECK_MODULES(DRI2PROTO, dri2proto)
+    AC_SUBST(DRI2PROTO_CFLAGS)
+    AC_SUBST(DRI2PROTO_LIBS)
+
+    dnl use dri2
+    PKG_CHECK_MODULES(DRI2, libdri2)
+    AC_SUBST(DRI2_CFLAGS)
+    AC_SUBST(DRI2_LIBS)
+  fi
+  AC_SUBST(HAVE_X)
+  CFLAGS="$ac_cflags_save"
+  CPPFLAGS="$ac_cppflags_save"
 ])
 
 dnl Check for Xv extension
@@ -819,21 +858,6 @@ dnl this really should only contain flags, not libs - they get added before
 dnl whatevertarget_LIBS and -L flags here affect the rest of the linking
 GST_PLUGIN_LDFLAGS="-module -avoid-version -export-symbols-regex '^[_]*gst_plugin_.*' $GST_ALL_LDFLAGS"
 AC_SUBST(GST_PLUGIN_LDFLAGS)
-
-dnl use xfixes
-PKG_CHECK_MODULES(XFIXES, xfixes)
-AC_SUBST(XFIXES_CFLAGS)
-AC_SUBST(XFIXES_LIBS)
-
-dnl use dri2proto
-PKG_CHECK_MODULES(DRI2PROTO, dri2proto)
-AC_SUBST(DRI2PROTO_CFLAGS)
-AC_SUBST(DRI2PROTO_LIBS)
-
-dnl use dri2
-PKG_CHECK_MODULES(DRI2, libdri2)
-AC_SUBST(DRI2_CFLAGS)
-AC_SUBST(DRI2_LIBS)
 
 dnl use tbm
 PKG_CHECK_MODULES(TBM, libtbm)
