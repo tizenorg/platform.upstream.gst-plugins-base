@@ -860,7 +860,7 @@ GST_PLUGIN_LDFLAGS="-module -avoid-version -export-symbols-regex '^[_]*gst_plugi
 AC_SUBST(GST_PLUGIN_LDFLAGS)
 
 dnl use tbm
-PKG_CHECK_MODULES(TBM, libtbm)
+PKG_CHECK_MODULES(TBM, libdrm libtbm)
 AC_SUBST(TBM_CFLAGS)
 AC_SUBST(TBM_LIBS)
 
