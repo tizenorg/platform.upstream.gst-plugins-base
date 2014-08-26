@@ -48,6 +48,7 @@ BuildRequires:  pkgconfig(theoraenc) >= 1.1
 BuildRequires:  pkgconfig(vorbis) >= 1.0
 BuildRequires:  pkgconfig(vorbisenc) >= 1.0
 BuildRequires:  pkgconfig(zlib)
+BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libtbm)
 BuildRequires:  pkgconfig(mm-ta)
 Requires:       gstreamer >= 1.0.0
