@@ -387,6 +387,8 @@ make %{?_smp_mflags}
 %find_lang %{name}-%{gst_branch}
 mv %{name}-%{gst_branch}.lang %{name}.lang
 
+make check
+
 %post -n libgstapp -p /sbin/ldconfig
 
 %postun -n libgstapp -p /sbin/ldconfig
