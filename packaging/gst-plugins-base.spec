@@ -373,12 +373,16 @@ cp %{SOURCE1001} .
 # Silently ignored compilation of uninstalled gtk-doc scanners without RPM_OPT_FLAGS.
 export V=1
 NOCONFIGURE=1 ./autogen.sh
-export CFLAGS="%{optflags} -fno-strict-aliasing\
+export CFLAGS="%{optflags}\
+ %ifarch %ix86
+ -msse4.2\
+ %endif
  %ifarch %{arm}
  -DGST_EXT_XV_ENHANCEMENT\
  -DGST_EXT_LINK_FIMCCONVERT\
- -DGST_EXT_MIME_TYPES
+ -DGST_EXT_MIME_TYPES\
  %endif
+ -fno-strict-aliasing
  "
 %configure\
 	--disable-static\
