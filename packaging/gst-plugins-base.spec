@@ -3,7 +3,7 @@
 %bcond_with x
 
 Name:           gst-plugins-base
-Version:        1.2.4
+Version:        1.4.1
 Release:        0
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
@@ -445,6 +445,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %manifest %{name}.manifest
 %defattr(-, root, root)
 %license COPYING COPYING.LIB
+%{_bindir}/gst-device-monitor-%{gst_branch}
 %{_bindir}/gst-discoverer-%{gst_branch}
 %{_bindir}/gst-play-%{gst_branch}
 %{_libdir}/gstreamer-%{gst_branch}/libgstadder.so
@@ -468,6 +469,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_libdir}/gstreamer-%{gst_branch}/libgstvolume.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvorbis.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstencodebin.so
+%doc %{_mandir}/man1/gst-device-monitor-*
 %doc %{_mandir}/man1/gst-discoverer-*
 %doc %{_mandir}/man1/gst-play-*
 
