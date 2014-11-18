@@ -859,7 +859,8 @@ dnl whatevertarget_LIBS and -L flags here affect the rest of the linking
 GST_PLUGIN_LDFLAGS="-module -avoid-version -export-symbols-regex '^[_]*gst_plugin_.*' $GST_ALL_LDFLAGS"
 AC_SUBST(GST_PLUGIN_LDFLAGS)
 
-PKG_CHECK_MODULES(TBM, libtbm)
+dnl use tbm
+PKG_CHECK_MODULES(TBM, libdrm libtbm)
 AC_SUBST(TBM_CFLAGS)
 AC_SUBST(TBM_LIBS)
 
