@@ -331,12 +331,44 @@ processing capabilities can be added simply by installing new plug-ins.
 This package provides the GObject Introspection bindings for GStreamer
 plug-ins.
 
+%if %{with x}
+
+%package -n libgstgl
+Summary:        GStreamer Streaming-Media Framework Plug-Ins
+# We want to have base modules installed:
+Requires:       %{name}
+
+%description -n libgstgl
+GStreamer is a streaming media framework based on graphs of filters
+that operate on media data. Applications using this library can do
+anything media-related, from real-time sound processing to playing
+gls. Its plug-in-based architecture means that new data types or
+processing capabilities can be added simply by installing new plug-ins.
+
+%package -n typelib-GstGl
+Summary:        GStreamer Streaming-Media Framework Plug-Ins -- Introspection bindings
+
+%description -n typelib-GstGl
+GStreamer is a streaming media framework based on graphs of filters
+that operate on media data. Applications using this library can do
+anything media-related, from real-time sound processing to playing
+gls. Its plug-in-based architecture means that new data types or
+processing capabilities can be added simply by installing new plug-ins.
+
+This package provides the GObject Introspection bindings for GStreamer
+plug-ins.
+
+%endif
+
 %package devel
 Summary:        Include files and Libraries
 Requires:       libgstapp = %{version}
 Requires:       libgstaudio = %{version}
 Requires:       libgstallocators = %{version}
 Requires:       libgstfft = %{version}
+%if %{with x}
+Requires:       libgstgl = %{version}
+%endif
 Requires:       libgstpbutils = %{version}
 Requires:       libgstriff = %{version}
 Requires:       libgstrtp = %{version}
@@ -477,6 +509,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %if %{with x}
 %{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstxvimagesink.so
+%{_libdir}/gstreamer-%{gst_branch}/libgstopengl.so
 %endif
 %if %{with cdparanoia}
 %{_libdir}/gstreamer-%{gst_branch}/libgstcdparanoia.so
@@ -522,6 +555,13 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %manifest %{name}.manifest
 %defattr(-, root, root)
 %{_libdir}/girepository-1.0/GstFft-*.typelib
+
+%if %{with x}
+%files -n typelib-GstGl
+%manifest %{name}.manifest
+%defattr(-, root, root)
+%{_libdir}/girepository-1.0/GstGl-*.typelib
+%endif
 
 %files -n typelib-GstRiff
 %manifest %{name}.manifest
@@ -605,6 +645,14 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_libdir}/libgstvideo*.so.*
 
 
+%if %{with x}
+%files -n libgstgl
+%manifest %{name}.manifest
+%defattr(-, root, root)
+%{_libdir}/libgstgl*.so.*
+%endif
+
+
 %files devel
 %manifest %{name}.manifest
 %defattr(-, root, root)
@@ -614,3 +662,4 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %if %{with introspection}
 %{_datadir}/gir-1.0/*.gir
 %endif
+
