@@ -4,7 +4,7 @@
 
 Name:           gst-plugins-base
 Version:        1.2.4
-Release:        0
+Release:        1
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 %define gst_branch 1.0
