@@ -420,7 +420,7 @@ GType gst_camera_control_get_type(void);
 const GList*	gst_camera_control_list_channels        (GstCameraControl *control);
 
 gboolean	gst_camera_control_set_value            (GstCameraControl *control, GstCameraControlChannel *control_channel, gint value);
-gboolean	gst_camera_control_get_value            (GstCameraControl *control, GstCameraControlChannel *control_channel, gint *value));
+gboolean	gst_camera_control_get_value            (GstCameraControl *control, GstCameraControlChannel *control_channel, gint *value);
 gboolean	gst_camera_control_set_exposure         (GstCameraControl *control, gint type, gint value1, gint value2);
 gboolean	gst_camera_control_get_exposure         (GstCameraControl *control, gint type, gint *value1, gint *value2);
 gboolean	gst_camera_control_set_capture_mode     (GstCameraControl *control, gint type, gint value);

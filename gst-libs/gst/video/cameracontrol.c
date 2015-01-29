@@ -148,7 +148,7 @@ const GList* gst_camera_control_list_channels(GstCameraControl *control)
 }
 
 
-gboolean gst_camera_control_set_value(GstCameraControl *control, GstCameraControlChannel *control_channel, gint value))
+gboolean gst_camera_control_set_value(GstCameraControl *control, GstCameraControlChannel *control_channel, gint value)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
@@ -159,7 +159,7 @@ gboolean gst_camera_control_set_value(GstCameraControl *control, GstCameraContro
 	return FALSE;
 }
 
-gboolean gst_camera_control_get_value(GstCameraControl *control, GstCameraControlChannel *control_channel, gint *value))
+gboolean gst_camera_control_get_value(GstCameraControl *control, GstCameraControlChannel *control_channel, gint *value)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
