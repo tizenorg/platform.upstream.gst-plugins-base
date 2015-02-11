@@ -1,12 +1,12 @@
 %bcond_with cdparanoia
 %bcond_with x
+%define gst_branch 1.0
 
 Name:           gst-plugins-base
 Version:        1.4.1
-Release:        1
+Release:        2
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
-%define gst_branch 1.0
 Url:            http://gstreamer.freedesktop.org/
 Group:          Multimedia/Framework
 Source:         http://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-%{version}.tar.xz
@@ -86,11 +86,12 @@ export CFLAGS="%{optflags} -fno-strict-aliasing\
 	--enable-experimental\
 	--disable-gtk-doc\
 	--enable-introspection\
-	--disable-encodebin\
+	--disable-encoding\
 	--disable-examples
 make %{?_smp_mflags}
 
 %install
+rm -rf %{buildroot}
 %make_install
 %find_lang %{name}-%{gst_branch}
 mv %{name}-%{gst_branch}.lang %{name}.lang
@@ -131,7 +132,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_libdir}/gstreamer-%{gst_branch}/libgstvideotestsrc.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvolume.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstvorbis.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstencodebin.so
+#%{_libdir}/gstreamer-%{gst_branch}/libgstencodebin.so
 %doc %{_mandir}/man1/gst-device-monitor-*
 %doc %{_mandir}/man1/gst-discoverer-*
 %doc %{_mandir}/man1/gst-play-*
