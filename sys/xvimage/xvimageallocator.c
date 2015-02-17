@@ -669,13 +669,6 @@ gst_xvimage_memory_render (GstXvImageMemory * mem, GstVideoRectangle * src_crop,
         dst_crop->x, dst_crop->y, dst_crop->w, dst_crop->h);
     }
 
-    /* store buffer */
-    img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(mem)->data;
-    if (img_data->BufType == XV_BUF_TYPE_DMABUF) {
-        gst_xvcontext_add_displaying_buffer(context, img_data, gst_xvimage_memory_get_buffer(mem));
-        gst_xvimage_memory_set_buffer(mem, NULL);
-    }
-
     g_mutex_lock(context->display_buffer_lock);
     if (context->displaying_buffer_count > 3) {
       g_mutex_unlock(context->display_buffer_lock);

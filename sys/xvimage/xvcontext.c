@@ -38,7 +38,7 @@ GST_DEBUG_CATEGORY_EXTERN (GST_CAT_PERFORMANCE);
 #define GST_CAT_DEFAULT gst_debug_xvcontext
 
 #ifdef GST_EXT_XV_ENHANCEMENT
-#define _BUFFER_WAIT_TIMEOUT            2000000
+#define _BUFFER_WAIT_TIMEOUT            200000
 #define _CHECK_DISPLAYED_BUFFER_COUNT   30
 
 /* headers for drm */
@@ -833,8 +833,8 @@ gst_xvcontext_new (GstXvContextConfig * config, GError ** error)
 
       channel = g_object_new (GST_TYPE_COLOR_BALANCE_CHANNEL, NULL);
       channel->label = g_strdup (channels[i]);
-      channel->min_value = matching_attr->min_value;
-      channel->max_value = matching_attr->max_value;
+      channel->min_value = matching_attr ? matching_attr->min_value : -1000;
+      channel->max_value = matching_attr ? matching_attr->max_value : 1000;
 
       context->channels_list = g_list_append (context->channels_list, channel);
 

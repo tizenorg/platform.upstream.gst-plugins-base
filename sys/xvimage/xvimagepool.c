@@ -118,7 +118,7 @@ xvimage_buffer_pool_set_config (GstBufferPool * pool, GstStructure * config)
     gst_buffer_pool_config_get_video_alignment (config, &priv->align);
 
     GST_LOG_OBJECT (pool, "padding %u-%ux%u-%u", priv->align.padding_top,
-        priv->align.padding_left, priv->align.padding_left,
+        priv->align.padding_left, priv->align.padding_right,
         priv->align.padding_bottom);
 
     /* do padding and alignment */

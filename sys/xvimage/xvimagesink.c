@@ -137,7 +137,7 @@
 #include "xv_types.h"
 
 /* for performance checking */
-#include <mm_ta.h>
+//#include <mm_ta.h>
 
 typedef enum {
         BUF_SHARE_METHOD_PADDR = 0,
@@ -765,6 +765,11 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
       break;
   }
 
+  /*fix top and left green pixel of video*/
+  gst_xvimage_memory_get_crop (mem, &mem_crop);
+  src_input.x += mem_crop.x;
+  src_input.y += mem_crop.y;
+
   /* Trim as proper size */
   if (src_input.w % 2 == 1) {
       src_input.w += 1;
@@ -773,15 +778,13 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
       src_input.h += 1;
   }
 
-  GST_LOG_OBJECT( xvimagesink, "window[%dx%d],method[%d],rotate[%d],zoom[%d],dp_mode[%d],src[%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
+  GST_LOG_OBJECT( xvimagesink, "window[%dx%d],method[%d],rotate[%d],zoom[%lf],dp_mode[%d],src[%d,%d,%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
     xwindow->width, xwindow->height,
     xvimagesink->display_geometry_method, rotate, xvimagesink->zoom, xvimagesink->config.display_mode,
-    src_origin.w, src_origin.h,
+    src_origin.x, src_origin.y, src_origin.w, src_origin.h,
     dst.x, dst.y, dst.w, dst.h,
     src_input.x, src_input.y, src_input.w, src_input.h,
     result.x, result.y, result.w, result.h );
-
-  memcpy (&src, &src_input, sizeof (src_input));
 
 #ifdef HAVE_XSHM
   /* set display rotation */
@@ -840,6 +843,8 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
                 ret, xvimagesink->context->disp, xvimagesink->context->xv_port_id, atom_vflip, set_vflip);
   }
 #endif /* HAVE_XSHM */
+  gst_xvimage_memory_render (mem, &src_input, xwindow, &result, draw_border);
+
 #else /* GST_EXT_XV_ENHANCEMENT */
   gst_xvimage_memory_get_crop (mem, &mem_crop);
 
@@ -873,10 +878,8 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
   } else {
     memcpy (&result, &xwindow->render_rect, sizeof (GstVideoRectangle));
   }
-#endif /* GST_EXT_XV_ENHANCEMENT */
-
   gst_xvimage_memory_render (mem, &src, xwindow, &result, draw_border);
-
+#endif /* GST_EXT_XV_ENHANCEMENT */
   g_mutex_unlock (&xvimagesink->flow_lock);
 
   return TRUE;
@@ -1552,7 +1555,7 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
 {
   GstFlowReturn res;
   GstXvImageSink *xvimagesink;
-  GstBuffer *to_put = NULL;
+  GstBuffer *to_put;
   GstMemory *mem;
   gboolean ret = FALSE;
 #ifdef GST_EXT_XV_ENHANCEMENT
@@ -1611,8 +1614,7 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
        GST_LOG("Samsung EXT format - name:%s, display mode:%d, Rotate angle:%d", GST_VIDEO_INFO_NAME(&xvimagesink->info),
                xvimagesink->config.display_mode, xvimagesink->rotate_angle);
 
-       img_mem = (GstXvImageMemory*)gst_buffer_peek_memory(to_put, 0);
-       img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(img_mem)->data;
+       img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage((GstXvImageMemory*)gst_buffer_peek_memory(to_put, 0))->data;
        if (img_data) {
          memset(img_data, 0x0, sizeof(XV_DATA));
          XV_INIT_DATA(img_data);
@@ -1627,12 +1629,16 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
            return GST_FLOW_OK;
          }
 
+         /* store buffer */
+         img_mem = (GstXvImageMemory*)gst_buffer_peek_memory(to_put, 0);
+         img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(img_mem)->data;
+
          if (scmn_imgb->buf_share_method == BUF_SHARE_METHOD_PADDR) {
            img_data->YBuf = (unsigned int)scmn_imgb->p[0];
            img_data->CbBuf = (unsigned int)scmn_imgb->p[1];
            img_data->CrBuf = (unsigned int)scmn_imgb->p[2];
            img_data->BufType = XV_BUF_TYPE_LEGACY;
-         } else if (scmn_imgb->buf_share_method == BUF_SHARE_METHOD_FD) {
+         } else if (scmn_imgb->buf_share_method == BUF_SHARE_METHOD_FD || scmn_imgb->buf_share_method == BUF_SHARE_METHOD_TIZEN_BUFFER) {
            /* open drm to use gem */
            if (xvimagesink->context->drm_fd < 0) {
                gst_xvcontext_drm_init(xvimagesink->context);
@@ -1672,9 +1678,12 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
                xvimagesink->is_secure_path = TRUE;
              }
            }
-
            /* set current buffer */
-           gst_xvimage_memory_set_buffer(img_mem, buf);
+           gst_xvimage_memory_set_buffer((GstXvImageMemory*)gst_buffer_peek_memory(to_put, 0), buf);
+
+         if (img_data && img_data->BufType == XV_BUF_TYPE_DMABUF)
+             gst_xvcontext_add_displaying_buffer(xvimagesink->context, img_data, gst_xvimage_memory_get_buffer(img_mem));
+
         } else {
           GST_WARNING("unknown buf_share_method type [%d]. skip xvimage put...",
                       scmn_imgb->buf_share_method);
@@ -2466,12 +2475,12 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
       break;
     case PROP_VISIBLE:
       g_mutex_lock( &xvimagesink->flow_lock );
-      g_mutex_lock( &xvimagesink->context->lock );
 
       GST_WARNING_OBJECT(xvimagesink, "set visible %d", g_value_get_boolean(value));
 
       if (xvimagesink->visible && (g_value_get_boolean(value) == FALSE)) {
         if (xvimagesink->context) {
+          g_mutex_lock( &xvimagesink->context->lock );
 #if 0
           Atom atom_stream = XInternAtom( xvimagesink->context->disp,
                                           "_USER_WM_PORT_ATTRIBUTE_STREAM_OFF", False );
@@ -2485,33 +2494,29 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
           }
 #endif
           xvimagesink->visible = g_value_get_boolean (value);
-          XvStopVideo(xvimagesink->context->disp, xvimagesink->context->xv_port_id, xvimagesink->xwindow->win);
+
+          if (GST_STATE (xvimagesink) > GST_STATE_READY)
+              XvStopVideo(xvimagesink->context->disp, xvimagesink->context->xv_port_id, xvimagesink->xwindow->win);
 
           XSync( xvimagesink->context->disp, FALSE );
+          g_mutex_unlock( &xvimagesink->context->lock );
         } else {
           GST_WARNING_OBJECT( xvimagesink, "xcontext is null");
           xvimagesink->visible = g_value_get_boolean (value);
         }
 
       } else if (!xvimagesink->visible && (g_value_get_boolean(value) == TRUE)) {
-        g_mutex_unlock( &xvimagesink->context->lock );
         g_mutex_unlock( &xvimagesink->flow_lock );
         xvimagesink->visible = g_value_get_boolean (value);
-        gst_xvimagesink_xvimage_put (xvimagesink, xvimagesink->cur_image);
         g_mutex_lock( &xvimagesink->flow_lock );
-        g_mutex_lock( &xvimagesink->context->lock );
       }
 
       GST_INFO("set visible(%d) done", xvimagesink->visible);
 
-      g_mutex_unlock( &xvimagesink->context->lock );
       g_mutex_unlock( &xvimagesink->flow_lock );
       break;
     case PROP_ZOOM:
       xvimagesink->zoom = g_value_get_float (value);
-      if (GST_STATE(xvimagesink) == GST_STATE_PAUSED) {
-        gst_xvimagesink_xvimage_put (xvimagesink, xvimagesink->cur_image);
-      }
       break;
     case PROP_ZOOM_POS_X:
       xvimagesink->zoom_pos_x = g_value_get_int (value);
@@ -2856,6 +2861,10 @@ gst_xvimagesink_init (GstXvImageSink * xvimagesink)
 
   xvimagesink->is_zero_copy_format = FALSE;
   xvimagesink->is_secure_path = FALSE;
+  /*X can't gurarantee thread  safe: sometimes, X can't render Video.
+       Add XInitThread() before XOpenDisplay()*/
+  if(!XInitThreads())
+	GST_WARNING("FAIL to call XInitThreads()");
 #endif /* GST_EXT_XV_ENHANCEMENT */
 }
 
@@ -2924,6 +2933,8 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
    *
    * When enabled, the current frame will always be drawn in response to X
    * Expose.
+   *
+   * Since: 0.10.14
    */
   g_object_class_install_property (gobject_class, PROP_HANDLE_EXPOSE,
       g_param_spec_boolean ("handle-expose", "Handle expose",
@@ -2935,6 +2946,8 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
    * GstXvImageSink:double-buffer
    *
    * Whether to double-buffer the output.
+   *
+   * Since: 0.10.14
    */
   g_object_class_install_property (gobject_class, PROP_DOUBLE_BUFFER,
       g_param_spec_boolean ("double-buffer", "Double-buffer",
@@ -2953,6 +2966,8 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
    * GstXvImageSink:colorkey
    *
    * Color to use for the overlay mask.
+   *
+   * Since: 0.10.21
    */
   g_object_class_install_property (gobject_class, PROP_COLORKEY,
       g_param_spec_int ("colorkey", "Colorkey",
