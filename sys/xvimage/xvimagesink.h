@@ -46,6 +46,16 @@ G_BEGIN_DECLS
 #ifdef GST_EXT_XV_ENHANCEMENT
 #define XV_SCREEN_SIZE_WIDTH 4096
 #define XV_SCREEN_SIZE_HEIGHT 4096
+
+#define MAX_PIXMAP_NUM 10
+typedef unsigned int (*get_pixmap_callback)(void *user_data);
+typedef struct _GstXPixmap GstXPixmap;
+
+#if 0
+/* concering PROP_STOP_VIDEO property.
+   Stop video for releasing video source buffer*/
+#define ENABLE_STOP_VIDEO
+#endif
 #endif /* GST_EXT_XV_ENHANCEMENT */
 
 typedef struct _GstXvImageSink GstXvImageSink;
@@ -54,6 +64,13 @@ typedef struct _GstXvImageSinkClass GstXvImageSinkClass;
 #include "xvimageallocator.h"
 #include "xvimagepool.h"
 #include "xvcontext.h"
+
+struct _GstXPixmap {
+	Window pixmap;
+	gint x, y;
+	gint width, height;
+	GC gc;
+};
 
 /**
  * GstXvImageSink:
@@ -149,6 +166,16 @@ struct _GstXvImageSink
 
   /* secure contents path */
   gboolean is_secure_path;
+
+  GstXPixmap *xpixmap[MAX_PIXMAP_NUM];
+  gint current_pixmap_idx;
+  get_pixmap_callback get_pixmap_cb;
+  void *get_pixmap_cb_user_data;
+
+#ifdef ENABLE_STOP_VIDEO
+  gboolean stop_video;
+#endif
+
 #endif /* GST_EXT_XV_ENHANCEMENT */
 };
 
