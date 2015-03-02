@@ -671,10 +671,8 @@ gst_xvimage_memory_render (GstXvImageMemory * mem, GstVideoRectangle * src_crop,
 
     g_mutex_lock(context->display_buffer_lock);
     if (context->displaying_buffer_count > 3) {
-      g_mutex_unlock(context->display_buffer_lock);
       GST_WARNING("too many buffers are pushed. skip this... [displaying_buffer_count %d]",
                   context->displaying_buffer_count);
-      ret = -1;
     }
     g_mutex_unlock(context->display_buffer_lock);
 

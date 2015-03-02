@@ -404,6 +404,9 @@ gst_xvcontext_calculate_pixel_aspect_ratio (GstXvContext * context)
     {1, 1},                     /* regular screen */
     {16, 15},                   /* PAL TV */
     {11, 10},                   /* 525 line Rec.601 video */
+#ifdef GST_EXT_XV_ENHANCEMENT
+    {44, 46},			/* Curved display */
+#endif
     {54, 59},                   /* 625 line Rec.601 video */
     {64, 45},                   /* 1280x1024 on 16:9 display */
     {5, 3},                     /* 1280x1024 on 4:3 display */
