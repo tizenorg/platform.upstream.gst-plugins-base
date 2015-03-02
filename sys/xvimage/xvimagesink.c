@@ -359,6 +359,11 @@ static void gst_xvimagesink_close (GstXvImageSink * xvimagesink);
 static void gst_xvimagesink_xwindow_update_geometry (GstXvImageSink *
     xvimagesink);
 static void gst_xvimagesink_expose (GstVideoOverlay * overlay);
+#ifdef GST_EXT_XV_ENHANCEMENT
+static void gst_xvimagesink_set_pixmap_handle (GstVideoOverlay * overlay, guintptr id);
+static void gst_xvimagesink_xpixmap_destroy (GstXvImageSink * xvimagesink,GstXPixmap * xpixmap);
+static int gst_xvimage_pixmap_xerror (Display * display, XErrorEvent * xevent);
+#endif
 
 /* Default template - initiated with class struct to allow gst-register to work
    without X running */
@@ -407,6 +412,11 @@ enum
   PROP_DST_ROI_Y,
   PROP_DST_ROI_W,
   PROP_DST_ROI_H,
+#if 0
+  PROP_STOP_VIDEO,
+#endif
+  PROP_PIXMAP_CB,
+  PROP_PIXMAP_CB_USER_DATA
 #endif /* GST_EXT_XV_ENHANCEMENT */
 };
 
@@ -441,8 +451,92 @@ G_DEFINE_TYPE_WITH_CODE (GstXvImageSink, gst_xvimagesink, GST_TYPE_VIDEO_SINK,
 /*                       Private Methods                         */
 /*                                                               */
 /* ============================================================= */
+#ifdef GST_EXT_XV_ENHANCEMENT
+/* X11 stuff */
+static gboolean error_caught = FALSE;
 
+static int
+gst_xvimage_pixmap_xerror (Display * display, XErrorEvent * xevent)
+{
+  char error_msg[1024];
 
+  XGetErrorText (display, xevent->error_code, error_msg, 1024);
+  GST_DEBUG ("xvimage triggered an XError. error: %s", error_msg);
+  error_caught = TRUE;
+  return 0;
+}
+
+static void
+gst_xvimagesink_pixmap_render(GstXvImageMemory * mem, GstVideoRectangle * src_input,
+	GstVideoRectangle * result, gboolean draw_border, GstXvImageSink * xvimagesink)
+{
+  g_return_if_fail (GST_IS_XVIMAGESINK (xvimagesink));
+  g_return_if_fail (src_input != NULL);
+  g_return_if_fail (result != NULL);
+  g_return_if_fail (mem != NULL);
+
+  if (!xvimagesink->get_pixmap_cb) {
+	return;
+  }
+
+  XvImage *xvimage;
+  int ret			= 0;
+  int idx			= 0;
+  int (*handler) (Display *, XErrorEvent *) = NULL;
+  XV_DATA_PTR img_data = NULL;
+  g_mutex_lock (&xvimagesink->context->lock);
+  xvimage = gst_xvimage_memory_get_xvimage (mem);
+  idx = xvimagesink->current_pixmap_idx;
+
+#ifdef HAVE_XSHM
+  if (xvimagesink->context->use_xshm) {
+
+    /* set error handler */
+	error_caught = FALSE;
+	handler = XSetErrorHandler(gst_xvimage_pixmap_xerror);
+
+	g_mutex_lock(xvimagesink->context->display_buffer_lock);
+	if (xvimagesink->context->displaying_buffer_count > 3) {
+	  GST_WARNING("too many buffers are pushed. skip this... [displaying_buffer_count %d]",
+	    xvimagesink->context->displaying_buffer_count);
+	}
+	g_mutex_unlock(xvimagesink->context->display_buffer_lock);
+
+	ret = XvShmPutImage (xvimagesink->context->disp,
+	  xvimagesink->context->xv_port_id,
+	  xvimagesink->xpixmap[idx]->pixmap,
+	  xvimagesink->xpixmap[idx]->gc, xvimage,
+	  src_input->x, src_input->y, src_input->w, src_input->h,
+	  result->x, result->y, result->w, result->h, FALSE);
+	  GST_LOG_OBJECT( mem, "XvShmPutImage return value [%d]", ret );
+  }
+  XSync (xvimagesink->context->disp, FALSE);
+#endif
+  if (ret || error_caught) {
+    GST_WARNING("putimage error : ret %d, error_caught %d, displaying buffer count %d",
+	  ret, error_caught, xvimagesink->context->displaying_buffer_count);
+
+    /* release gem handle */
+	img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(mem)->data;
+	if (img_data && img_data->BufType == XV_BUF_TYPE_DMABUF) {
+	  unsigned int gem_name[XV_BUF_PLANE_NUM] = { 0, };
+	  gem_name[0] = img_data->YBuf;
+	  gem_name[1] = img_data->CbBuf;
+	  gem_name[2] = img_data->CrBuf;
+	  gst_xvcontext_remove_displaying_buffer(xvimagesink->context, gem_name);
+	}
+  }
+
+  /* Reset error handler */
+  error_caught = FALSE;
+  XSetErrorHandler (handler);
+
+  g_mutex_unlock (&xvimagesink->context->lock);
+
+  return;
+}
+
+#endif
 /* This function puts a GstXvImage on a GstXvImageSink's window. Returns FALSE
  * if no window was available  */
 static gboolean
@@ -468,8 +562,11 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
   gint res_rotate_angle = 0;
   int rotate        = 0;
   int ret           = 0;
+  int idx			= 0;
 
-  gst_xvimagesink_xwindow_update_geometry( xvimagesink );
+  if (!xvimagesink->get_pixmap_cb){
+	  gst_xvimagesink_xwindow_update_geometry( xvimagesink );
+  }
 #endif /* GST_EXT_XV_ENHANCEMENT */
 
   /* We take the flow_lock. If expose is in there we don't want to run
@@ -486,11 +583,22 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
   }
 #endif /* GST_EXT_XV_ENHANCEMENT */
 
+#ifdef GST_EXT_XV_ENHANCEMENT
+  if (G_UNLIKELY ((xwindow = xvimagesink->xwindow) == NULL)) {
+	if (xvimagesink->get_pixmap_cb){
+	  GST_INFO("xwindow is NULL, but it has get_pixmap_cb(%p), keep going..",xvimagesink->get_pixmap_cb );
+	} else {
+	  GST_INFO("xwindow is NULL. Skip xvimage_put.");
+	  g_mutex_unlock (&xvimagesink->flow_lock);
+	  return FALSE;
+	}
+  }
+#else
   if (G_UNLIKELY ((xwindow = xvimagesink->xwindow) == NULL)) {
     g_mutex_unlock (&xvimagesink->flow_lock);
     return FALSE;
   }
-
+#endif
   /* Draw borders when displaying the first frame. After this
      draw borders only on expose event or after a size change. */
   if (!xvimagesink->cur_image || xvimagesink->redraw_border) {
@@ -532,6 +640,19 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
     return TRUE;
   }
 
+  if (xvimagesink->get_pixmap_cb) {
+	gst_xvimagesink_set_pixmap_handle ((GstVideoOverlay *)xvimagesink, xvimagesink->get_pixmap_cb(xvimagesink->get_pixmap_cb_user_data));
+    idx = xvimagesink->current_pixmap_idx;
+	if (idx == -1) {
+      g_mutex_unlock (&xvimagesink->flow_lock);
+      return FALSE;
+    } else if (idx == -2) {
+      GST_WARNING_OBJECT(xvimagesink, "Skip putImage()");
+      g_mutex_unlock (&xvimagesink->flow_lock);
+      return TRUE;
+    }
+  }
+
   res_rotate_angle = xvimagesink->rotate_angle;
 
   src.x = src.y = 0;
@@ -548,16 +669,25 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
     src.w = src_origin.h;
     src.h = src_origin.w;
   }
+  if (xvimagesink->get_pixmap_cb) {
+    dst.w = xvimagesink->xpixmap[idx]->width;
+	dst.h = xvimagesink->xpixmap[idx]->height;
 
-  dst.w = xwindow->render_rect.w;
-  dst.h = xwindow->render_rect.h;
-
+  } else {
+    dst.w = xwindow->render_rect.w;
+    dst.h = xwindow->render_rect.h;
+  }
   switch (xvimagesink->display_geometry_method)
   {
     case DISP_GEO_METHOD_LETTER_BOX:
       gst_video_sink_center_rect (src, dst, &result, TRUE);
-      result.x += xwindow->render_rect.x;
-      result.y += xwindow->render_rect.y;
+	  if (xvimagesink->get_pixmap_cb) { //?
+		  result.x += xvimagesink->xpixmap[idx]->x;
+		  result.y += xvimagesink->xpixmap[idx]->y;
+	  } else {
+        result.x += xwindow->render_rect.x;
+        result.y += xwindow->render_rect.y;
+	  }
       break;
 
     case DISP_GEO_METHOD_ORIGIN_SIZE_OR_LETTER_BOX:
@@ -580,8 +710,13 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
 
    case DISP_GEO_METHOD_FULL_SCREEN:
       result.x = result.y = 0;
-      result.w = xwindow->width;
-      result.h = xwindow->height;
+	  if (xvimagesink->get_pixmap_cb) {
+	    result.w = xvimagesink->xpixmap[idx]->width;
+		result.h = xvimagesink->xpixmap[idx]->height;
+	  } else {
+	    result.w = xwindow->width;
+		result.h = xwindow->height;
+	  }
       break;
 
    case DISP_GEO_METHOD_CROPPED_FULL_SCREEN:
@@ -647,20 +782,32 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
         result.h = dst_roi_cmpns.w;
 
         result.x = dst_roi_cmpns.y;
-        result.y = xvimagesink->xwindow->height - dst_roi_cmpns.x - dst_roi_cmpns.w;
+		if (xvimagesink->get_pixmap_cb) {
+		  result.y = xvimagesink->xpixmap[idx]->height - dst_roi_cmpns.x - dst_roi_cmpns.w;
+		} else {
+          result.y = xvimagesink->xwindow->height - dst_roi_cmpns.x - dst_roi_cmpns.w;
+		}
         break;
       case DEGREE_180:
         result.w = dst_roi_cmpns.w;
         result.h = dst_roi_cmpns.h;
 
-        result.x = xvimagesink->xwindow->width - result.w - dst_roi_cmpns.x;
-        result.y = xvimagesink->xwindow->height - result.h - dst_roi_cmpns.y;
+		if (xvimagesink->get_pixmap_cb) {
+		  result.x = xvimagesink->xpixmap[idx]->width - result.w - dst_roi_cmpns.x;
+		  result.y = xvimagesink->xpixmap[idx]->height - result.h - dst_roi_cmpns.y;
+		} else {
+          result.x = xvimagesink->xwindow->width - result.w - dst_roi_cmpns.x;
+          result.y = xvimagesink->xwindow->height - result.h - dst_roi_cmpns.y;
+		}
         break;
       case DEGREE_270:
         result.w = dst_roi_cmpns.h;
         result.h = dst_roi_cmpns.w;
-
-        result.x = xvimagesink->xwindow->width - dst_roi_cmpns.y - dst_roi_cmpns.h;
+		if (xvimagesink->get_pixmap_cb) {
+		  result.x = xvimagesink->xpixmap[idx]->width - dst_roi_cmpns.y - dst_roi_cmpns.h;
+		} else {
+          result.x = xvimagesink->xwindow->width - dst_roi_cmpns.y - dst_roi_cmpns.h;
+		}
         result.y = dst_roi_cmpns.x;
         break;
       default:
@@ -778,13 +925,24 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
       src_input.h += 1;
   }
 
-  GST_LOG_OBJECT( xvimagesink, "window[%dx%d],method[%d],rotate[%d],zoom[%lf],dp_mode[%d],src[%d,%d,%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
-    xwindow->width, xwindow->height,
-    xvimagesink->display_geometry_method, rotate, xvimagesink->zoom, xvimagesink->config.display_mode,
-    src_origin.x, src_origin.y, src_origin.w, src_origin.h,
-    dst.x, dst.y, dst.w, dst.h,
-    src_input.x, src_input.y, src_input.w, src_input.h,
-    result.x, result.y, result.w, result.h );
+  if (xvimagesink->get_pixmap_cb) {
+	  GST_LOG_OBJECT( xvimagesink, "pixmap[%dx%d],method[%d],rotate[%d],zoom[%lf],dp_mode[%d],src[%d,%d,%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
+		xvimagesink->xpixmap[idx]->width, xvimagesink->xpixmap[idx]->height,
+		xvimagesink->display_geometry_method, rotate, xvimagesink->zoom, xvimagesink->config.display_mode,
+		src_origin.x, src_origin.y, src_origin.w, src_origin.h,
+		dst.x, dst.y, dst.w, dst.h,
+		src_input.x, src_input.y, src_input.w, src_input.h,
+		result.x, result.y, result.w, result.h );
+
+  } else {
+    GST_LOG_OBJECT( xvimagesink, "window[%dx%d],method[%d],rotate[%d],zoom[%lf],dp_mode[%d],src[%d,%d,%dx%d],dst[%d,%d,%dx%d],input[%d,%d,%dx%d],result[%d,%d,%dx%d]",
+      xwindow->width, xwindow->height,
+      xvimagesink->display_geometry_method, rotate, xvimagesink->zoom, xvimagesink->config.display_mode,
+      src_origin.x, src_origin.y, src_origin.w, src_origin.h,
+      dst.x, dst.y, dst.w, dst.h,
+      src_input.x, src_input.y, src_input.w, src_input.h,
+      result.x, result.y, result.w, result.h );
+  }
 
 #ifdef HAVE_XSHM
   /* set display rotation */
@@ -843,7 +1001,15 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
                 ret, xvimagesink->context->disp, xvimagesink->context->xv_port_id, atom_vflip, set_vflip);
   }
 #endif /* HAVE_XSHM */
-  gst_xvimage_memory_render (mem, &src_input, xwindow, &result, draw_border);
+
+  if (xvimagesink->get_pixmap_cb) {
+    gst_xvimagesink_pixmap_render(mem, &src_input, &result, draw_border, xvimagesink);
+  } else {
+    gst_xvimage_memory_render (mem, &src_input, xwindow, &result, draw_border);
+  }
+  g_mutex_unlock (&xvimagesink->flow_lock);
+
+  return TRUE;
 
 #else /* GST_EXT_XV_ENHANCEMENT */
   gst_xvimage_memory_get_crop (mem, &mem_crop);
@@ -879,10 +1045,10 @@ gst_xvimagesink_xvimage_put (GstXvImageSink * xvimagesink, GstBuffer * xvimage)
     memcpy (&result, &xwindow->render_rect, sizeof (GstVideoRectangle));
   }
   gst_xvimage_memory_render (mem, &src, xwindow, &result, draw_border);
-#endif /* GST_EXT_XV_ENHANCEMENT */
   g_mutex_unlock (&xvimagesink->flow_lock);
 
   return TRUE;
+#endif /* GST_EXT_XV_ENHANCEMENT */
 }
 
 static void
@@ -1367,7 +1533,11 @@ gst_xvimagesink_setcaps (GstBaseSink * bsink, GstCaps * caps)
 
   /* Notify application to set xwindow id now */
   g_mutex_lock (&xvimagesink->flow_lock);
+#ifdef GST_EXT_XV_ENHANCEMENT
+  if (!xvimagesink->xwindow && !xvimagesink->get_pixmap_cb) {
+#else
   if (!xvimagesink->xwindow) {
+#endif
     g_mutex_unlock (&xvimagesink->flow_lock);
     gst_video_overlay_prepare_window_handle (GST_VIDEO_OVERLAY (xvimagesink));
   } else {
@@ -1380,7 +1550,11 @@ gst_xvimagesink_setcaps (GstBaseSink * bsink, GstCaps * caps)
     goto no_display_size;
 
   g_mutex_lock (&xvimagesink->flow_lock);
+#ifdef GST_EXT_XV_ENHANCEMENT
+  if (!xvimagesink->xwindow && !xvimagesink->get_pixmap_cb) {
+#else
   if (!xvimagesink->xwindow) {
+#endif
     xvimagesink->xwindow = gst_xvimagesink_xwindow_new (xvimagesink,
         GST_VIDEO_SINK_WIDTH (xvimagesink),
         GST_VIDEO_SINK_HEIGHT (xvimagesink));
@@ -1564,6 +1738,13 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
 #endif /* GST_EXT_XV_ENHANCEMENT */
 
   xvimagesink = GST_XVIMAGESINK (vsink);
+
+#if 0
+	if (xvimagesink->stop_video) {
+	  GST_INFO( "Stop video is TRUE. so skip show frame..." );
+	  return GST_FLOW_OK;
+	}
+#endif
 
   if (gst_buffer_n_memory (buf) == 1 && (mem = gst_buffer_peek_memory (buf, 0))
       && gst_xvimage_memory_is_from_context (mem, xvimagesink->context)) {
@@ -1793,11 +1974,19 @@ gst_xvimagesink_event (GstBaseSink * sink, GstEvent * event)
       gst_tag_list_get_string (l, GST_TAG_TITLE, &title);
 
       if (title) {
+#ifdef GST_EXT_XV_ENHANCEMENT
+        if (!xvimagesink->get_pixmap_cb) {
+#endif
+
         GST_DEBUG_OBJECT (xvimagesink, "got tags, title='%s'", title);
         gst_xvimagesink_xwindow_set_title (xvimagesink, xvimagesink->xwindow,
             title);
 
         g_free (title);
+#ifdef GST_EXT_XV_ENHANCEMENT
+        }
+#endif
+
       }
       break;
     }
@@ -2046,6 +2235,125 @@ gst_xvimagesink_set_window_handle (GstVideoOverlay * overlay, guintptr id)
   }
 #endif /* GST_EXT_XV_ENHANCEMENT */
 }
+
+#ifdef GST_EXT_XV_ENHANCEMENT
+/* This function destroys a GstXWindow */
+static void
+gst_xvimagesink_xpixmap_destroy (GstXvImageSink * xvimagesink,
+    GstXPixmap * xpixmap)
+{
+  g_return_if_fail (xpixmap != NULL);
+  g_return_val_if_fail (GST_IS_XVIMAGESINK (xvimagesink), NULL);
+
+  XSelectInput (xvimagesink->context->disp, xpixmap->pixmap, 0);
+
+  XFreeGC (xvimagesink->context->disp, xpixmap->gc);
+
+  XSync (xvimagesink->context->disp, FALSE);
+
+  g_free (xpixmap);
+}
+
+static void
+gst_xvimagesink_set_pixmap_handle (GstVideoOverlay * overlay, guintptr id)
+{
+  GST_INFO("gst_xvimagesink_set_pixmap_handle");
+
+  XID pixmap_id = id;
+  GstXvImageSink *xvimagesink = GST_XVIMAGESINK (overlay);
+  GstXPixmap *xpixmap = NULL;
+  int i = 0;
+  int (*handler) (Display *, XErrorEvent *);
+  g_return_if_fail (GST_IS_XVIMAGESINK (xvimagesink));
+
+  /* If the element has not initialized the X11 context try to do so */
+  if (!xvimagesink->context && !(xvimagesink->context =
+    gst_xvcontext_new (&xvimagesink->config, NULL))) {
+	/* we have thrown a GST_ELEMENT_ERROR now */
+	GST_ERROR("GST_ELEMENT_ERROR");
+	return;
+  }
+  GST_INFO("call gst_xvimagesink_update_colorbalance ");
+  gst_xvimagesink_update_colorbalance (xvimagesink);
+
+  GST_INFO("pixmap id : %d", pixmap_id );
+
+  /* if the returned pixmap_id is 0, set current pixmap index to -2 to skip putImage() */
+  if (pixmap_id == 0) {
+    xvimagesink->current_pixmap_idx = -2;
+	return;
+  }
+
+  for (i = 0; i < MAX_PIXMAP_NUM; i++) {
+    if (!xvimagesink->xpixmap[i]) {
+	  Window root_window;
+	  int cur_win_x = 0;
+	  int cur_win_y = 0;
+	  unsigned int cur_win_width = 0;
+	  unsigned int cur_win_height = 0;
+	  unsigned int cur_win_border_width = 0;
+	  unsigned int cur_win_depth = 0;
+
+	  GST_INFO_OBJECT( xvimagesink, "xpixmap[%d] is empty, create it with pixmap_id(%d)", i, pixmap_id );
+
+	  xpixmap = g_new0 (GstXPixmap, 1);
+	  if (xpixmap) {
+		xpixmap->pixmap = pixmap_id;
+
+		/* Get root window and size of current window */
+		XGetGeometry(xvimagesink->context->disp, xpixmap->pixmap, &root_window,
+					 &cur_win_x, &cur_win_y, /* relative x, y */
+					 &cur_win_width, &cur_win_height,
+					 &cur_win_border_width, &cur_win_depth);
+		if (!cur_win_width || !cur_win_height) {
+		  GST_INFO_OBJECT( xvimagesink, "cur_win_width(%d) or cur_win_height(%d) is null..", cur_win_width, cur_win_height );
+		  return;
+		}
+		GST_INFO("cur_win_x(%d) cur_win_y(%d) cur_win_width(%d)  cur_win_height(%d) cur_win_border_width(%d) cur_win_depth(%d)",
+			cur_win_x, cur_win_y, cur_win_width, cur_win_height, cur_win_border_width, cur_win_depth);
+			xpixmap->width = cur_win_width;
+			xpixmap->height = cur_win_height;
+
+		/* Setting an error handler to catch failure */
+		error_caught = FALSE;
+		handler = XSetErrorHandler (gst_xvimage_pixmap_xerror);
+
+		/* Create a GC */
+		xpixmap->gc = XCreateGC (xvimagesink->context->disp, xpixmap->pixmap, 0, NULL);
+
+		XSync(xvimagesink->context->disp, FALSE);
+		if (error_caught) {
+		  GST_ERROR_OBJECT(xvimagesink, "XCreateGC failed [gc:0x%x, pixmap id:%d]", xpixmap->gc, xpixmap->pixmap);
+		}
+		if (handler) {
+		  error_caught = FALSE;
+		  XSetErrorHandler (handler);
+		}
+
+		xvimagesink->xpixmap[i] = xpixmap;
+		xvimagesink->current_pixmap_idx = i;
+	  } else {
+		GST_ERROR("failed to create xpixmap errno: %d", errno);
+	  }
+
+	  return;
+
+	} else if (xvimagesink->xpixmap[i]->pixmap == pixmap_id) {
+	  GST_DEBUG_OBJECT( xvimagesink, "found xpixmap[%d]->pixmap : %d", i, pixmap_id );
+	  xvimagesink->current_pixmap_idx = i;
+	  return;
+	} else {
+		  continue;
+	}
+  }
+
+  GST_ERROR_OBJECT( xvimagesink, "could not find the pixmap id(%d) in xpixmap array", pixmap_id );
+    xvimagesink->current_pixmap_idx = -1;
+
+}
+#endif /* GST_EXT_XV_ENHANCEMENT */
+
+
 
 static void
 gst_xvimagesink_expose (GstVideoOverlay * overlay)
@@ -2495,9 +2803,15 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
 #endif
           xvimagesink->visible = g_value_get_boolean (value);
 
-          if (GST_STATE (xvimagesink) > GST_STATE_READY)
-              XvStopVideo(xvimagesink->context->disp, xvimagesink->context->xv_port_id, xvimagesink->xwindow->win);
-
+          if (GST_STATE (xvimagesink) > GST_STATE_READY) {
+		    if (xvimagesink->get_pixmap_cb) {
+			  if (xvimagesink->xpixmap[0] && xvimagesink->xpixmap[0]->pixmap) {
+				XvStopVideo (xvimagesink->context->disp, xvimagesink->context->xv_port_id, xvimagesink->xpixmap[0]->pixmap);
+			  }
+		    } else {
+		      XvStopVideo(xvimagesink->context->disp, xvimagesink->context->xv_port_id, xvimagesink->xwindow->win);
+		    }
+          }
           XSync( xvimagesink->context->disp, FALSE );
           g_mutex_unlock( &xvimagesink->context->lock );
         } else {
@@ -2547,6 +2861,58 @@ gst_xvimagesink_set_property (GObject * object, guint prop_id,
     case PROP_DST_ROI_H:
       xvimagesink->dst_roi.h = g_value_get_int (value);
       break;
+#if 0
+	case PROP_STOP_VIDEO:
+	  xvimagesink->stop_video = g_value_get_int (value);
+      g_mutex_lock( &xvimagesink->flow_lock );
+	  if (xvimagesink->stop_video) {
+	    if (xvimagesink->get_pixmap_cb && xvimagesink->xpixmap[0] && xvimagesink->xpixmap[0]->pixmap) {
+		  GST_INFO("calling XvStopVideo()");
+		  g_mutex_lock( &xvimagesink->context->lock );
+          XvStopVideo (xvimagesink->context->disp, xvimagesink->context->xv_port_id, xvimagesink->xpixmap[0]->pixmap);
+		  g_mutex_unlock( &xvimagesink->context->lock );
+		}
+	  } else {
+	    GST_INFO("Xwindow CLEAR when set video-stop property");
+		gst_xwindow_clear (xvimagesink->xwindow);
+	  }
+      g_mutex_unlock( &xvimagesink->flow_lock );
+	  break;
+#endif
+	case PROP_PIXMAP_CB:
+    {
+	  void *cb_func;
+	  cb_func = g_value_get_pointer (value);
+	  if (cb_func){
+		if (xvimagesink->get_pixmap_cb) {
+		  int i = 0;
+		  if (xvimagesink->xpixmap[0] && xvimagesink->xpixmap[0]->pixmap) {
+			g_mutex_lock( &xvimagesink->context->lock );
+			XvStopVideo(xvimagesink->context->disp, xvimagesink->context->xv_port_id, xvimagesink->xpixmap[0]->pixmap);
+			g_mutex_unlock( &xvimagesink->context->lock );
+		  }
+		  for (i = 0; i < MAX_PIXMAP_NUM; i++) {
+            if (xvimagesink->xpixmap[i]) {
+              gst_xvimagesink_xpixmap_destroy (xvimagesink, xvimagesink->xpixmap[i]);
+              xvimagesink->xpixmap[i] = NULL;
+            }
+          }
+		}
+		xvimagesink->get_pixmap_cb = cb_func;
+		GST_INFO("Set callback(%p) for getting pixmap id", xvimagesink->get_pixmap_cb);
+	  }
+	  break;
+	}
+	case PROP_PIXMAP_CB_USER_DATA:
+	{
+	  void *user_data;
+	  user_data = g_value_get_pointer (value);
+	  if (user_data) {
+        xvimagesink->get_pixmap_cb_user_data = user_data;
+		GST_INFO("Set user data(%p) for getting pixmap id", xvimagesink->get_pixmap_cb_user_data);
+	  }
+	  break;
+	}
 #endif /* GST_EXT_XV_ENHANCEMENT */
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -2680,6 +3046,17 @@ gst_xvimagesink_get_property (GObject * object, guint prop_id,
     case PROP_DST_ROI_H:
       g_value_set_int (value, xvimagesink->dst_roi.h);
       break;
+#if 0
+	case PROP_STOP_VIDEO:
+	  g_value_set_int (value, xvimagesink->stop_video);
+	  break;
+#endif
+    case PROP_PIXMAP_CB:
+	  g_value_set_pointer (value, xvimagesink->get_pixmap_cb);
+	  break;
+	case PROP_PIXMAP_CB_USER_DATA:
+	  g_value_set_pointer (value, xvimagesink->get_pixmap_cb_user_data);
+	  break;
 #endif /* GST_EXT_XV_ENHANCEMENT */
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
@@ -2750,8 +3127,25 @@ gst_xvimagesink_close (GstXvImageSink * xvimagesink)
     gst_buffer_unref (xvimagesink->cur_image);
     xvimagesink->cur_image = NULL;
   }
-
   g_mutex_lock (&xvimagesink->flow_lock);
+
+#ifdef GST_EXT_XV_ENHANCEMENT
+	if (xvimagesink->get_pixmap_cb) {
+	  int i = 0;
+	  if (xvimagesink->xpixmap[0] && xvimagesink->xpixmap[0]->pixmap) {
+		GST_WARNING_OBJECT( xvimagesink, "calling XvStopVideo()" );
+		XvStopVideo (xvimagesink->context->disp, xvimagesink->context->xv_port_id, xvimagesink->xpixmap[0]->pixmap);
+	  }
+	  for (i = 0; i < MAX_PIXMAP_NUM; i++) {
+		if (xvimagesink->xpixmap[i]) {
+		  gst_xvimagesink_xpixmap_destroy (xvimagesink, xvimagesink->xpixmap[i]);
+		  xvimagesink->xpixmap[i] = NULL;
+		}
+	  }
+	  xvimagesink->get_pixmap_cb = NULL;
+	  xvimagesink->get_pixmap_cb_user_data = NULL;
+	}
+#endif /* GST_EXT_XV_ENHANCEMENT */
 
   if (xvimagesink->pool) {
     gst_object_unref (xvimagesink->pool);
@@ -2861,6 +3255,12 @@ gst_xvimagesink_init (GstXvImageSink * xvimagesink)
 
   xvimagesink->is_zero_copy_format = FALSE;
   xvimagesink->is_secure_path = FALSE;
+
+  xvimagesink->current_pixmap_idx = -1;
+  xvimagesink->get_pixmap_cb = NULL;
+  xvimagesink->get_pixmap_cb_user_data = NULL;
+//  xvimagesink->stop_video = FALSE;
+
   /*X can't gurarantee thread  safe: sometimes, X can't render Video.
        Add XInitThread() before XOpenDisplay()*/
   if(!XInitThreads())
@@ -2957,6 +3357,8 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
    * GstXvImageSink:autopaint-colorkey
    *
    * Whether to autofill overlay with colorkey
+   *
+   * Since: 0.10.21
    */
   g_object_class_install_property (gobject_class, PROP_AUTOPAINT_COLORKEY,
       g_param_spec_boolean ("autopaint-colorkey", "Autofill with colorkey",
@@ -2989,6 +3391,8 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
    * GstXvImageSink:window-width
    *
    * Actual width of the video window.
+   *
+   * Since: 0.10.32
    */
   g_object_class_install_property (gobject_class, PROP_WINDOW_WIDTH,
       g_param_spec_uint64 ("window-width", "window-width",
@@ -2999,6 +3403,8 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
    * GstXvImageSink:window-height
    *
    * Actual height of the video window.
+   *
+   * Since: 0.10.32
    */
   g_object_class_install_property (gobject_class, PROP_WINDOW_HEIGHT,
       g_param_spec_uint64 ("window-height", "window-height",
@@ -3151,6 +3557,20 @@ gst_xvimagesink_class_init (GstXvImageSinkClass * klass)
       g_param_spec_int ("dst-roi-h", "Dst-ROI-H",
           "H value of Destination ROI(only effective \"CUSTOM_ROI\")", 0, XV_SCREEN_SIZE_HEIGHT, 0,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+#if 0
+  g_object_class_install_property (gobject_class, PROP_STOP_VIDEO,
+      g_param_spec_int ("stop-video", "Stop-Video",
+          "Stop video for releasing video source buffer", 0, 1, 0,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+#endif
+  g_object_class_install_property (gobject_class, PROP_PIXMAP_CB,
+      g_param_spec_pointer("pixmap-id-callback", "Pixmap-Id-Callback",
+          "pointer of callback function for getting pixmap id", G_PARAM_READWRITE));
+
+  g_object_class_install_property (gobject_class, PROP_PIXMAP_CB_USER_DATA,
+      g_param_spec_pointer("pixmap-id-callback-userdata", "Pixmap-Id-Callback-Userdata",
+          "pointer of user data of callback function for getting pixmap id", G_PARAM_READWRITE));
+
 #endif /* GST_EXT_XV_ENHANCEMENT */
 
   gobject_class->finalize = gst_xvimagesink_finalize;
