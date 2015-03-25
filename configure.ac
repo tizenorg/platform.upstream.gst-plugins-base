@@ -201,7 +201,7 @@ AC_LANG_PROGRAM([[
       asm volatile ("vmull.s16 q0, d0, d0" : : : "q0");
       return vmull_s16(vld1_s16(a), vld1_s16(b));
   }
-]])],
+]], [[ testfunc(0,0); ]])],
 [
   AC_DEFINE(HAVE_ARM_NEON,[],[ARM NEON support is enabled])
   AC_MSG_RESULT(yes)
