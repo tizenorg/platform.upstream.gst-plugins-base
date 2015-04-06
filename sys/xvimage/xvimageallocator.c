@@ -458,7 +458,8 @@ gst_xvimage_allocator_alloc (GstXvImageAllocator * allocator, gint im_format,
           "unexpected XShm image size (got %d, expected %d)",
           mem->xvimage->data_size, expected_size);
     }
-
+    GST_INFO("expected XShm image size (got %d, expected %d)",
+          mem->xvimage->data_size, expected_size);
     /* Be verbose about our XvImage stride */
     {
       guint plane;
@@ -709,15 +710,13 @@ gst_xvimage_memory_render (GstXvImageMemory * mem, GstVideoRectangle * src_crop,
     GST_WARNING("putimage error : ret %d, error_caught %d, displaying buffer count %d",
                 ret, error_caught, context->displaying_buffer_count);
 
-  /* release gem handle */
-  img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(mem)->data;
-  if (img_data && img_data->BufType == XV_BUF_TYPE_DMABUF) {
+    /* release gem handle */
+    img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(mem)->data;
     unsigned int gem_name[XV_BUF_PLANE_NUM] = { 0, };
     gem_name[0] = img_data->YBuf;
     gem_name[1] = img_data->CbBuf;
     gem_name[2] = img_data->CrBuf;
     gst_xvcontext_remove_displaying_buffer(context, gem_name);
-     }
   }
 
   /* Reset error handler */

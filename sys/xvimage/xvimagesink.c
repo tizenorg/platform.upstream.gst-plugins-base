@@ -518,7 +518,7 @@ gst_xvimagesink_pixmap_render(GstXvImageMemory * mem, GstVideoRectangle * src_in
 
     /* release gem handle */
 	img_data = (XV_DATA_PTR) gst_xvimage_memory_get_xvimage(mem)->data;
-	if (img_data && img_data->BufType == XV_BUF_TYPE_DMABUF) {
+	if (img_data) {
 	  unsigned int gem_name[XV_BUF_PLANE_NUM] = { 0, };
 	  gem_name[0] = img_data->YBuf;
 	  gem_name[1] = img_data->CbBuf;
@@ -1317,7 +1317,10 @@ gst_xvimagesink_handle_xevents (GstXvImageSink * xvimagesink)
           gem_name[0] = cme->data.l[0];
           gem_name[1] = cme->data.l[1];
 
+		  g_mutex_unlock (&xvimagesink->context->lock);
           gst_xvcontext_remove_displaying_buffer(xvimagesink->context, gem_name);
+		  g_mutex_lock (&xvimagesink->context->lock);
+
           break;
         }
 #endif /* GST_EXT_XV_ENHANCEMENT */
@@ -1480,7 +1483,7 @@ gst_xvimagesink_setcaps (GstBaseSink * bsink, GstCaps * caps)
   gst_xvcontext_set_colorimetry (context, &info.colorimetry);
 
   size = info.size;
-
+  GST_INFO ("info.size = %d ",size);
   /* get aspect ratio from caps if it's present, and
    * convert video width and height to a display width and height
    * using wd / hd = wv / hv * PARv / PARd */
@@ -1783,6 +1786,7 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
     GST_CAT_LOG_OBJECT (GST_CAT_PERFORMANCE, xvimagesink,
         "slow copy buffer %p into bufferpool buffer %p", buf, to_put);
 #ifdef GST_EXT_XV_ENHANCEMENT
+    g_mutex_lock (&xvimagesink->flow_lock);
     switch (GST_VIDEO_INFO_FORMAT(&xvimagesink->info)) {
       /* Cases for specified formats of Samsung extension */
      case GST_VIDEO_FORMAT_SN12:
@@ -1861,8 +1865,7 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
            }
            /* set current buffer */
            gst_xvimage_memory_set_buffer((GstXvImageMemory*)gst_buffer_peek_memory(to_put, 0), buf);
-
-         if (img_data && img_data->BufType == XV_BUF_TYPE_DMABUF)
+           if (img_data)
              gst_xvcontext_add_displaying_buffer(xvimagesink->context, img_data, gst_xvimage_memory_get_buffer(img_mem));
 
         } else {
@@ -1874,6 +1877,7 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
 
        } else {
           GST_WARNING_OBJECT( xvimagesink, "xvimage->data is NULL. skip xvimage put..." );
+          g_mutex_lock (&xvimagesink->flow_lock);
           return GST_FLOW_OK;
         }
         break;
@@ -1896,10 +1900,10 @@ gst_xvimagesink_show_frame (GstVideoSink * vsink, GstBuffer * buf)
         break;
       }
     }
+	g_mutex_unlock (&xvimagesink->flow_lock);
 #else /* GST_EXT_XV_ENHANCEMENT */
     if (!gst_video_frame_map (&src, &xvimagesink->info, buf, GST_MAP_READ))
       goto invalid_buffer;
-
     if (!gst_video_frame_map (&dest, &xvimagesink->info, to_put, GST_MAP_WRITE)) {
       gst_video_frame_unmap (&src);
       goto invalid_buffer;
@@ -1942,6 +1946,9 @@ invalid_buffer:
   {
     /* No Window available to put our image into */
     GST_WARNING_OBJECT (xvimagesink, "could not map image");
+#ifdef GST_EXT_XV_ENHANCEMENT
+	  g_mutex_unlock (&xvimagesink->flow_lock);
+#endif
     res = GST_FLOW_OK;
     goto done;
   }
