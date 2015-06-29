@@ -132,15 +132,20 @@ static void gst_camera_control_class_init(GstCameraControlClass *klass)
 	klass->get_part_color = NULL;
 	klass->get_exif_info = NULL;
 	klass->set_capture_command = NULL;
+	klass->set_record_command = NULL;
 	klass->start_face_zoom = NULL;
 	klass->stop_face_zoom = NULL;
+	klass->set_ae_lock = NULL;
+	klass->get_ae_lock = NULL;
+	klass->set_awb_lock = NULL;
+	klass->get_awb_lock = NULL;
 }
 
 const GList* gst_camera_control_list_channels(GstCameraControl *control)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->list_channels) {
+	if (klass && klass->list_channels) {
 		return klass->list_channels(control);
 	}
 
@@ -152,7 +157,7 @@ gboolean gst_camera_control_set_value(GstCameraControl *control, GstCameraContro
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_value) {
+	if (klass && klass->set_value) {
 		return klass->set_value(control, control_channel, value);
 	}
 
@@ -163,7 +168,7 @@ gboolean gst_camera_control_get_value(GstCameraControl *control, GstCameraContro
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_value) {
+	if (klass && klass->get_value) {
 		return klass->get_value(control, control_channel, value);
 	}
 
@@ -176,7 +181,7 @@ gboolean gst_camera_control_set_exposure(GstCameraControl *control, gint type, g
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_exposure) {
+	if (klass && klass->set_exposure) {
 		return klass->set_exposure(control, type, value1, value2);
 	}
 
@@ -187,7 +192,7 @@ gboolean gst_camera_control_get_exposure(GstCameraControl *control, gint type, g
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_exposure) {
+	if (klass && klass->get_exposure) {
 		return klass->get_exposure(control, type, value1, value2);
 	}
 
@@ -198,7 +203,7 @@ gboolean gst_camera_control_set_capture_mode(GstCameraControl *control, gint typ
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_capture_mode) {
+	if (klass && klass->set_capture_mode) {
 		return klass->set_capture_mode(control, type, value);
 	}
 
@@ -209,7 +214,7 @@ gboolean gst_camera_control_get_capture_mode(GstCameraControl *control, gint typ
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_capture_mode) {
+	if (klass && klass->get_capture_mode) {
 		return klass->get_capture_mode(control, type, value);
 	}
 
@@ -220,7 +225,7 @@ gboolean gst_camera_control_set_strobe(GstCameraControl *control, gint type, gin
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_strobe) {
+	if (klass && klass->set_strobe) {
 		return klass->set_strobe(control, type, value);
 	}
 
@@ -231,7 +236,7 @@ gboolean gst_camera_control_get_strobe(GstCameraControl *control, gint type, gin
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_strobe) {
+	if (klass && klass->get_strobe) {
 		return klass->get_strobe(control, type, value);
 	}
 
@@ -242,7 +247,7 @@ gboolean gst_camera_control_set_detect(GstCameraControl *control, gint type, gin
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_detect) {
+	if (klass && klass->set_detect) {
 		return klass->set_detect(control, type, value);
 	}
 
@@ -253,7 +258,7 @@ gboolean gst_camera_control_get_detect(GstCameraControl *control, gint type, gin
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_detect) {
+	if (klass && klass->get_detect) {
 		return klass->get_detect(control, type, value);
 	}
 
@@ -264,7 +269,7 @@ gboolean gst_camera_control_set_zoom(GstCameraControl *control, gint type, gint 
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_zoom) {
+	if (klass && klass->set_zoom) {
 		return klass->set_zoom(control, type, value);
 	}
 
@@ -275,7 +280,7 @@ gboolean gst_camera_control_get_zoom(GstCameraControl *control, gint type, gint 
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_zoom) {
+	if (klass && klass->get_zoom) {
 		return klass->get_zoom(control, type, value);
 	}
 
@@ -286,7 +291,7 @@ gboolean gst_camera_control_set_focus(GstCameraControl *control, gint mode, gint
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_focus) {
+	if (klass && klass->set_focus) {
 		return klass->set_focus(control, mode, range);
 	}
 
@@ -297,7 +302,7 @@ gboolean gst_camera_control_get_focus(GstCameraControl *control, gint *mode, gin
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_focus) {
+	if (klass && klass->get_focus) {
 		return klass->get_focus(control, mode, range);
 	}
 
@@ -308,7 +313,7 @@ gboolean gst_camera_control_start_auto_focus(GstCameraControl *control)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->start_auto_focus) {
+	if (klass && klass->start_auto_focus) {
 		return klass->start_auto_focus(control);
 	}
 
@@ -319,7 +324,7 @@ gboolean gst_camera_control_stop_auto_focus(GstCameraControl *control)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->stop_auto_focus) {
+	if (klass && klass->stop_auto_focus) {
 		return klass->stop_auto_focus(control);
 	}
 
@@ -330,7 +335,7 @@ gboolean gst_camera_control_set_focus_level(GstCameraControl *control, gint manu
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_focus_level) {
+	if (klass && klass->set_focus_level) {
 		return klass->set_focus_level(control, manual_level);
 	}
 
@@ -341,7 +346,7 @@ gboolean gst_camera_control_get_focus_level(GstCameraControl *control, gint *man
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_focus_level) {
+	if (klass && klass->get_focus_level) {
 		return klass->get_focus_level(control, manual_level);
 	}
 
@@ -352,7 +357,7 @@ gboolean gst_camera_control_set_auto_focus_area(GstCameraControl *control, GstCa
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_auto_focus_area) {
+	if (klass && klass->set_auto_focus_area) {
 		return klass->set_auto_focus_area(control, rect);
 	}
 
@@ -363,7 +368,7 @@ gboolean gst_camera_control_get_auto_focus_area(GstCameraControl *control, GstCa
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_auto_focus_area) {
+	if (klass && klass->get_auto_focus_area) {
 		return klass->get_auto_focus_area(control, rect);
 	}
 
@@ -374,7 +379,7 @@ gboolean gst_camera_control_set_wdr(GstCameraControl *control, gint value)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_wdr) {
+	if (klass && klass->set_wdr) {
 		return klass->set_wdr(control, value);
 	}
 
@@ -385,7 +390,7 @@ gboolean gst_camera_control_get_wdr(GstCameraControl *control, gint *value)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_wdr) {
+	if (klass && klass->get_wdr) {
 		return klass->get_wdr(control, value);
 	}
 
@@ -396,7 +401,7 @@ gboolean gst_camera_control_set_ahs(GstCameraControl *control, gint value)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_ahs) {
+	if (klass && klass->set_ahs) {
 		return klass->set_ahs(control, value);
 	}
 
@@ -407,7 +412,7 @@ gboolean gst_camera_control_get_ahs(GstCameraControl *control, gint *value)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_ahs) {
+	if (klass && klass->get_ahs) {
 		return klass->get_ahs(control, value);
 	}
 
@@ -418,7 +423,7 @@ gboolean gst_camera_control_set_part_color(GstCameraControl *control, gint type,
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_part_color) {
+	if (klass && klass->set_part_color) {
 		return klass->set_part_color(control, type, value);
 	}
 
@@ -429,7 +434,7 @@ gboolean gst_camera_control_get_part_color(GstCameraControl *control, gint type,
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_part_color) {
+	if (klass && klass->get_part_color) {
 		return klass->get_part_color(control, type, value);
 	}
 
@@ -441,7 +446,7 @@ gst_camera_control_get_exif_info(GstCameraControl *control, GstCameraControlExif
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_exif_info) {
+	if (klass && klass->get_exif_info) {
 		return klass->get_exif_info(control, info);
 	}
 
@@ -453,7 +458,7 @@ gboolean gst_camera_control_get_basic_dev_info(GstCameraControl *control, gint d
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_basic_dev_info) {
+	if (klass && klass->get_basic_dev_info) {
 		return klass->get_basic_dev_info(control, dev_id, info);
 	}
 
@@ -464,8 +469,7 @@ gboolean gst_camera_control_get_misc_dev_info(GstCameraControl *control, gint de
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS( control );
 
-	if( klass->get_misc_dev_info )
-	{
+	if (klass && klass->get_misc_dev_info) {
 		return klass->get_misc_dev_info( control, dev_id, info );
 	}
 
@@ -476,7 +480,7 @@ gboolean gst_camera_control_get_extra_dev_info(GstCameraControl *control, gint d
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->get_extra_dev_info) {
+	if (klass && klass->get_extra_dev_info) {
 		return klass->get_extra_dev_info(control, dev_id, info);
 	}
 
@@ -487,8 +491,19 @@ void gst_camera_control_set_capture_command(GstCameraControl *control, GstCamera
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->set_capture_command) {
+	if (klass && klass->set_capture_command) {
 		klass->set_capture_command(control, cmd);
+	}
+
+	return;
+}
+
+void gst_camera_control_set_record_command(GstCameraControl *control, GstCameraControlRecordCommand cmd)
+{
+	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
+
+	if (klass && klass->set_record_command) {
+		klass->set_record_command(control, cmd);
 	}
 
 	return;
@@ -498,7 +513,7 @@ gboolean gst_camera_control_start_face_zoom(GstCameraControl *control, gint x, g
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->start_face_zoom) {
+	if (klass && klass->start_face_zoom) {
 		return klass->start_face_zoom(control, x, y, zoom_level);
 	}
 
@@ -509,8 +524,52 @@ gboolean gst_camera_control_stop_face_zoom(GstCameraControl *control)
 {
 	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
 
-	if (klass->stop_face_zoom) {
+	if (klass && klass->stop_face_zoom) {
 		return klass->stop_face_zoom(control);
+	}
+
+	return FALSE;
+}
+
+gboolean gst_camera_control_set_ae_lock(GstCameraControl *control, gboolean lock)
+{
+	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
+
+	if (klass && klass->set_ae_lock) {
+		return klass->set_ae_lock(control, lock);
+	}
+
+	return FALSE;
+}
+
+gboolean gst_camera_control_get_ae_lock(GstCameraControl *control, gboolean *lock)
+{
+	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
+
+	if (klass && klass->get_ae_lock) {
+		return klass->get_ae_lock(control, lock);
+	}
+
+	return FALSE;
+}
+
+gboolean gst_camera_control_set_awb_lock(GstCameraControl *control, gboolean lock)
+{
+	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
+
+	if (klass && klass->set_awb_lock) {
+		return klass->set_awb_lock(control, lock);
+	}
+
+	return FALSE;
+}
+
+gboolean gst_camera_control_get_awb_lock(GstCameraControl *control, gboolean *lock)
+{
+	GstCameraControlClass *klass = GST_CAMERA_CONTROL_GET_CLASS(control);
+
+	if (klass && klass->get_awb_lock) {
+		return klass->get_awb_lock(control, lock);
 	}
 
 	return FALSE;
