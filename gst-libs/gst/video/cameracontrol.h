@@ -154,7 +154,15 @@ typedef enum
 	GST_CAMERA_CONTROL_CAPTURE_COMMAND_STOP_MULTISHOT,
 } GstCameraControlCaptureCommand;
 
-
+/**
+ * Enumerations for Camera record command.
+ */
+typedef enum
+{
+	GST_CAMERA_CONTROL_RECORD_COMMAND_NONE,
+	GST_CAMERA_CONTROL_RECORD_COMMAND_START,
+	GST_CAMERA_CONTROL_RECORD_COMMAND_STOP,
+} GstCameraControlRecordCommand;
 
 /////////////////////////////////
 //  For Query functionalities  //
@@ -407,8 +415,13 @@ typedef struct _GstCameraControlClass {
 	gboolean	(*get_misc_dev_info)           (GstCameraControl *control, gint dev_id, GstCameraControlCtrlListInfoType *info);
 	gboolean	(*get_extra_dev_info)          (GstCameraControl *control, gint dev_id, GstCameraControlExtraInfoType *info);
 	void		(*set_capture_command)         (GstCameraControl *control, GstCameraControlCaptureCommand cmd);
+	void		(*set_record_command)          (GstCameraControl *control, GstCameraControlRecordCommand cmd);
 	gboolean	(*start_face_zoom)             (GstCameraControl *control, gint x, gint y, gint zoom_level);
 	gboolean	(*stop_face_zoom)              (GstCameraControl *control);
+	gboolean	(*set_ae_lock)                 (GstCameraControl *control, gboolean lock);
+	gboolean	(*get_ae_lock)                 (GstCameraControl *control, gboolean *lock);
+	gboolean	(*set_awb_lock)                (GstCameraControl *control, gboolean lock);
+	gboolean	(*get_awb_lock)                (GstCameraControl *control, gboolean *lock);
 
 	/* signals */
 	void (* value_changed)                          (GstCameraControl *control, GstCameraControlChannel *channel, gint value);
@@ -450,8 +463,13 @@ gboolean	gst_camera_control_get_basic_dev_info   (GstCameraControl *control, gin
 gboolean	gst_camera_control_get_misc_dev_info    (GstCameraControl *control, gint dev_id, GstCameraControlCtrlListInfoType *info);
 gboolean	gst_camera_control_get_extra_dev_info   (GstCameraControl *control, gint dev_id, GstCameraControlExtraInfoType *info);
 void		gst_camera_control_set_capture_command  (GstCameraControl *control, GstCameraControlCaptureCommand cmd);
+void		gst_camera_control_set_record_command   (GstCameraControl *control, GstCameraControlRecordCommand cmd);
 gboolean	gst_camera_control_start_face_zoom      (GstCameraControl *control, gint x, gint y, gint zoom_level);
 gboolean	gst_camera_control_stop_face_zoom       (GstCameraControl *control);
+gboolean	gst_camera_control_set_ae_lock          (GstCameraControl *control, gboolean lock);
+gboolean	gst_camera_control_get_ae_lock          (GstCameraControl *control, gboolean *lock);
+gboolean	gst_camera_control_set_awb_lock         (GstCameraControl *control, gboolean lock);
+gboolean	gst_camera_control_get_awb_lock         (GstCameraControl *control, gboolean *lock);
 
 
 /* trigger signal */
