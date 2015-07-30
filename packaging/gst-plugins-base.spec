@@ -44,6 +44,7 @@ BuildRequires:  pkgconfig(zlib)
 BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libtbm)
 BuildRequires:  pkgconfig(mm-ta)
+BuildRequires:  pkgconfig(mm-common)
 Requires:       gstreamer >= 1.0.0
 Supplements:    gstreamer
 

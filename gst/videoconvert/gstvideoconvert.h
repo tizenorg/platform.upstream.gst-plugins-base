@@ -48,6 +48,7 @@ struct _GstVideoConvert {
   GstVideoFilter element;
 
   VideoConvert *convert;
+  GstBufferPool *tbm_buffer_pool;
   gboolean dither;
 };
 

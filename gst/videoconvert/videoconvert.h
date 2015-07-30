@@ -23,6 +23,13 @@
 #include <gst/video/video.h>
 #include "gstcms.h"
 
+#ifdef USE_TBM_BUFFER
+#include <mm_types.h>
+#include <tbm_type.h>
+#include <tbm_surface.h>
+#include <tbm_bufmgr.h>
+#endif
+
 G_BEGIN_DECLS
 
 typedef struct _VideoConvert VideoConvert;

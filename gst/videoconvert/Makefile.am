@@ -3,19 +3,25 @@ plugin_LTLIBRARIES = libgstvideoconvert.la
 ORC_SOURCE=gstvideoconvertorc
 include $(top_srcdir)/common/orc.mak
 
-libgstvideoconvert_la_SOURCES = gstvideoconvert.c videoconvert.c gstcms.c
+libgstvideoconvert_la_SOURCES = gsttbmbufferpool.c gstvideoconvert.c videoconvert.c gstcms.c
 nodist_libgstvideoconvert_la_SOURCES = $(ORC_NODIST_SOURCES)
 libgstvideoconvert_la_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_CFLAGS) \
-	$(ORC_CFLAGS)
+	$(ORC_CFLAGS) \
+	$(MMCOMMON_CFLAGS) \
+	$(TBM_CFLAGS)
+
+libgstvideoconvert_la_CFLAGS += -DUSE_TBM_BUFFER
+
 libgstvideoconvert_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/video/libgstvideo-$(GST_API_VERSION).la \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS) \
 	$(ORC_LIBS) \
-	$(LIBM)
-libgstvideoconvert_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+	$(LIBM) \
+	$(TBM_LIBS)
+libgstvideoconvert_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(TBM_LDFLAGS)
 libgstvideoconvert_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 
 noinst_HEADERS = gstvideoconvert.h videoconvert.h gstcms.h
