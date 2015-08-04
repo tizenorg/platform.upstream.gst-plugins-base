@@ -15,6 +15,8 @@
 #include <tbm_bufmgr.h>
 #endif
 
+#define ALIGN(x, a)       (((x) + (a) - 1) & ~((a) - 1))
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
 
 typedef struct _GstMMVideoMemory                GstMMVideoMemory;
 typedef struct _GstMMVideoMemoryAllocator       GstMMVideoMemoryAllocator;

@@ -3,28 +3,29 @@ plugin_LTLIBRARIES = libgstvideoconvert.la
 ORC_SOURCE=gstvideoconvertorc
 include $(top_srcdir)/common/orc.mak
 
-libgstvideoconvert_la_SOURCES = gsttbmbufferpool.c gstvideoconvert.c videoconvert.c gstcms.c
+libgstvideoconvert_la_SOURCES = gstvideoconvert.c videoconvert.c gstcms.c
 nodist_libgstvideoconvert_la_SOURCES = $(ORC_NODIST_SOURCES)
 libgstvideoconvert_la_CFLAGS = \
 	$(GST_PLUGINS_BASE_CFLAGS) \
 	$(GST_CFLAGS) \
-	$(ORC_CFLAGS) \
-	$(MMCOMMON_CFLAGS) \
-	$(TBM_CFLAGS)
-
-libgstvideoconvert_la_CFLAGS += -DUSE_TBM_BUFFER
+	$(ORC_CFLAGS)
 
 libgstvideoconvert_la_LIBADD = \
 	$(top_builddir)/gst-libs/gst/video/libgstvideo-$(GST_API_VERSION).la \
 	$(GST_BASE_LIBS) \
 	$(GST_LIBS) \
-	$(ORC_LIBS) \
-	$(LIBM) \
-	$(TBM_LIBS)
-libgstvideoconvert_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) $(TBM_LDFLAGS)
+	$(ORC_LIBS)
+libgstvideoconvert_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstvideoconvert_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 
 noinst_HEADERS = gstvideoconvert.h videoconvert.h gstcms.h
+
+if BOARD_USE_TBM_BUF
+libgstvideoconvert_la_SOURCES += gsttbmbufferpool.c
+libgstvideoconvert_la_CFLAGS += -DUSE_TBM_BUFFER $(MMCOMMON_CFLAGS) $(TBM_CFLAGS)
+libgstvideoconvert_la_LIBADD += $(TBM_LIBS) $(MM_COMMON_LIBS)
+libgstvideoconvert_la_LDFLAGS += $(TBM_LDFLAGS) $(MM_COMMON_LDFLAGS)
+endif
 
 Android.mk: Makefile.am $(BUILT_SOURCES)
 	androgenizer \
