@@ -492,6 +492,12 @@ gst_video_convert_finalize (GObject * obj)
     videoconvert_convert_free (space->convert);
   }
 
+  if(space->tbm_buffer_pool) {
+     gst_buffer_pool_set_active (space->tbm_buffer_pool, FALSE);
+     gst_object_unref (space->tbm_buffer_pool);
+     space->tbm_buffer_pool = NULL;
+  }
+
   G_OBJECT_CLASS (parent_class)->finalize (obj);
 }
 
@@ -548,6 +554,7 @@ gst_video_convert_class_init (GstVideoConvertClass * klass)
 static void
 gst_video_convert_init (GstVideoConvert * space)
 {
+  space->tbm_buffer_pool = NULL;
 }
 
 void
@@ -638,7 +645,7 @@ gst_video_convert_decide_allocation (GstBaseTransform * trans,
           if(vc->tbm_buffer_pool == NULL) {
               min = 8;
               max = 11;
-              GST_ERROR("[%s]CREATING VIDEO_BUFFER_POOL",__FUNCTION__);
+              GST_DEBUG("[%s]CREATING VIDEO_BUFFER_POOL",__FUNCTION__);
               vc->tbm_buffer_pool = gst_mm_buffer_pool_new(trans);
           }
           config = gst_buffer_pool_get_config (vc->tbm_buffer_pool);
@@ -658,7 +665,7 @@ gst_video_convert_decide_allocation (GstBaseTransform * trans,
 
           gst_buffer_pool_set_active(vc->tbm_buffer_pool,TRUE);
 
-          GST_ERROR("[%s]BUFFER_POOL max:[%d], min:[%d]",__FUNCTION__, max, min);
+          GST_DEBUG("[%s]BUFFER_POOL max:[%d], min:[%d]",__FUNCTION__, max, min);
   }
   return GST_BASE_TRANSFORM_CLASS (parent_class)->decide_allocation (trans, query);
 
@@ -676,7 +683,7 @@ gst_video_convert_prepare_output_buffer (GstBaseTransform * trans,
 
   if(filter->out_info.finfo->format == GST_VIDEO_FORMAT_SN12 ) {
       if(gst_buffer_pool_acquire_buffer(vc->tbm_buffer_pool,outbuf,0) != GST_FLOW_OK) {
-        GST_ERROR("[%s] memory prepared failed.",__FUNCTION__);
+        GST_ERROR("[%s] memory prepare failed.",__FUNCTION__);
         return GST_FLOW_ERROR;
       }
       return GST_FLOW_OK;
