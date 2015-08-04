@@ -2,6 +2,28 @@
 #include "gsttbmbufferpool.h"
 #include <gst/video/gstvideofilter.h>
 
+
+int calc_yplane(int width, int height)
+{
+    int mbX, mbY;
+
+    mbX = DIV_ROUND_UP(width, 16);
+    mbY = DIV_ROUND_UP(height, 16);
+
+    return (ALIGN((mbX * mbY) * 256, 256) + 256);
+}
+
+int calc_uvplane(int width, int height)
+{
+    int mbX, mbY;
+
+    mbX = DIV_ROUND_UP(width, 16);
+    mbY = DIV_ROUND_UP(height, 16);
+
+    return (ALIGN((mbX * mbY) * 128, 256) + 128);
+}
+
+
 static GstMemory *
 gst_mm_memory_allocator_alloc_dummy (GstAllocator * allocator, gsize size,
     GstAllocationParams * params)
@@ -236,11 +258,14 @@ gst_mm_buffer_pool_alloc_buffer (GstBufferPool * bpool,
     mm_video_buf->type = MM_VIDEO_BUFFER_TYPE_TBM_BO;
     mm_video_buf->plane_num = 2;
     /* Setting Y plane size */
-    mm_video_buf->size[0] = width * height;
+    mm_video_buf->size[0] = calc_yplane(width, height);
     /* Setting UV plane size */
-    mm_video_buf->size[1] = (width * height) >> 1;
+    mm_video_buf->size[1] = calc_uvplane(width, height);
     mm_video_buf->handle.bo[0] = tbm_bo_alloc(pool->hTBMBufMgr, mm_video_buf->size[0], TBM_BO_WC);
     mm_video_buf->handle.bo[1] = tbm_bo_alloc(pool->hTBMBufMgr, mm_video_buf->size[1], TBM_BO_WC);
+
+    mm_video_buf->handle.dmabuf_fd[0] = (tbm_bo_get_handle(mm_video_buf->handle.bo[0], TBM_DEVICE_MM)).u32;
+    mm_video_buf->handle.dmabuf_fd[1] = (tbm_bo_get_handle(mm_video_buf->handle.bo[1], TBM_DEVICE_MM)).u32;
 
     mm_video_buf->handle.paddr[0] = (tbm_bo_map(mm_video_buf->handle.bo[0], TBM_DEVICE_CPU,TBM_OPTION_WRITE)).ptr;
     mm_video_buf->handle.paddr[1] = (tbm_bo_map(mm_video_buf->handle.bo[1], TBM_DEVICE_CPU,TBM_OPTION_WRITE)).ptr;

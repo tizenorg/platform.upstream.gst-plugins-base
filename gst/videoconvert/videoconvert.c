@@ -810,7 +810,6 @@ convert_I420_SN12 (VideoConvert * convert, GstVideoFrame * dest,
   gint height = convert->height;
 
   if(gst_buffer_n_memory(dest->buffer) >= 2) {
-      GST_DEBUG("[%s] Retrieving GstMemory at position 1.",__FUNCTION__);
       GstMapInfo map_info = GST_MAP_INFO_INIT;
       mem = gst_buffer_peek_memory (dest->buffer, 1);
       if (mem != NULL) {
@@ -829,7 +828,6 @@ convert_I420_SN12 (VideoConvert * convert, GstVideoFrame * dest,
   mY = mm_video_buf->handle.paddr[0];
   mUV = mm_video_buf->handle.paddr[1];
 
-  GST_DEBUG(" Addr Y:[%p] UV:[%p]",mY,mUV);
   for (int i = 0; i < GST_ROUND_DOWN_2 (height); i += 2) {
     GET_LINE_OFFSETS (interlaced, i, l1, l2);
 
@@ -848,7 +846,6 @@ convert_I420_SN12 (VideoConvert * convert, GstVideoFrame * dest,
     }
   }
 
-  GST_ERROR("RETURNING [%s]",__FUNCTION__);
 }
 
 static void
