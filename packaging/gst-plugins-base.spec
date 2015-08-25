@@ -77,6 +77,7 @@ export V=1
 NOCONFIGURE=1 ./autogen.sh
 export CFLAGS="%{optflags} -fno-strict-aliasing\
  %ifarch %{arm}
+ -DGST_EXT_AUDIODECODER_MODIFICATION\
  -DGST_EXT_XV_ENHANCEMENT\
  -DGST_EXT_LINK_FIMCCONVERT\
  -DGST_EXT_MIME_TYPES

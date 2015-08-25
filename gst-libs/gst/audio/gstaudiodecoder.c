@@ -2070,8 +2070,12 @@ gst_audio_decoder_sink_eventfunc (GstAudioDecoder * dec, GstEvent * event)
         } else {
           GST_DEBUG_OBJECT (dec, "unsupported format; ignoring");
           GST_AUDIO_DECODER_STREAM_UNLOCK (dec);
+#ifdef GST_EXT_AUDIODECODER_MODIFICATION
+          goto newseg_wrong_format;
+#else
           gst_event_unref (event);
           ret = FALSE;
+#endif
           break;
         }
       }
@@ -2172,6 +2176,16 @@ gst_audio_decoder_sink_eventfunc (GstAudioDecoder * dec, GstEvent * event)
       break;
   }
   return ret;
+
+#ifdef GST_EXT_AUDIODECODER_MODIFICATION
+newseg_wrong_format:
+  {
+    GST_DEBUG_OBJECT (dec, "received non TIME newsegment");
+    gst_event_unref (event);
+    /* SWALLOW EVENT */
+    return TRUE;
+  }
+#endif
 }
 
 static gboolean
