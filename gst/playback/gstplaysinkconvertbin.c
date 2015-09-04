@@ -32,7 +32,7 @@ GST_DEBUG_CATEGORY_STATIC (gst_play_sink_convert_bin_debug);
 
 #define parent_class gst_play_sink_convert_bin_parent_class
 
-static gboolean gst_play_sink_convert_bin_sink_setcaps (GstPlaySinkConvertBin *
+static void gst_play_sink_convert_bin_sink_setcaps (GstPlaySinkConvertBin *
     self, GstCaps * caps);
 
 G_DEFINE_TYPE (GstPlaySinkConvertBin, gst_play_sink_convert_bin, GST_TYPE_BIN);
@@ -250,7 +250,7 @@ gst_play_sink_convert_bin_sink_event (GstPad * pad, GstObject * parent,
       GstCaps *caps;
 
       gst_event_parse_caps (event, &caps);
-      ret = gst_play_sink_convert_bin_sink_setcaps (self, caps);
+      gst_play_sink_convert_bin_sink_setcaps (self, caps);
       break;
     }
     default:
@@ -283,7 +283,7 @@ unblock_proxypad (GstPlaySinkConvertBin * self)
   }
 }
 
-static gboolean
+static void
 gst_play_sink_convert_bin_sink_setcaps (GstPlaySinkConvertBin * self,
     GstCaps * caps)
 {
@@ -292,7 +292,8 @@ gst_play_sink_convert_bin_sink_setcaps (GstPlaySinkConvertBin * self,
   gboolean reconfigure = FALSE;
   gboolean raw;
 
-  GST_DEBUG_OBJECT (self, "setcaps");
+  GST_DEBUG_OBJECT (self, "Setting sink caps %" GST_PTR_FORMAT, caps);
+
   GST_PLAY_SINK_CONVERT_BIN_LOCK (self);
   s = gst_caps_get_structure (caps, 0);
   name = gst_structure_get_name (s);
@@ -338,10 +339,6 @@ gst_play_sink_convert_bin_sink_setcaps (GstPlaySinkConvertBin * self,
   }
 
   GST_PLAY_SINK_CONVERT_BIN_UNLOCK (self);
-
-  GST_DEBUG_OBJECT (self, "Setting sink caps %" GST_PTR_FORMAT, caps);
-
-  return TRUE;
 }
 
 #define GST_PLAY_SINK_CONVERT_BIN_FILTER_CAPS(filter,caps) G_STMT_START {     \
@@ -460,35 +457,12 @@ gst_play_sink_convert_bin_getcaps (GstPad * pad, GstCaps * filter)
 }
 
 static gboolean
-gst_play_sink_convert_bin_acceptcaps (GstPad * pad, GstCaps * caps)
-{
-  GstCaps *allowed_caps;
-  gboolean ret;
-
-  allowed_caps = gst_pad_query_caps (pad, NULL);
-  ret = gst_caps_is_subset (caps, allowed_caps);
-  gst_caps_unref (allowed_caps);
-
-  return ret;
-}
-
-static gboolean
 gst_play_sink_convert_bin_query (GstPad * pad, GstObject * parent,
     GstQuery * query)
 {
   gboolean res = FALSE;
 
   switch (GST_QUERY_TYPE (query)) {
-    case GST_QUERY_ACCEPT_CAPS:
-    {
-      GstCaps *caps;
-
-      gst_query_parse_accept_caps (query, &caps);
-      gst_query_set_accept_caps_result (query,
-          gst_play_sink_convert_bin_acceptcaps (pad, caps));
-      res = TRUE;
-      break;
-    }
     case GST_QUERY_CAPS:
     {
       GstCaps *filter, *caps;

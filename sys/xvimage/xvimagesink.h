@@ -1,6 +1,5 @@
 /* GStreamer
  * Copyright (C) <2005> Julien Moutte <julien@moutte.net>
- * Copyright (C) 2012, 2013 Samsung Electronics Co., Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -16,15 +15,10 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA 02110-1301, USA.
- *
- * Modifications by Samsung Electronics Co., Ltd.
- * 1. Add display related properties
- * 2. Support samsung extension format to improve performance
- * 3. Support video texture overlay of OSP layer
  */
 
-#ifndef __GST_XVIMAGESINK_H__
-#define __GST_XVIMAGESINK_H__
+#ifndef __GST_XV_IMAGE_SINK_H__
+#define __GST_XV_IMAGE_SINK_H__
 
 #include <gst/video/gstvideosink.h>
 
@@ -32,31 +26,16 @@
 #include <gst/video/video.h>
 
 G_BEGIN_DECLS
-#define GST_TYPE_XVIMAGESINK \
-  (gst_xvimagesink_get_type())
-#define GST_XVIMAGESINK(obj) \
-  (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_XVIMAGESINK, GstXvImageSink))
-#define GST_XVIMAGESINK_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_CAST((klass), GST_TYPE_XVIMAGESINK, GstXvImageSinkClass))
-#define GST_IS_XVIMAGESINK(obj) \
-  (G_TYPE_CHECK_INSTANCE_TYPE((obj), GST_TYPE_XVIMAGESINK))
-#define GST_IS_XVIMAGESINK_CLASS(klass) \
-  (G_TYPE_CHECK_CLASS_TYPE((klass), GST_TYPE_XVIMAGESINK))
-
-#ifdef GST_EXT_XV_ENHANCEMENT
-#define XV_SCREEN_SIZE_WIDTH 4096
-#define XV_SCREEN_SIZE_HEIGHT 4096
-
-#define MAX_PIXMAP_NUM 10
-typedef unsigned int (*get_pixmap_callback)(void *user_data);
-typedef struct _GstXPixmap GstXPixmap;
-
-#if 0
-/* concering PROP_STOP_VIDEO property.
-   Stop video for releasing video source buffer*/
-#define ENABLE_STOP_VIDEO
-#endif
-#endif /* GST_EXT_XV_ENHANCEMENT */
+#define GST_TYPE_XV_IMAGE_SINK \
+  (gst_xv_image_sink_get_type())
+#define GST_XV_IMAGE_SINK(obj) \
+  (G_TYPE_CHECK_INSTANCE_CAST((obj), GST_TYPE_XV_IMAGE_SINK, GstXvImageSink))
+#define GST_XV_IMAGE_SINK_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_CAST((klass), GST_TYPE_XV_IMAGE_SINK, GstXvImageSinkClass))
+#define GST_IS_XV_IMAGE_SINK(obj) \
+  (G_TYPE_CHECK_INSTANCE_TYPE((obj), GST_TYPE_XV_IMAGE_SINK))
+#define GST_IS_XV_IMAGE_SINK_CLASS(klass) \
+  (G_TYPE_CHECK_CLASS_TYPE((klass), GST_TYPE_XV_IMAGE_SINK))
 
 typedef struct _GstXvImageSink GstXvImageSink;
 typedef struct _GstXvImageSinkClass GstXvImageSinkClass;
@@ -64,13 +43,6 @@ typedef struct _GstXvImageSinkClass GstXvImageSinkClass;
 #include "xvimageallocator.h"
 #include "xvimagepool.h"
 #include "xvcontext.h"
-
-struct _GstXPixmap {
-	Window pixmap;
-	gint x, y;
-	gint width, height;
-	GC gc;
-};
 
 /**
  * GstXvImageSink:
@@ -148,35 +120,6 @@ struct _GstXvImageSink
 
   /* stream metadata */
   gchar *media_title;
-#ifdef GST_EXT_XV_ENHANCEMENT
-  gboolean xid_updated;
-  guint display_geometry_method;
-  guint flip;
-  guint rotate_angle;
-  gboolean visible;
-  gfloat zoom;
-  guint zoom_pos_x;
-  guint zoom_pos_y;
-  guint orientation;
-  guint dst_roi_mode;
-  GstVideoRectangle dst_roi;
-
-  /* zero copy format */
-  gboolean is_zero_copy_format;
-
-  /* secure contents path */
-  gboolean is_secure_path;
-
-  GstXPixmap *xpixmap[MAX_PIXMAP_NUM];
-  gint current_pixmap_idx;
-  get_pixmap_callback get_pixmap_cb;
-  void *get_pixmap_cb_user_data;
-
-#ifdef ENABLE_STOP_VIDEO
-  gboolean stop_video;
-#endif
-
-#endif /* GST_EXT_XV_ENHANCEMENT */
 };
 
 struct _GstXvImageSinkClass
@@ -184,7 +127,7 @@ struct _GstXvImageSinkClass
   GstVideoSinkClass parent_class;
 };
 
-GType gst_xvimagesink_get_type (void);
+GType gst_xv_image_sink_get_type (void);
 
 G_END_DECLS
-#endif /* __GST_XVIMAGESINK_H__ */
+#endif /* __GST_XV_IMAGE_SINK_H__ */
