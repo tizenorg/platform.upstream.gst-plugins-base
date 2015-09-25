@@ -1,5 +1,0 @@
-EXPORTS
-	gst_dmabuf_allocator_alloc
-	gst_dmabuf_allocator_new
-	gst_dmabuf_memory_get_fd
-	gst_is_dmabuf_memory

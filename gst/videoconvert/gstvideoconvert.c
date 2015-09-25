@@ -3,7 +3,6 @@
  * This file:
  * Copyright (C) 2003 Ronald Bultje <rbultje@ronald.bitfreak.net>
  * Copyright (C) 2010 David Schleef <ds@schleef.org>
- * Copyright (C) 2012, 2013 Samsung Electronics Co., Ltd.
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -19,9 +18,6 @@
  * License along with this library; if not, write to the
  * Free Software Foundation, Inc., 51 Franklin St, Fifth Floor,
  * Boston, MA 02110-1301, USA.
- *
- * Modifications by Samsung Electronics Co., Ltd.
- * 1. Support samsung extension format
  */
 
 /**
@@ -32,8 +28,10 @@
  * <refsect2>
  * <title>Example launch line</title>
  * |[
- * gst-launch -v videotestsrc ! video/x-raw,format=\(string\)YUY2 ! videoconvert ! ximagesink
- * ]|
+ * gst-launch-1.0 -v videotestsrc ! video/x-raw,format=YUY2 ! videoconvert ! autovideosink
+ * ]| This will output a test video (generated in YUY2 format) in a video
+ * window. If the video sink selected does not support YUY2 videoconvert will
+ * automatically convert the video to a format understood by the video sink.
  * </refsect2>
  */
 
@@ -46,11 +44,6 @@
 #include <gst/video/video.h>
 #include <gst/video/gstvideometa.h>
 #include <gst/video/gstvideopool.h>
-
-#ifdef USE_TBM_BUFFER
-#include <mm_types.h>
-#include "gsttbmbufferpool.h"
-#endif
 
 #include <string.h>
 
@@ -65,27 +58,38 @@ static GQuark _colorspace_quark;
 #define gst_video_convert_parent_class parent_class
 G_DEFINE_TYPE (GstVideoConvert, gst_video_convert, GST_TYPE_VIDEO_FILTER);
 
+#define DEFAULT_PROP_DITHER      GST_VIDEO_DITHER_BAYER
+#define DEFAULT_PROP_DITHER_QUANTIZATION 1
+#define DEFAULT_PROP_CHROMA_RESAMPLER	GST_VIDEO_RESAMPLER_METHOD_LINEAR
+#define DEFAULT_PROP_ALPHA_MODE GST_VIDEO_ALPHA_MODE_COPY
+#define DEFAULT_PROP_ALPHA_VALUE 1.0
+#define DEFAULT_PROP_CHROMA_MODE GST_VIDEO_CHROMA_MODE_FULL
+#define DEFAULT_PROP_MATRIX_MODE GST_VIDEO_MATRIX_MODE_FULL
+#define DEFAULT_PROP_GAMMA_MODE GST_VIDEO_GAMMA_MODE_NONE
+#define DEFAULT_PROP_PRIMARIES_MODE GST_VIDEO_PRIMARIES_MODE_NONE
+
 enum
 {
   PROP_0,
-  PROP_DITHER
+  PROP_DITHER,
+  PROP_DITHER_QUANTIZATION,
+  PROP_CHROMA_RESAMPLER,
+  PROP_ALPHA_MODE,
+  PROP_ALPHA_VALUE,
+  PROP_CHROMA_MODE,
+  PROP_MATRIX_MODE,
+  PROP_GAMMA_MODE,
+  PROP_PRIMARIES_MODE
 };
 
 #define CSP_VIDEO_CAPS GST_VIDEO_CAPS_MAKE (GST_VIDEO_FORMATS_ALL) ";" \
-    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", GST_VIDEO_FORMATS_ALL) ";" \
-    GST_VIDEO_CAPS_MAKE("{ SUYV , SYVY , S420 , ITLV }") ";" \
-    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", "{ SUYV , SYVY , S420 , ITLV }")
-
-#define CSP_VIDEO_SRC_CAPS GST_VIDEO_CAPS_MAKE (GST_VIDEO_FORMATS_ALL) ";" \
-    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", GST_VIDEO_FORMATS_ALL) ";" \
-    GST_VIDEO_CAPS_MAKE("{ SUYV , SYVY , S420 , ITLV , SN12 }") ";" \
-    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", "{ SUYV , SYVY , S420 , ITLV , SN12 }")
+    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", GST_VIDEO_FORMATS_ALL)
 
 static GstStaticPadTemplate gst_video_convert_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (CSP_VIDEO_SRC_CAPS)
+    GST_STATIC_CAPS (CSP_VIDEO_CAPS)
     );
 
 static GstStaticPadTemplate gst_video_convert_sink_template =
@@ -105,31 +109,6 @@ static gboolean gst_video_convert_set_info (GstVideoFilter * filter,
     GstVideoInfo * out_info);
 static GstFlowReturn gst_video_convert_transform_frame (GstVideoFilter * filter,
     GstVideoFrame * in_frame, GstVideoFrame * out_frame);
-
-#ifdef USE_TBM_BUFFER
-static gboolean gst_video_convert_decide_allocation (GstBaseTransform * bsrc,
-    GstQuery * query);
-static GstFlowReturn gst_video_convert_prepare_output_buffer (GstBaseTransform * trans,
-    GstBuffer *input, GstBuffer **outbuf);
-#endif
-
-static GType
-dither_method_get_type (void)
-{
-  static GType gtype = 0;
-
-  if (gtype == 0) {
-    static const GEnumValue values[] = {
-      {DITHER_NONE, "No dithering (default)", "none"},
-      {DITHER_VERTERR, "Vertical error propogation", "verterr"},
-      {DITHER_HALFTONE, "Half-tone", "halftone"},
-      {0, NULL, NULL}
-    };
-
-    gtype = g_enum_register_static ("GstVideoConvertDitherMethod", values);
-  }
-  return gtype;
-}
 
 /* copies the given caps */
 static GstCaps *
@@ -376,6 +355,12 @@ gst_video_convert_fixate_caps (GstBaseTransform * trans,
   /* fixate remaining fields */
   result = gst_caps_fixate (result);
 
+  if (direction == GST_PAD_SINK) {
+    if (gst_caps_is_subset (caps, result)) {
+      gst_caps_replace (&result, caps);
+    }
+  }
+
   return result;
 }
 
@@ -442,7 +427,7 @@ gst_video_convert_set_info (GstVideoFilter * filter,
   space = GST_VIDEO_CONVERT_CAST (filter);
 
   if (space->convert) {
-    videoconvert_convert_free (space->convert);
+    gst_video_converter_free (space->convert);
     space->convert = NULL;
   }
 
@@ -459,7 +444,27 @@ gst_video_convert_set_info (GstVideoFilter * filter,
   if (in_info->interlace_mode != out_info->interlace_mode)
     goto format_mismatch;
 
-  space->convert = videoconvert_convert_new (in_info, out_info);
+
+  space->convert = gst_video_converter_new (in_info, out_info,
+      gst_structure_new ("GstVideoConvertConfig",
+          GST_VIDEO_CONVERTER_OPT_DITHER_METHOD, GST_TYPE_VIDEO_DITHER_METHOD,
+          space->dither,
+          GST_VIDEO_CONVERTER_OPT_DITHER_QUANTIZATION, G_TYPE_UINT,
+          space->dither_quantization,
+          GST_VIDEO_CONVERTER_OPT_CHROMA_RESAMPLER_METHOD,
+          GST_TYPE_VIDEO_RESAMPLER_METHOD, space->chroma_resampler,
+          GST_VIDEO_CONVERTER_OPT_ALPHA_MODE,
+          GST_TYPE_VIDEO_ALPHA_MODE, space->alpha_mode,
+          GST_VIDEO_CONVERTER_OPT_ALPHA_VALUE,
+          G_TYPE_DOUBLE, space->alpha_value,
+          GST_VIDEO_CONVERTER_OPT_CHROMA_MODE,
+          GST_TYPE_VIDEO_CHROMA_MODE, space->chroma_mode,
+          GST_VIDEO_CONVERTER_OPT_MATRIX_MODE,
+          GST_TYPE_VIDEO_MATRIX_MODE, space->matrix_mode,
+          GST_VIDEO_CONVERTER_OPT_GAMMA_MODE,
+          GST_TYPE_VIDEO_GAMMA_MODE, space->gamma_mode,
+          GST_VIDEO_CONVERTER_OPT_PRIMARIES_MODE,
+          GST_TYPE_VIDEO_PRIMARIES_MODE, space->primaries_mode, NULL));
   if (space->convert == NULL)
     goto no_convert;
 
@@ -487,15 +492,9 @@ gst_video_convert_finalize (GObject * obj)
   GstVideoConvert *space = GST_VIDEO_CONVERT (obj);
 
   if (space->convert) {
-    videoconvert_convert_free (space->convert);
+    gst_video_converter_free (space->convert);
   }
-#ifdef USE_TBM_BUFFER
-  if(space->tbm_buffer_pool) {
-     gst_buffer_pool_set_active (space->tbm_buffer_pool, FALSE);
-     gst_object_unref (space->tbm_buffer_pool);
-     space->tbm_buffer_pool = NULL;
-  }
-#endif
+
   G_OBJECT_CLASS (parent_class)->finalize (obj);
 }
 
@@ -520,7 +519,7 @@ gst_video_convert_class_init (GstVideoConvertClass * klass)
   gst_element_class_set_static_metadata (gstelement_class,
       "Colorspace converter", "Filter/Converter/Video",
       "Converts video from one colorspace to another",
-      "GStreamer maintainers <gstreamer-devel@lists.sourceforge.net>");
+      "GStreamer maintainers <gstreamer-devel@lists.freedesktop.org>");
 
   gstbasetransform_class->transform_caps =
       GST_DEBUG_FUNCPTR (gst_video_convert_transform_caps);
@@ -538,23 +537,59 @@ gst_video_convert_class_init (GstVideoConvertClass * klass)
   gstvideofilter_class->transform_frame =
       GST_DEBUG_FUNCPTR (gst_video_convert_transform_frame);
 
-#ifdef USE_TBM_BUFFER
-  gstbasetransform_class->decide_allocation = gst_video_convert_decide_allocation;
-  gstbasetransform_class->prepare_output_buffer = gst_video_convert_prepare_output_buffer;
-#endif
-
   g_object_class_install_property (gobject_class, PROP_DITHER,
       g_param_spec_enum ("dither", "Dither", "Apply dithering while converting",
-          dither_method_get_type (), DITHER_NONE,
+          gst_video_dither_method_get_type (), DEFAULT_PROP_DITHER,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_DITHER_QUANTIZATION,
+      g_param_spec_uint ("dither-quantization", "Dither Quantize",
+          "Quantizer to use", 0, G_MAXUINT, DEFAULT_PROP_DITHER_QUANTIZATION,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_CHROMA_RESAMPLER,
+      g_param_spec_enum ("chroma-resampler", "Chroma resampler",
+          "Chroma resampler method", gst_video_resampler_method_get_type (),
+          DEFAULT_PROP_CHROMA_RESAMPLER,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_ALPHA_MODE,
+      g_param_spec_enum ("alpha-mode", "Alpha Mode",
+          "Alpha Mode to use", gst_video_alpha_mode_get_type (),
+          DEFAULT_PROP_ALPHA_MODE, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_ALPHA_VALUE,
+      g_param_spec_double ("alpha-value", "Alpha Value",
+          "Alpha Value to use", 0.0, 1.0,
+          DEFAULT_PROP_ALPHA_VALUE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_CHROMA_MODE,
+      g_param_spec_enum ("chroma-mode", "Chroma Mode", "Chroma Resampling Mode",
+          gst_video_chroma_mode_get_type (), DEFAULT_PROP_CHROMA_MODE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_MATRIX_MODE,
+      g_param_spec_enum ("matrix-mode", "Matrix Mode", "Matrix Conversion Mode",
+          gst_video_matrix_mode_get_type (), DEFAULT_PROP_MATRIX_MODE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_GAMMA_MODE,
+      g_param_spec_enum ("gamma-mode", "Gamma Mode", "Gamma Conversion Mode",
+          gst_video_gamma_mode_get_type (), DEFAULT_PROP_GAMMA_MODE,
+          G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+  g_object_class_install_property (gobject_class, PROP_PRIMARIES_MODE,
+      g_param_spec_enum ("primaries-mode", "Primaries Mode",
+          "Primaries Conversion Mode", gst_video_primaries_mode_get_type (),
+          DEFAULT_PROP_PRIMARIES_MODE,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
 
 static void
 gst_video_convert_init (GstVideoConvert * space)
 {
-#ifdef USE_TBM_BUFFER
-  space->tbm_buffer_pool = NULL;
-#endif
+  space->dither = DEFAULT_PROP_DITHER;
+  space->dither_quantization = DEFAULT_PROP_DITHER_QUANTIZATION;
+  space->chroma_resampler = DEFAULT_PROP_CHROMA_RESAMPLER;
+  space->alpha_mode = DEFAULT_PROP_ALPHA_MODE;
+  space->alpha_value = DEFAULT_PROP_ALPHA_VALUE;
+  space->chroma_mode = DEFAULT_PROP_CHROMA_MODE;
+  space->matrix_mode = DEFAULT_PROP_MATRIX_MODE;
+  space->gamma_mode = DEFAULT_PROP_GAMMA_MODE;
+  space->primaries_mode = DEFAULT_PROP_PRIMARIES_MODE;
 }
 
 void
@@ -568,6 +603,30 @@ gst_video_convert_set_property (GObject * object, guint property_id,
   switch (property_id) {
     case PROP_DITHER:
       csp->dither = g_value_get_enum (value);
+      break;
+    case PROP_CHROMA_RESAMPLER:
+      csp->chroma_resampler = g_value_get_enum (value);
+      break;
+    case PROP_ALPHA_MODE:
+      csp->alpha_mode = g_value_get_enum (value);
+      break;
+    case PROP_ALPHA_VALUE:
+      csp->alpha_value = g_value_get_double (value);
+      break;
+    case PROP_CHROMA_MODE:
+      csp->chroma_mode = g_value_get_enum (value);
+      break;
+    case PROP_MATRIX_MODE:
+      csp->matrix_mode = g_value_get_enum (value);
+      break;
+    case PROP_GAMMA_MODE:
+      csp->gamma_mode = g_value_get_enum (value);
+      break;
+    case PROP_PRIMARIES_MODE:
+      csp->primaries_mode = g_value_get_enum (value);
+      break;
+    case PROP_DITHER_QUANTIZATION:
+      csp->dither_quantization = g_value_get_uint (value);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -586,6 +645,30 @@ gst_video_convert_get_property (GObject * object, guint property_id,
   switch (property_id) {
     case PROP_DITHER:
       g_value_set_enum (value, csp->dither);
+      break;
+    case PROP_CHROMA_RESAMPLER:
+      g_value_set_enum (value, csp->chroma_resampler);
+      break;
+    case PROP_ALPHA_MODE:
+      g_value_set_enum (value, csp->alpha_mode);
+      break;
+    case PROP_ALPHA_VALUE:
+      g_value_set_double (value, csp->alpha_value);
+      break;
+    case PROP_CHROMA_MODE:
+      g_value_set_enum (value, csp->chroma_mode);
+      break;
+    case PROP_MATRIX_MODE:
+      g_value_set_enum (value, csp->matrix_mode);
+      break;
+    case PROP_GAMMA_MODE:
+      g_value_set_enum (value, csp->gamma_mode);
+      break;
+    case PROP_PRIMARIES_MODE:
+      g_value_set_enum (value, csp->primaries_mode);
+      break;
+    case PROP_DITHER_QUANTIZATION:
+      g_value_set_uint (value, csp->dither_quantization);
       break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
@@ -606,91 +689,10 @@ gst_video_convert_transform_frame (GstVideoFilter * filter,
       GST_VIDEO_INFO_NAME (&filter->in_info),
       GST_VIDEO_INFO_NAME (&filter->out_info));
 
-  videoconvert_convert_set_dither (space->convert, space->dither);
-
-  videoconvert_convert_convert (space->convert, out_frame, in_frame);
+  gst_video_converter_frame (space->convert, in_frame, out_frame);
 
   return GST_FLOW_OK;
 }
-
-#ifdef USE_TBM_BUFFER
-
-static gboolean
-gst_video_convert_decide_allocation (GstBaseTransform * trans,
-    GstQuery * query)
-{
-
-  GstVideoConvert *vc = NULL;
-  GstVideoFilter *filter = GST_VIDEO_FILTER_CAST (trans);
-  vc = GST_VIDEO_CONVERT_CAST(trans);
-
-  if(filter->out_info.finfo->format == GST_VIDEO_FORMAT_SN12 ) {
-
-          guint size, min, max;
-          GstStructure *config;
-          GstCaps *caps = NULL;
-#if 0
-          if (gst_query_get_n_allocation_pools (query) > 0) {
-              gst_query_parse_nth_allocation_pool (query, 0, &vc->tbm_buffer_pool, &size, &min, &max);
-
-              /* adjust size */
-              size = MAX (size, sizeof(MMVideoBuffer));
-
-          } else {
-              vc->tbm_buffer_pool = NULL;
-              min = max = 0;
-          }
-#endif
-          size = sizeof(MMVideoBuffer);
-          if(vc->tbm_buffer_pool == NULL) {
-              min = 8;
-              max = 11;
-              GST_DEBUG("[%s]CREATING VIDEO_BUFFER_POOL",__FUNCTION__);
-              vc->tbm_buffer_pool = gst_mm_buffer_pool_new(trans);
-          }
-          config = gst_buffer_pool_get_config (vc->tbm_buffer_pool);
-
-          gst_query_parse_allocation (query, &caps, NULL);
-          if (caps)
-              gst_buffer_pool_config_set_params (config, caps, size, min, max);
-
-          if (gst_query_find_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL)) {
-              gst_buffer_pool_config_add_option (config,
-                  GST_BUFFER_POOL_OPTION_VIDEO_META);
-          }
-
-          gst_buffer_pool_set_config (vc->tbm_buffer_pool, config);
-
-          gst_query_add_allocation_pool (query, vc->tbm_buffer_pool, size, min, max);
-
-          gst_buffer_pool_set_active(vc->tbm_buffer_pool,TRUE);
-
-          GST_DEBUG("[%s]BUFFER_POOL max:[%d], min:[%d]",__FUNCTION__, max, min);
-  }
-  return GST_BASE_TRANSFORM_CLASS (parent_class)->decide_allocation (trans, query);
-
-}
-
-static GstFlowReturn
-gst_video_convert_prepare_output_buffer (GstBaseTransform * trans,
-    GstBuffer *input, GstBuffer **outbuf)
-{
-  GstBuffer *out_buffer = NULL;
-  GstVideoConvert *vc = NULL;
-  GstVideoFilter *filter = GST_VIDEO_FILTER_CAST (trans);
-
-  vc = GST_VIDEO_CONVERT_CAST(trans);
-
-  if(filter->out_info.finfo->format == GST_VIDEO_FORMAT_SN12 ) {
-      if(gst_buffer_pool_acquire_buffer(vc->tbm_buffer_pool,outbuf,0) != GST_FLOW_OK) {
-        GST_ERROR("[%s] memory prepare failed.",__FUNCTION__);
-        return GST_FLOW_ERROR;
-      }
-      return GST_FLOW_OK;
-    } else
-        return GST_BASE_TRANSFORM_CLASS (parent_class)->prepare_output_buffer(trans, input, outbuf);
-}
-#endif
 
 static gboolean
 plugin_init (GstPlugin * plugin)

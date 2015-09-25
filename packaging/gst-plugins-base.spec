@@ -1,16 +1,15 @@
-%bcond_with cdparanoia
-%bcond_with x
+#%bcond_with cdparanoia
+#%bcond_with x
 %define gst_branch 1.0
 
 Name:           gst-plugins-base
-Version:        1.4.1
-Release:        7
+Version:        1.5.90
+Release:        1
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 Url:            http://gstreamer.freedesktop.org/
 Group:          Multimedia/Framework
 Source:         http://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-%{version}.tar.xz
-Source100:      common.tar.bz2
 BuildRequires:  gettext-tools
 BuildRequires:  glib2-devel >= 2.32
 BuildRequires:  gstreamer-devel >= 1.0.0
@@ -66,8 +65,7 @@ to compile and link applications that use gstreamer-plugins-base.
 
 
 %prep
-%setup -q
-%setup -q -T -D -a 100
+%setup -q -n gst-plugins-base-%{version}
 
 
 %build
@@ -75,14 +73,14 @@ to compile and link applications that use gstreamer-plugins-base.
 # Silently ignored compilation of uninstalled gtk-doc scanners without RPM_OPT_FLAGS.
 export V=1
 NOCONFIGURE=1 ./autogen.sh
-export CFLAGS="%{optflags} -fno-strict-aliasing\
- %ifarch %{arm}
- -DGST_EXT_AUDIODECODER_MODIFICATION\
- -DGST_EXT_XV_ENHANCEMENT\
- -DGST_EXT_LINK_FIMCCONVERT\
- -DGST_EXT_MIME_TYPES
- %endif
- "
+export CFLAGS="%{optflags} -fno-strict-aliasing"
+# %ifarch %{arm}
+# -DGST_EXT_AUDIODECODER_MODIFICATION\
+# -DGST_EXT_XV_ENHANCEMENT\
+# -DGST_EXT_LINK_FIMCCONVERT\
+# -DGST_EXT_MIME_TYPES
+# %endif
+# "
 %configure\
 	--disable-static\
 	--enable-experimental\
@@ -108,7 +106,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %lang_package
 
 %files
-%manifest %{name}.manifest
+#%manifest %{name}.manifest
 %defattr(-, root, root)
 %license COPYING COPYING.LIB
 %{_bindir}/gst-device-monitor-%{gst_branch}
@@ -176,7 +174,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 
 
 %files devel
-%manifest %{name}.manifest
+#%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_includedir}/gstreamer-%{gst_branch}/*
 %{_libdir}/*.so

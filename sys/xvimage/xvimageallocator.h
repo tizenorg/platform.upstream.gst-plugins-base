@@ -63,10 +63,6 @@ void                  gst_xvimage_memory_render         (GstXvImageMemory *mem,
                                                          GstXWindow *window,
                                                          GstVideoRectangle *dst_crop,
                                                          gboolean draw_border);
-#ifdef GST_EXT_XV_ENHANCEMENT
-GstBuffer *           gst_xvimage_memory_get_buffer(GstXvImageMemory *mem);
-void                  gst_xvimage_memory_set_buffer(GstXvImageMemory *mem, GstBuffer *new_buf);
-#endif /* GST_EXT_XV_ENHANCEMENT */
 
 G_END_DECLS
 

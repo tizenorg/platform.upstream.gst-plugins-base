@@ -20,14 +20,19 @@ libgstriff_@GST_API_VERSION@_la_LIBADD = \
 libgstriff_@GST_API_VERSION@_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_BASE_CFLAGS) $(GST_CFLAGS)
 libgstriff_@GST_API_VERSION@_la_LDFLAGS = $(GST_LIB_LDFLAGS) $(GST_ALL_LDFLAGS) $(GST_LT_LDFLAGS)
 
-if HAVE_INTROSPECTION
+# *** GIR DISABLED for this library ***
+# 
+# This library does not respect the type naming conventions required to be
+# usable in binded languages.
+#
+#if HAVE_INTROSPECTION
 BUILT_GIRSOURCES = GstRiff-@GST_API_VERSION@.gir
 
 gir_headers=$(patsubst %,$(srcdir)/%, $(libgstriff_@GST_API_VERSION@include_HEADERS))
 gir_sources=$(patsubst %,$(srcdir)/%, $(libgstriff_@GST_API_VERSION@_la_SOURCES))
 
 GstRiff-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstriff-@GST_API_VERSION@.la
-	$(AM_V_GEN)PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" \
+	$(AM_V_GEN)PKG_CONFIG_PATH="$(GST_PKG_CONFIG_PATH)" GI_SCANNER_DISABLE_CACHE=yes\
 		GST_PLUGIN_SYSTEM_PATH_1_0="" GST_PLUGIN_PATH_1_0="" GST_REGISTRY_UPDATE=no \
 		$(INTROSPECTION_SCANNER) -v --namespace GstRiff \
 		--nsversion=@GST_API_VERSION@ \
@@ -47,7 +52,7 @@ GstRiff-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstriff-@GST_API_VERS
 		--pkg gstreamer-tag-@GST_API_VERSION@ \
 		--pkg gstreamer-audio-@GST_API_VERSION@ \
 		--pkg-export gstreamer-riff-@GST_API_VERSION@ \
-		--add-init-section="gst_init(NULL,NULL);" \
+		--add-init-section="$(INTROSPECTION_INIT)" \
 		--output $@ \
 		$(gir_headers) \
 		$(gir_sources)
@@ -73,18 +78,4 @@ typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
 		$(INTROSPECTION_COMPILER_OPTS) $< -o $(@F)
 
 CLEANFILES = $(BUILT_GIRSOURCES) $(typelibs_DATA)
-endif
-
-Android.mk: Makefile.am
-	androgenizer -:PROJECT libgstriff -:SHARED libgstriff-@GST_API_VERSION@ \
-	 -:TAGS eng debug \
-         -:REL_TOP $(top_srcdir) -:ABS_TOP $(abs_top_srcdir) \
-	 -:SOURCES $(libgstriff_@GST_API_VERSION@_la_SOURCES) \
-	 -:CFLAGS $(DEFS) $(DEFAULT_INCLUDES) $(libgstriff_@GST_API_VERSION@_la_CFLAGS) \
-	 -:LDFLAGS $(libgstriff_@GST_API_VERSION@_la_LDFLAGS) \
-	           $(libgstriff_@GST_API_VERSION@_la_LIBADD) \
-	           -ldl \
-	 -:HEADER_TARGET gstreamer-@GST_API_VERSION@/gst/tag \
-	 -:HEADERS $(libgstriff_@GST_API_VERSION@include_HEADERS) \
-	 -:PASSTHROUGH LOCAL_ARM_MODE:=arm \
-	> $@
+#endif
