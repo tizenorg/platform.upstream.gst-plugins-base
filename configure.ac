@@ -5,7 +5,7 @@ dnl please read gstreamer/docs/random/autotools before changing this file
 dnl initialize autoconf
 dnl releases only do -Wall, git and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for git/prerelease
-AC_INIT([GStreamer Base Plug-ins],[1.5.90],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-base])
+AC_INIT([GStreamer Base Plug-ins],[1.6.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-base])
 
 AG_GST_INIT
 
@@ -56,10 +56,10 @@ dnl      1.2.5 => 205
 dnl      1.10.9 (who knows) => 1009
 dnl
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 590, 0, 590)
+AS_LIBTOOL(GST, 600, 0, 600)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.5.90
+GST_REQ=1.6.0
 
 dnl *** autotools stuff ****
 
@@ -152,6 +152,18 @@ AM_CONDITIONAL(HAVE_CXX, test "x$working_cxx" = "xyes")
 
 AC_PATH_PROG(VALGRIND_PATH, valgrind, no)
 AM_CONDITIONAL(HAVE_VALGRIND, test ! "x$VALGRIND_PATH" = "xno")
+
+dnl check for tbm buffer
+AC_ARG_ENABLE(tbmbuf, AC_HELP_STRING([--enable-use-tbmbuf], [use tbm buf]),
+        [
+          case "${enableval}" in
+           yes) BOARD_USE_TBM_BUF=yes ;;
+           no)  BOARD_USE_TBM_BUF=no ;;
+           *)   AC_MSG_ERROR(bad value ${enableval} for --enable-use-tbmbuf) ;;
+          esac
+        ],
+        [BOARD_USE_TBM_BUF=yes])
+AM_CONDITIONAL([BOARD_USE_TBM_BUF], [test "x$BOARD_USE_TBM_BUF" = "xyes"])
 
 dnl check for gobject-introspection
 GOBJECT_INTROSPECTION_CHECK([1.31.1])

@@ -967,7 +967,7 @@ theora_enc_handle_frame (GstVideoEncoder * benc, GstVideoCodecFrame * frame)
 
   {
     th_ycbcr_buffer ycbcr;
-    gint keyframe_interval;
+    gint res, keyframe_interval;
     GstVideoFrame vframe;
 
     if (force_keyframe) {
@@ -991,11 +991,11 @@ theora_enc_handle_frame (GstVideoEncoder * benc, GstVideoCodecFrame * frame)
         GST_MAP_READ);
     theora_enc_init_buffer (ycbcr, &vframe);
 
-    th_encode_ycbcr_in (enc->encoder, ycbcr);
+    res = th_encode_ycbcr_in (enc->encoder, ycbcr);
     gst_video_frame_unmap (&vframe);
 
     /* none of the failure cases can happen here */
-    /*g_assert (res == 0);*/
+    g_assert (res == 0);
 
     if (enc->multipass_cache_fd
         && enc->multipass_mode == MULTIPASS_MODE_FIRST_PASS) {

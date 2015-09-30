@@ -103,7 +103,6 @@ typedef enum {
   GST_VIDEO_FORMAT_YV12,
   GST_VIDEO_FORMAT_YUY2,
   GST_VIDEO_FORMAT_UYVY,
-  GST_VIDEO_FORMAT_ITLV,
   GST_VIDEO_FORMAT_AYUV,
   GST_VIDEO_FORMAT_RGBx,
   GST_VIDEO_FORMAT_BGRx,
@@ -122,8 +121,6 @@ typedef enum {
   GST_VIDEO_FORMAT_v210,
   GST_VIDEO_FORMAT_v216,
   GST_VIDEO_FORMAT_NV12,
-  GST_VIDEO_FORMAT_SN12,
-  GST_VIDEO_FORMAT_ST12,
   GST_VIDEO_FORMAT_NV21,
   GST_VIDEO_FORMAT_GRAY8,
   GST_VIDEO_FORMAT_GRAY16_BE,
@@ -256,9 +253,14 @@ typedef enum
  * @width: the amount of pixels to unpack.
  *
  * Unpacks @width pixels from the given planes and strides containing data of
- * format @info. The pixels will be unpacked into @dest which each component
- * interleaved. @dest should at least be big enough to hold @width *
- * n_components * size(unpack_format) bytes.
+ * format @info. The pixels will be unpacked into @dest with each component
+ * interleaved as per @info's unpack_format, which will usually be one of
+ * #GST_VIDEO_FORMAT_ARGB, #GST_VIDEO_FORMAT_AYUV, #GST_VIDEO_FORMAT_ARGB64 or
+ * #GST_VIDEO_FORMAT_AYUV64 depending on the format to unpack.
+ * @dest should at least be big enough to hold @width * bytes_per_pixel bytes
+ * where bytes_per_pixel relates to the unpack format and will usually be
+ * either 4 or 8 depending on the unpack format. bytes_per_pixel will be
+ * the same as the pixel stride for plane 0 for the above formats.
  *
  * For subsampled formats, the components will be duplicated in the destination
  * array. Reconstruction of the missing components can be performed in a
