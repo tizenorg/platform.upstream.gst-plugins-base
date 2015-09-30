@@ -3979,13 +3979,6 @@ get_scale_format (GstVideoFormat format, gint plane)
       res = format;
       g_assert_not_reached ();
       break;
-  
-    case GST_VIDEO_FORMAT_ITLV:
-    case GST_VIDEO_FORMAT_SN12:
-    case GST_VIDEO_FORMAT_ST12:
-     res = format;
-      g_assert_not_reached ();
-      break;
   }
   return res;
 }

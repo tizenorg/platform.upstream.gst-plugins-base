@@ -1,9 +1,9 @@
-#%bcond_with cdparanoia
-#%bcond_with x
 %define gst_branch 1.0
+%define _lib_gstreamer_dir %{_libdir}/gstreamer-%{gst_branch}
+%define _libdebug_dir %{_libdir}/debug/usr/lib
 
 Name:           gst-plugins-base
-Version:        1.5.90
+Version:        1.6
 Release:        1
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
@@ -16,19 +16,6 @@ BuildRequires:  gstreamer-devel >= 1.0.0
 BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
-%if %{with x}
-BuildRequires:  pkgconfig(ice)
-BuildRequires:  pkgconfig(sm)
-BuildRequires:  pkgconfig(xext)
-BuildRequires:  pkgconfig(xv)
-BuildRequires:  pkgconfig(xfixes)
-BuildRequires:  pkgconfig(dri2proto)
-BuildRequires:  pkgconfig(libdri2)
-%endif
-BuildRequires:  gobject-introspection-devel >= 1.31.1
-%if %{with cdparanoia}
-BuildRequires:  pkgconfig(cdparanoia-3)
-%endif
 BuildRequires:  pkgconfig(alsa) >= 0.9.1
 BuildRequires:  pkgconfig(freetype2) >= 2.0.9
 BuildRequires:  pkgconfig(libxml-2.0)
@@ -40,6 +27,7 @@ BuildRequires:  pkgconfig(theoraenc) >= 1.1
 BuildRequires:  pkgconfig(vorbis) >= 1.0
 BuildRequires:  pkgconfig(vorbisenc) >= 1.0
 BuildRequires:  pkgconfig(zlib)
+BuildRequires:  gobject-introspection-devel >= 1.31.1
 BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libtbm)
 BuildRequires:  pkgconfig(mm-ta)
@@ -54,40 +42,38 @@ anything media-related, from real-time sound processing to playing
 videos. Its plug-in-based architecture means that new data types or
 processing capabilities can be added simply by installing new plug-ins.
 
-
 %package devel
 Summary:        Include files and Libraries
-Requires: 	   %{name} = %{version}
+Requires:       %{name} = %{version}
 
 %description devel
 This package contains all necessary include files and libraries needed
 to compile and link applications that use gstreamer-plugins-base.
 
-
 %prep
 %setup -q -n gst-plugins-base-%{version}
-
 
 %build
 # FIXME: GTKDOC_CFLAGS, GST_OBJ_CFLAGS:
 # Silently ignored compilation of uninstalled gtk-doc scanners without RPM_OPT_FLAGS.
 export V=1
 NOCONFIGURE=1 ./autogen.sh
-export CFLAGS="%{optflags} -fno-strict-aliasing"
-# %ifarch %{arm}
-# -DGST_EXT_AUDIODECODER_MODIFICATION\
-# -DGST_EXT_XV_ENHANCEMENT\
-# -DGST_EXT_LINK_FIMCCONVERT\
-# -DGST_EXT_MIME_TYPES
-# %endif
-# "
+export CFLAGS="%{optflags} -fno-strict-aliasing\
+%ifarch %{arm}
+ -DGST_EXT_AUDIODECODER_MODIFICATION\
+ -DGST_EXT_XV_ENHANCEMENT\
+ -DGST_EXT_LINK_FIMCCONVERT\
+ -DGST_EXT_MIME_TYPES
+%endif
+ "
 %configure\
-	--disable-static\
-	--enable-experimental\
-	--disable-gtk-doc\
-	--enable-introspection\
-	--disable-encoding\
-	--disable-examples
+        --disable-static\
+        --enable-experimental\
+        --disable-gtk-doc\
+        --enable-introspection\
+        --disable-encoding\
+        --disable-examples\
+        --enable-use-tbmbuf
 make %{?_smp_mflags}
 
 %install
@@ -96,87 +82,127 @@ rm -rf %{buildroot}
 %find_lang %{name}-%{gst_branch}
 mv %{name}-%{gst_branch}.lang %{name}.lang
 
-
 %post -p /sbin/ldconfig
 
-
 %postun -p /sbin/ldconfig
-
 
 %lang_package
 
 %files
-#%manifest %{name}.manifest
-%defattr(-, root, root)
+%manifest %{name}.manifest
 %license COPYING COPYING.LIB
+
 %{_bindir}/gst-device-monitor-%{gst_branch}
 %{_bindir}/gst-discoverer-%{gst_branch}
 %{_bindir}/gst-play-%{gst_branch}
-%{_libdir}/gstreamer-%{gst_branch}/libgstadder.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstalsa.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstapp.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstaudioconvert.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstaudioresample.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstaudiotestsrc.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstaudiorate.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstgio.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstogg.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstplayback.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstsubparse.so
-%{_libdir}/gstreamer-%{gst_branch}/libgsttcp.so
-%{_libdir}/gstreamer-%{gst_branch}/libgsttheora.so
-%{_libdir}/gstreamer-%{gst_branch}/libgsttypefindfunctions.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstvideoconvert.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstvideorate.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstvideoscale.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstvideotestsrc.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstvolume.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstvorbis.so
-#%{_libdir}/gstreamer-%{gst_branch}/libgstencodebin.so
-%doc %{_mandir}/man1/gst-device-monitor-*
-%doc %{_mandir}/man1/gst-discoverer-*
-%doc %{_mandir}/man1/gst-play-*
 
-%{_libdir}/gstreamer-%{gst_branch}/libgstpango.so
-%if %{with x}
-%{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
-%{_libdir}/gstreamer-%{gst_branch}/libgstxvimagesink.so
-%endif
-%if %{with cdparanoia}
-%{_libdir}/gstreamer-%{gst_branch}/libgstcdparanoia.so
-%endif
+%define _lib_gstreamer_dir %{_libdir}/gstreamer-%{gst_branch}
+%define _libdebug_dir %{_libdir}/debug/usr/lib
 
-%{_libdir}/libgstapp*.so.*
-%{_libdir}/libgstaudio*.so.*
-%{_libdir}/libgstallocators*.so.*
-%{_libdir}/libgstfft*.so.*
-%{_libdir}/girepository-1.0/GstApp-*.typelib
-%{_libdir}/girepository-1.0/GstAudio-*.typelib
-%{_libdir}/girepository-1.0/GstAllocators-*.typelib
-%{_libdir}/girepository-1.0/GstFft-*.typelib
-%{_libdir}/girepository-1.0/GstRiff-*.typelib
-%{_libdir}/girepository-1.0/GstRtp-*.typelib
-%{_libdir}/girepository-1.0/GstRtsp-*.typelib
-%{_libdir}/girepository-1.0/GstSdp-*.typelib
-%{_libdir}/girepository-1.0/GstTag-*.typelib
-%{_libdir}/girepository-1.0/GstVideo-*.typelib
-%{_libdir}/girepository-1.0/GstPbutils-*.typelib
-%{_libdir}/libgstpbutils*.so.*
-%{_libdir}/libgstriff*.so.*
-%{_libdir}/libgstrtp*.so.*
-%{_libdir}/libgstrtsp*.so.*
-%{_libdir}/libgstsdp*.so.*
-%{_libdir}/libgsttag*.so.*
+%{_lib_gstreamer_dir}/libgstadder.so
+%{_lib_gstreamer_dir}/libgstalsa.so
+%{_lib_gstreamer_dir}/libgstapp.so
+%{_lib_gstreamer_dir}/libgstaudioconvert.so
+%{_lib_gstreamer_dir}/libgstaudioresample.so
+%{_lib_gstreamer_dir}/libgstaudiotestsrc.so
+%{_lib_gstreamer_dir}/libgstaudiorate.so
+%{_lib_gstreamer_dir}/libgstgio.so
+%{_lib_gstreamer_dir}/libgstogg.so
+%{_lib_gstreamer_dir}/libgstplayback.so
+%{_lib_gstreamer_dir}/libgstsubparse.so
+%{_lib_gstreamer_dir}/libgsttcp.so
+%{_lib_gstreamer_dir}/libgsttheora.so
+%{_lib_gstreamer_dir}/libgsttypefindfunctions.so
+%{_lib_gstreamer_dir}/libgstvideoconvert.so
+%{_lib_gstreamer_dir}/libgstvideorate.so
+%{_lib_gstreamer_dir}/libgstvideoscale.so
+%{_lib_gstreamer_dir}/libgstvideotestsrc.so
+%{_lib_gstreamer_dir}/libgstvolume.so
+%{_lib_gstreamer_dir}/libgstvorbis.so
+%{_lib_gstreamer_dir}/libgstpango.so
+
+%{_libdir}/libgstapp-%{gst_branch}.so.0
+%{_libdir}/libgstaudio-%{gst_branch}.so.0
+%{_libdir}/libgstallocators-%{gst_branch}.so.0
+%{_libdir}/libgstfft-%{gst_branch}.so.0
+%{_libdir}/libgstpbutils-%{gst_branch}.so.0
+%{_libdir}/libgstriff-%{gst_branch}.so.0
+%{_libdir}/libgstrtp-%{gst_branch}.so.0
+%{_libdir}/libgstrtsp-%{gst_branch}.so.0
+%{_libdir}/libgstsdp-%{gst_branch}.so.0
+%{_libdir}/libgsttag-%{gst_branch}.so.0
+%{_libdir}/libgstvideo-%{gst_branch}.so.0
+
+%define so_version so.0.600.0
+
+%{_libdir}/libgstapp-%{gst_branch}.%{so_version}
+%{_libdir}/libgstaudio-%{gst_branch}.%{so_version}
+%{_libdir}/libgstallocators-%{gst_branch}.%{so_version}
+%{_libdir}/libgstfft-%{gst_branch}.%{so_version}
+%{_libdir}/libgstpbutils-%{gst_branch}.%{so_version}
+%{_libdir}/libgstriff-%{gst_branch}.%{so_version}
+%{_libdir}/libgstrtp-%{gst_branch}.%{so_version}
+%{_libdir}/libgstrtsp-%{gst_branch}.%{so_version}
+%{_libdir}/libgstsdp-%{gst_branch}.%{so_version}
+%{_libdir}/libgsttag-%{gst_branch}.%{so_version}
+%{_libdir}/libgstvideo-%{gst_branch}.%{so_version}
+
+%define _libgirrepo_dir %{_libdir}/girepository-%{gst_branch}
+
+%{_libgirrepo_dir}/GstApp-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstAudio-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstAllocators-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstFft-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstRiff-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstRtp-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstRtsp-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstSdp-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstTag-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstVideo-%{gst_branch}.typelib
+%{_libgirrepo_dir}/GstPbutils-%{gst_branch}.typelib
+
 %dir %{_datadir}/gst-plugins-base/
 %dir %{_datadir}/gst-plugins-base/%{gst_branch}/
-%{_datadir}/gst-plugins-base/%{gst_branch}/license-translations.dict
-%{_libdir}/libgstvideo*.so.*
 
+%{_datadir}/gst-plugins-base/%{gst_branch}/license-translations.dict
 
 %files devel
-#%manifest %{name}.manifest
-%defattr(-, root, root)
+%manifest %{name}.manifest
 %{_includedir}/gstreamer-%{gst_branch}/*
-%{_libdir}/*.so
-%{_libdir}/pkgconfig/*.pc
-%{_datadir}/gir-1.0/*.gir
+%{_libdir}/libgstapp-%{gst_branch}.so
+%{_libdir}/libgstaudio-%{gst_branch}.so
+%{_libdir}/libgstallocators-%{gst_branch}.so
+%{_libdir}/libgstfft-%{gst_branch}.so
+%{_libdir}/libgstpbutils-%{gst_branch}.so
+%{_libdir}/libgstriff-%{gst_branch}.so
+%{_libdir}/libgstrtp-%{gst_branch}.so
+%{_libdir}/libgstrtsp-%{gst_branch}.so
+%{_libdir}/libgstsdp-%{gst_branch}.so
+%{_libdir}/libgsttag-%{gst_branch}.so
+%{_libdir}/libgstvideo-%{gst_branch}.so
+
+%{_libdir}/pkgconfig/gstreamer-allocators-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-app-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-audio-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-fft-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-pbutils-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-plugins-base-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-riff-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-rtp-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-rtsp-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-sdp-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-tag-1.0.pc
+%{_libdir}/pkgconfig/gstreamer-video-1.0.pc
+
+%{_datadir}/gir-%{gst_branch}/GstApp-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstAudio-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstAllocators-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstFft-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstRiff-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstRtp-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstRtsp-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstSdp-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstTag-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstVideo-%{gst_branch}.gir
+%{_datadir}/gir-%{gst_branch}/GstPbutils-%{gst_branch}.gir
+
