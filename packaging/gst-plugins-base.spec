@@ -57,7 +57,7 @@ processing capabilities can be added simply by installing new plug-ins.
 
 %package devel
 Summary:        Include files and Libraries
-Requires: 	   %{name} = %{version}
+Requires:       %{name} = %{version}
 
 %description devel
 This package contains all necessary include files and libraries needed
@@ -73,21 +73,22 @@ to compile and link applications that use gstreamer-plugins-base.
 # Silently ignored compilation of uninstalled gtk-doc scanners without RPM_OPT_FLAGS.
 export V=1
 NOCONFIGURE=1 ./autogen.sh
-export CFLAGS="%{optflags} -fno-strict-aliasing"
-# %ifarch %{arm}
-# -DGST_EXT_AUDIODECODER_MODIFICATION\
-# -DGST_EXT_XV_ENHANCEMENT\
-# -DGST_EXT_LINK_FIMCCONVERT\
-# -DGST_EXT_MIME_TYPES
-# %endif
-# "
+export CFLAGS="%{optflags} -fno-strict-aliasing\
+%ifarch %{arm}
+ -DGST_EXT_AUDIODECODER_MODIFICATION\
+ -DGST_EXT_XV_ENHANCEMENT\
+ -DGST_EXT_LINK_FIMCCONVERT\
+ -DGST_EXT_MIME_TYPES
+%endif
+ "
 %configure\
-	--disable-static\
-	--enable-experimental\
-	--disable-gtk-doc\
-	--enable-introspection\
-	--disable-encoding\
-	--disable-examples
+        --disable-static\
+        --enable-experimental\
+        --disable-gtk-doc\
+        --enable-introspection\
+        --disable-encoding\
+        --disable-examples\
+        --enable-use-tbmbuf
 make %{?_smp_mflags}
 
 %install
@@ -106,7 +107,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %lang_package
 
 %files
-#%manifest %{name}.manifest
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %license COPYING COPYING.LIB
 %{_bindir}/gst-device-monitor-%{gst_branch}
@@ -174,7 +175,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 
 
 %files devel
-#%manifest %{name}.manifest
+%manifest %{name}.manifest
 %defattr(-, root, root)
 %{_includedir}/gstreamer-%{gst_branch}/*
 %{_libdir}/*.so

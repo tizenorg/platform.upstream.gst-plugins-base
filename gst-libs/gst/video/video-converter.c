@@ -30,6 +30,10 @@
 
 #include "video-orc.h"
 
+#ifdef USE_TBM_BUFFER
+#include <mmf/mm_types.h>
+#endif
+
 /**
  * SECTION:videoconverter
  * @short_description: Generic video conversion
@@ -2947,6 +2951,61 @@ convert_I420_AYUV (GstVideoConverter * convert, const GstVideoFrame * src,
 }
 
 static void
+convert_I420_SN12 (GstVideoConverter * convert, GstVideoFrame * dest,
+    const GstVideoFrame * src)
+{
+  MMVideoBuffer *mm_video_buf = NULL;
+  GstMemory *mem = NULL;
+  void *mm_data = NULL;
+  guint8 *mY, *mUV, *Y, *U, *V;
+  gint l1, l2;
+  gboolean interlaced = GST_VIDEO_FRAME_IS_INTERLACED (src);
+
+  mY = mUV = Y = U = V = NULL;
+
+  gint width = convert->in_width;
+  gint height = convert->in_height;
+
+  if(gst_buffer_n_memory(dest->buffer) >= 2) {
+      GstMapInfo map_info = GST_MAP_INFO_INIT;
+      mem = gst_buffer_peek_memory (dest->buffer, 1);
+      if (mem != NULL) {
+          gst_memory_map(mem, &map_info, GST_MAP_WRITE);
+          mm_data = map_info.data;
+          gst_memory_unmap(mem, &map_info);
+          mm_video_buf = (MMVideoBuffer*) mm_data;
+      }
+  }
+
+  /* convert from I420 TO SN12/NV12 format here.. */
+  if(mm_video_buf == NULL) {
+      GST_ERROR(" mm_video_buffer is NULL");
+      return;
+  }
+  mY = mm_video_buf->handle.paddr[0];
+  mUV = mm_video_buf->handle.paddr[1];
+
+  for (int i = 0; i < GST_ROUND_DOWN_2 (height); i += 2) {
+    GET_LINE_OFFSETS (interlaced, i, l1, l2);
+
+    Y = FRAME_GET_Y_LINE (src, l1);
+    memcpy(mY, Y, width);
+    mY += width;
+    Y = FRAME_GET_Y_LINE (src, l2);
+    memcpy(mY, Y, width);
+    mY += width;
+
+    U = FRAME_GET_U_LINE (src, i >> 1);
+    V = FRAME_GET_V_LINE (src, i >> 1);
+    for(int j = 0; j < (width + 1) / 2; j++) {
+        *mUV++ = *U++;
+        *mUV++ = *V++;
+    }
+  }
+
+}
+
+static void
 convert_YUY2_I420 (GstVideoConverter * convert, const GstVideoFrame * src,
     GstVideoFrame * dest)
 {
@@ -4340,6 +4399,8 @@ static const VideoTransform transforms[] = {
   /* packed -> planar */
   {GST_VIDEO_FORMAT_YUY2, GST_VIDEO_FORMAT_I420, TRUE, FALSE, TRUE, FALSE,
       FALSE, FALSE, FALSE, FALSE, 0, 0, convert_YUY2_I420},
+  {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_SN12, TRUE, FALSE, TRUE, FALSE,
+      FALSE, FALSE, FALSE, FALSE, 0, 0, convert_I420_SN12},
   {GST_VIDEO_FORMAT_YUY2, GST_VIDEO_FORMAT_YV12, TRUE, FALSE, TRUE, FALSE,
       FALSE, FALSE, FALSE, FALSE, 0, 0, convert_YUY2_I420},
   {GST_VIDEO_FORMAT_YUY2, GST_VIDEO_FORMAT_Y42B, TRUE, FALSE, TRUE, TRUE,

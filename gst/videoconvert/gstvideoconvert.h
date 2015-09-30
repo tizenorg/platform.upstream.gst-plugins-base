@@ -26,6 +26,14 @@
 #include <gst/video/video.h>
 #include <gst/video/gstvideofilter.h>
 
+#ifdef USE_TBM_BUFFER
+#include <mmf/mm_types.h>
+#include <tbm_type.h>
+#include <tbm_surface.h>
+#include <tbm_bufmgr.h>
+#endif
+
+
 G_BEGIN_DECLS
 
 #define GST_TYPE_VIDEO_CONVERT	          (gst_video_convert_get_type())
@@ -45,7 +53,9 @@ typedef struct _GstVideoConvertClass GstVideoConvertClass;
  */
 struct _GstVideoConvert {
   GstVideoFilter element;
-
+#ifdef USE_TBM_BUFFER
+  GstBufferPool *tbm_buffer_pool;
+#endif
   GstVideoConverter *convert;
   GstVideoDitherMethod dither;
   guint dither_quantization;
