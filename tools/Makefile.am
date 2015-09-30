@@ -1,7 +1,7 @@
 man_MANS = \
-	gst-device-monitor-@GST_API_VERSION@.1 \
-	gst-discoverer-@GST_API_VERSION@.1 \
-	gst-play-@GST_API_VERSION@.1	
+	gst-device-monitor-@GST_API_VERSION@ \
+	gst-discoverer-@GST_API_VERSION@ \
+	gst-play-@GST_API_VERSION@
 
 bin_PROGRAMS = \
 	gst-device-monitor-@GST_API_VERSION@ \
@@ -19,7 +19,6 @@ noinst_HEADERS = gst-play-kb.h
 CLEANFILES = $(bin_SCRIPTS) $(bin_PROGRAMS)
 
 EXTRA_DIST = $(man_MANS)
-
 
 LDADD = $(top_builddir)/gst-libs/gst/pbutils/libgstpbutils-@GST_API_VERSION@.la \
 	$(top_builddir)/gst-libs/gst/tag/libgsttag-@GST_API_VERSION@.la \

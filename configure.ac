@@ -153,6 +153,18 @@ AM_CONDITIONAL(HAVE_CXX, test "x$working_cxx" = "xyes")
 AC_PATH_PROG(VALGRIND_PATH, valgrind, no)
 AM_CONDITIONAL(HAVE_VALGRIND, test ! "x$VALGRIND_PATH" = "xno")
 
+dnl check for tbm buffer
+AC_ARG_ENABLE(tbmbuf, AC_HELP_STRING([--enable-use-tbmbuf], [use tbm buf]),
+        [
+          case "${enableval}" in
+           yes) BOARD_USE_TBM_BUF=yes ;;
+           no)  BOARD_USE_TBM_BUF=no ;;
+           *)   AC_MSG_ERROR(bad value ${enableval} for --enable-use-tbmbuf) ;;
+          esac
+        ],
+        [BOARD_USE_TBM_BUF=yes])
+AM_CONDITIONAL([BOARD_USE_TBM_BUF], [test "x$BOARD_USE_TBM_BUF" = "xyes"])
+
 dnl check for gobject-introspection
 GOBJECT_INTROSPECTION_CHECK([1.31.1])
 
