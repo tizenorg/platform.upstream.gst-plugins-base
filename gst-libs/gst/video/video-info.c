@@ -596,7 +596,6 @@ fill_planes (GstVideoInfo * info)
 
   switch (info->finfo->format) {
     case GST_VIDEO_FORMAT_YUY2:
-    case GST_VIDEO_FORMAT_ITLV:
     case GST_VIDEO_FORMAT_YVYU:
     case GST_VIDEO_FORMAT_UYVY:
       info->stride[0] = GST_ROUND_UP_4 (width * 2);
@@ -721,8 +720,6 @@ fill_planes (GstVideoInfo * info)
       info->size = info->stride[0] * height * 3;
       break;
     case GST_VIDEO_FORMAT_NV12:
-    case GST_VIDEO_FORMAT_SN12:
-    case GST_VIDEO_FORMAT_ST12:
     case GST_VIDEO_FORMAT_NV21:
       info->stride[0] = GST_ROUND_UP_4 (width);
       info->stride[1] = info->stride[0];

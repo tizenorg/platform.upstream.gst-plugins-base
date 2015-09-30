@@ -14,3 +14,12 @@ libgstvideoconvert_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstvideoconvert_la_LIBTOOLFLAGS = $(GST_PLUGIN_LIBTOOLFLAGS)
 
 noinst_HEADERS = gstvideoconvert.h
+
+if BOARD_USE_TBM_BUF
+libgstvideoconvert_la_SOURCES += gsttbmbufferpool.c
+libgstvideoconvert_la_CFLAGS += -DUSE_TBM_BUFFER $(MMCOMMON_CFLAGS) $(TBM_CFLAGS)
+libgstvideoconvert_la_LIBADD += $(TBM_LIBS) $(MM_COMMON_LIBS)
+libgstvideoconvert_la_LDFLAGS += $(TBM_LDFLAGS) $(MM_COMMON_LDFLAGS)
+noinst_HEADERS += gsttbmbufferpool.h
+endif
+

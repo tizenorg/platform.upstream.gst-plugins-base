@@ -452,7 +452,7 @@ convert_encoding (GstSubParse * self, const gchar * str, gsize len,
         self->detected_encoding, err->message);
     g_free (self->detected_encoding);
     self->detected_encoding = NULL;
-    g_error_free (err);
+    g_clear_error (&err);
   }
 
   /* Otherwise check if it's UTF8 */
@@ -484,7 +484,7 @@ convert_encoding (GstSubParse * self, const gchar * str, gsize len,
   if (err) {
     GST_WARNING_OBJECT (self, "could not convert string from '%s' to UTF-8: %s",
         encoding, err->message);
-    g_error_free (err);
+    g_clear_error (&err);
 
     /* invalid input encoding, fall back to ISO-8859-15 (always succeeds) */
     ret = gst_convert_to_utf8 (str, len, "ISO-8859-15", consumed, NULL);
@@ -683,15 +683,24 @@ subrip_unescape_formatting (gchar * txt)
   }
 
   for (pos = txt; pos != NULL && *pos != '\0'; ++pos) {
-    if (g_ascii_strncasecmp (pos, "&lt;/u&gt;", 10) == 0 ||
-        g_ascii_strncasecmp (pos, "&lt;/i&gt;", 10) == 0 ||
-        g_ascii_strncasecmp (pos, "&lt;/b&gt;", 10) == 0) {
+    gchar *tag;
+
+    /* look for start of an escaped closing tag */
+    if (g_ascii_strncasecmp (pos, "&lt;/", 5) != 0)
+      continue;
+    tag = pos + 5;
+    while (*tag == ' ')
+      ++tag;
+    if ((*tag == 'u' || *tag == 'i' || *tag == 'b') &&
+        g_ascii_strncasecmp (tag + 1, "&gt;", 4) == 0) {
+      gsize tag_len = (guintptr) (tag + 1 + 4 - pos);
+
       pos[0] = '<';
       pos[1] = '/';
-      pos[2] = g_ascii_tolower (pos[5]);
+      pos[2] = g_ascii_tolower (*tag);
       pos[3] = '>';
       /* move NUL terminator as well */
-      memmove (pos + 4, pos + 10, strlen (pos + 10) + 1);
+      memmove (pos + 4, pos + tag_len, strlen (pos + tag_len) + 1);
       pos += 3;
     }
   }
@@ -1214,7 +1223,7 @@ gst_sub_parse_data_format_autodetect_regex_once (GstSubParseRegex regtype)
           G_REGEX_RAW | G_REGEX_OPTIMIZE, 0, &gerr);
       if (result == NULL) {
         g_warning ("Compilation of mdvd regex failed: %s", gerr->message);
-        g_error_free (gerr);
+        g_clear_error (&gerr);
       }
       break;
     case GST_SUB_PARSE_REGEX_SUBRIP:
@@ -1225,7 +1234,7 @@ gst_sub_parse_data_format_autodetect_regex_once (GstSubParseRegex regtype)
           G_REGEX_RAW | G_REGEX_OPTIMIZE, 0, &gerr);
       if (result == NULL) {
         g_warning ("Compilation of subrip regex failed: %s", gerr->message);
-        g_error_free (gerr);
+        g_clear_error (&gerr);
       }
       break;
     case GST_SUB_PARSE_REGEX_DKS:
@@ -1233,7 +1242,7 @@ gst_sub_parse_data_format_autodetect_regex_once (GstSubParseRegex regtype)
           G_REGEX_RAW | G_REGEX_OPTIMIZE, 0, &gerr);
       if (result == NULL) {
         g_warning ("Compilation of dks regex failed: %s", gerr->message);
-        g_error_free (gerr);
+        g_clear_error (&gerr);
       }
       break;
     default:
@@ -1764,7 +1773,7 @@ gst_subparse_type_find (GstTypeFind * tf, gpointer private)
     if (converted_str == NULL) {
       GST_DEBUG ("Encoding '%s' detected but conversion failed: %s", encoding,
           err->message);
-      g_error_free (err);
+      g_clear_error (&err);
     } else {
       g_free (str);
       str = converted_str;

@@ -25,7 +25,7 @@ libgstriff_@GST_API_VERSION@_la_LDFLAGS = $(GST_LIB_LDFLAGS) $(GST_ALL_LDFLAGS) 
 # This library does not respect the type naming conventions required to be
 # usable in binded languages.
 #
-#if HAVE_INTROSPECTION
+if HAVE_INTROSPECTION
 BUILT_GIRSOURCES = GstRiff-@GST_API_VERSION@.gir
 
 gir_headers=$(patsubst %,$(srcdir)/%, $(libgstriff_@GST_API_VERSION@include_HEADERS))
@@ -57,8 +57,8 @@ GstRiff-@GST_API_VERSION@.gir: $(INTROSPECTION_SCANNER) libgstriff-@GST_API_VERS
 		$(gir_headers) \
 		$(gir_sources)
 
-# INTROSPECTION_GIRDIR/INTROSPECTION_TYPELIBDIR aren't the right place to
-# install anything - we need to install inside our prefix.
+## INTROSPECTION_GIRDIR/INTROSPECTION_TYPELIBDIR aren't the right place to
+## install anything - we need to install inside our prefix.
 girdir = $(datadir)/gir-1.0
 gir_DATA = $(BUILT_GIRSOURCES)
 
@@ -78,4 +78,4 @@ typelibs_DATA = $(BUILT_GIRSOURCES:.gir=.typelib)
 		$(INTROSPECTION_COMPILER_OPTS) $< -o $(@F)
 
 CLEANFILES = $(BUILT_GIRSOURCES) $(typelibs_DATA)
-#endif
+endif
