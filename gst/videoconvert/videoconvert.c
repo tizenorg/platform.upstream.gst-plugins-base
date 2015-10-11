@@ -804,10 +804,10 @@ convert_I420_SN12 (VideoConvert * convert, GstVideoFrame * dest,
   gint l1, l2;
   gboolean interlaced = GST_VIDEO_FRAME_IS_INTERLACED (src);
 
-  mY = mUV = Y = U = V = NULL;
-
   gint width = convert->width;
   gint height = convert->height;
+
+  mY = mUV = Y = U = V = NULL;
 
   if(gst_buffer_n_memory(dest->buffer) >= 2) {
       GstMapInfo map_info = GST_MAP_INFO_INIT;
@@ -846,6 +846,119 @@ convert_I420_SN12 (VideoConvert * convert, GstVideoFrame * dest,
     }
   }
 
+}
+
+static void
+convert_xRGB_SN12 (VideoConvert * convert, GstVideoFrame * dest,
+    const GstVideoFrame * src)
+{
+  MMVideoBuffer *mm_video_buf = NULL;
+  GstMemory *mem = NULL;
+  void *mm_data = NULL;
+  guint8 *mY, *mUV, *Y, *U, *V;
+  gint l1, l2;
+  gboolean interlaced = GST_VIDEO_FRAME_IS_INTERLACED (src);
+
+  gint width = convert->width;
+  gint height = convert->height;
+
+  mY = mUV = Y = U = V = NULL;
+
+  if(gst_buffer_n_memory(dest->buffer) >= 2) {
+      GstMapInfo map_info = GST_MAP_INFO_INIT;
+      mem = gst_buffer_peek_memory (dest->buffer, 1);
+      if (mem != NULL) {
+          gst_memory_map(mem, &map_info, GST_MAP_WRITE);
+          mm_data = map_info.data;
+          gst_memory_unmap(mem, &map_info);
+          mm_video_buf = (MMVideoBuffer*) mm_data;
+      }
+  }
+
+  /* convert from I420 TO SN12/NV12 format here.. */
+  if(mm_video_buf == NULL) {
+      GST_ERROR(" mm_video_buffer is NULL");
+      return;
+  }
+  mY = mm_video_buf->handle.paddr[0];
+  mUV = mm_video_buf->handle.paddr[1];
+
+  for (int i = 0; i < GST_ROUND_DOWN_2 (height); i += 2) {
+    GET_LINE_OFFSETS (interlaced, i, l1, l2);
+
+    Y = FRAME_GET_Y_LINE (src, l1);
+    memcpy(mY, Y, width);
+    mY += width;
+    Y = FRAME_GET_Y_LINE (src, l2);
+    memcpy(mY, Y, width);
+    mY += width;
+
+    U = FRAME_GET_U_LINE (src, i >> 1);
+    V = FRAME_GET_V_LINE (src, i >> 1);
+    for(int j = 0; j < (width + 1) / 2; j++) {
+        *mUV++ = *U++;
+        *mUV++ = *V++;
+    }
+  }
+
+}
+
+static void
+convert_SN12_xRGB (VideoConvert * convert, GstVideoFrame * dest,
+    const GstVideoFrame * src)
+{
+  MMVideoBuffer *mm_video_buf = NULL;
+  GstMemory *mem = NULL;
+  void *mm_data = NULL;
+  guint8 *mY, *mUV, *Y, *U, *V;
+  gboolean interlaced = GST_VIDEO_FRAME_IS_INTERLACED (src);
+  gint l1, l2;
+  gint width = convert->width;
+  gint height = convert->height;
+
+  mY = mUV = Y = U = V = NULL;
+
+  if(gst_buffer_n_memory(src->buffer) >= 2) {
+      GstMapInfo map_info = GST_MAP_INFO_INIT;
+      mem = gst_buffer_peek_memory (src->buffer, 1);
+      if (mem != NULL) {
+          gst_memory_map(mem, &map_info, GST_MAP_WRITE);
+          mm_data = map_info.data;
+          gst_memory_unmap(mem, &map_info);
+          mm_video_buf = (MMVideoBuffer*) mm_data;
+      }
+  }
+  /* convert from SN12 to xRGB format here.. */
+
+  /*
+    R' = 1.164*(Y' - 16) + 1.596*(Cr' - 128)
+
+    G' = 1.164*(Y' - 16) - 0.813*(Cr' - 128) - 0.392*(Cb' - 128)
+
+    B' = 1.164*(Y' - 16) + 2.017*(Cb' - 128)
+  */
+
+  if(mm_video_buf == NULL) {
+      GST_ERROR(" mm_video_buffer is NULL");
+      return;
+  }
+  mY = mm_video_buf->handle.paddr[0];
+  mUV = mm_video_buf->handle.paddr[1];
+
+  for (int i = 0; i < GST_ROUND_DOWN_2 (height); i += 2) {
+    GET_LINE_OFFSETS (interlaced, i, l1, l2);
+    Y = FRAME_GET_LINE(dest,i);
+
+    for(int j = 0; j < width; j++ ) {
+
+      Y[0] = 1.164*(mY[j] - 16) + 1.596*(mUV[j+1] - 128);
+      Y[1] = 1.164*(mY[j] - 16) - 0.813*(mUV[j+1] - 128) - 0.392*(mUV[j] - 128);
+      Y[2] = 1.164*(mY[j] - 16) + 2.017*(mUV[j] - 128);
+      Y += 3;
+    }
+    mY += width;
+    mUV += (width + 1)/2;
+  }
 }
 
 static void
@@ -1376,7 +1489,12 @@ static const VideoTransform transforms[] = {
   {GST_VIDEO_FORMAT_YV12, GST_VIDEO_COLOR_MATRIX_UNKNOWN, GST_VIDEO_FORMAT_Y444,
         GST_VIDEO_COLOR_MATRIX_UNKNOWN, TRUE, FALSE, FALSE, 0, 0,
       convert_I420_Y444},
-
+  {GST_VIDEO_FORMAT_xRGB, GST_VIDEO_COLOR_MATRIX_UNKNOWN, GST_VIDEO_FORMAT_SN12,
+        GST_VIDEO_COLOR_MATRIX_UNKNOWN, TRUE, FALSE, FALSE, 0, 0,
+      convert_xRGB_SN12},
+  {GST_VIDEO_FORMAT_SN12, GST_VIDEO_COLOR_MATRIX_UNKNOWN, GST_VIDEO_FORMAT_xRGB,
+        GST_VIDEO_COLOR_MATRIX_UNKNOWN, TRUE, FALSE, FALSE, 0, 0,
+      convert_SN12_xRGB},
   {GST_VIDEO_FORMAT_YUY2, GST_VIDEO_COLOR_MATRIX_UNKNOWN, GST_VIDEO_FORMAT_I420,
         GST_VIDEO_COLOR_MATRIX_UNKNOWN, TRUE, TRUE, FALSE, 0, 0,
       convert_YUY2_I420},
