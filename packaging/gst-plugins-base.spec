@@ -34,8 +34,6 @@ BuildRequires:  pkgconfig(alsa) >= 0.9.1
 BuildRequires:  pkgconfig(freetype2) >= 2.0.9
 BuildRequires:  pkgconfig(libxml-2.0)
 BuildRequires:  pkgconfig(ogg) >= 1.0
-BuildRequires:  pkgconfig(pango) >= 1.22.0
-BuildRequires:  pkgconfig(pangocairo) >= 1.22.0
 BuildRequires:  pkgconfig(theoradec) >= 1.1
 BuildRequires:  pkgconfig(theoraenc) >= 1.1
 BuildRequires:  pkgconfig(vorbis) >= 1.0
@@ -139,7 +137,6 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %doc %{_mandir}/man1/gst-discoverer-*
 %doc %{_mandir}/man1/gst-play-*
 
-%{_libdir}/gstreamer-%{gst_branch}/libgstpango.so
 %if %{with x}
 %{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
 %{_libdir}/gstreamer-%{gst_branch}/libgstxvimagesink.so
