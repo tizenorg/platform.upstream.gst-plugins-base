@@ -3,7 +3,7 @@
 %define _libdebug_dir %{_libdir}/debug/usr/lib
 
 Name:           gst-plugins-base
-Version:        1.6
+Version:        1.6.1
 Release:        1
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
@@ -137,7 +137,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %doc %{_mandir}/man1/gst-discoverer-*
 %doc %{_mandir}/man1/gst-play-*
 
-%define so_version so.0.600.0
+%define so_version so.0.601.0
 
 %{_libdir}/libgstapp-%{gst_branch}.%{so_version}
 %{_libdir}/libgstaudio-%{gst_branch}.%{so_version}

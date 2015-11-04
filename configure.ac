@@ -5,7 +5,7 @@ dnl please read gstreamer/docs/random/autotools before changing this file
 dnl initialize autoconf
 dnl releases only do -Wall, git and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for git/prerelease
-AC_INIT([GStreamer Base Plug-ins],[1.6.0],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-base])
+AC_INIT([GStreamer Base Plug-ins],[1.6.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-base])
 
 AG_GST_INIT
 
@@ -56,10 +56,10 @@ dnl      1.2.5 => 205
 dnl      1.10.9 (who knows) => 1009
 dnl
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 600, 0, 600)
+AS_LIBTOOL(GST, 601, 0, 601)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.6.0
+GST_REQ=1.6.1
 
 dnl *** autotools stuff ****
 
@@ -835,6 +835,16 @@ dnl whatevertarget_LIBS and -L flags here affect the rest of the linking
 GST_PLUGIN_LDFLAGS="-module -avoid-version -export-symbols-regex '^[_]*gst_plugin_.*' $GST_ALL_LDFLAGS"
 AC_SUBST(GST_PLUGIN_LDFLAGS)
 
+dnl use tbm
+PKG_CHECK_MODULES(TBM, libdrm libtbm)
+AC_SUBST(TBM_CFLAGS)
+AC_SUBST(TBM_LIBS)
+PKG_CHECK_MODULES(MMTA, mm-ta)
+AC_SUBST(MMTA_CFLAGS)
+AC_SUBST(MMTA_LIBS)
+dnl use  mm-common
+ PKG_CHECK_MODULES(MMCOMMON,mm-common)
+ AC_SUBST(MMCOMMON_CFLAGS)
 dnl *** output files ***
 
 $MKDIR_P tests/check/orc
