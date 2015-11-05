@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <string.h>
 #include <math.h>
+#include <mmf/mm_types.h>
 
 #include "video-orc.h"
 
@@ -3899,6 +3900,62 @@ convert_scale_planes (GstVideoConverter * convert,
   convert_fill_border (convert, dest);
 }
 
+static void
+convert_I420_SN12 (GstVideoConverter * convert, GstVideoFrame * dest,
+    const GstVideoFrame * src)
+{
+  MMVideoBuffer *mm_video_buf = NULL;
+  GstMemory *mem = NULL;
+  void *mm_data = NULL;
+  guint8 *mY, *mUV, *Y, *U, *V;
+  gint l1, l2;
+  gboolean interlaced = GST_VIDEO_FRAME_IS_INTERLACED (src);
+
+  gint width = convert->in_width;
+  gint height = convert->in_height;
+
+  mY = mUV = Y = U = V = NULL;
+
+  if(gst_buffer_n_memory(dest->buffer) >= 2) {
+      GstMapInfo map_info = GST_MAP_INFO_INIT;
+      mem = gst_buffer_peek_memory (dest->buffer, 1);
+      if (mem != NULL) {
+          gst_memory_map(mem, &map_info, GST_MAP_WRITE);
+          mm_data = map_info.data;
+          gst_memory_unmap(mem, &map_info);
+          mm_video_buf = (MMVideoBuffer*) mm_data;
+      }
+  }
+
+  /* convert from I420 TO SN12/NV12 format here.. */
+  if(mm_video_buf == NULL) {
+      GST_ERROR(" mm_video_buffer is NULL");
+      return;
+  }
+  mY = mm_video_buf->handle.paddr[0];
+  mUV = mm_video_buf->handle.paddr[1];
+
+  for (int i = 0; i < GST_ROUND_DOWN_2 (height); i += 2) {
+    GET_LINE_OFFSETS (interlaced, i, l1, l2);
+
+    Y = FRAME_GET_Y_LINE (src, l1);
+    memcpy(mY, Y, width);
+    mY += width;
+    Y = FRAME_GET_Y_LINE (src, l2);
+    memcpy(mY, Y, width);
+    mY += width;
+
+    U = FRAME_GET_U_LINE (src, i >> 1);
+    V = FRAME_GET_V_LINE (src, i >> 1);
+    for(int j = 0; j < (width + 1) / 2; j++) {
+        *mUV++ = *U++;
+        *mUV++ = *V++;
+    }
+  }
+
+}
+
+
 static GstVideoFormat
 get_scale_format (GstVideoFormat format, gint plane)
 {
@@ -3976,6 +4033,9 @@ get_scale_format (GstVideoFormat format, gint plane)
     case GST_VIDEO_FORMAT_A422_10LE:
     case GST_VIDEO_FORMAT_A444_10BE:
     case GST_VIDEO_FORMAT_A444_10LE:
+    case GST_VIDEO_FORMAT_ITLV:
+    case GST_VIDEO_FORMAT_SN12:
+    case GST_VIDEO_FORMAT_ST12:
       res = format;
       g_assert_not_reached ();
       break;
@@ -4369,6 +4429,8 @@ static const VideoTransform transforms[] = {
       TRUE, FALSE, FALSE, FALSE, 0, 0, convert_scale_planes},
   {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_Y444, FALSE, FALSE, FALSE, TRUE,
       TRUE, FALSE, FALSE, FALSE, 0, 0, convert_scale_planes},
+  {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_SN12, FALSE, FALSE, FALSE, TRUE,
+      TRUE, FALSE, FALSE, FALSE, 0, 0, convert_I420_SN12},
   {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_GRAY8, FALSE, FALSE, FALSE, TRUE,
       TRUE, FALSE, FALSE, FALSE, 0, 0, convert_scale_planes},
   {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_A420, FALSE, FALSE, FALSE, TRUE,

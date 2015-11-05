@@ -730,6 +730,11 @@ fill_planes (GstVideoInfo * info)
         cr_h = GST_ROUND_UP_2 (cr_h);
       info->size = info->offset[1] + info->stride[0] * cr_h;
       break;
+    case GST_VIDEO_FORMAT_ITLV:
+    case GST_VIDEO_FORMAT_ST12:
+    case GST_VIDEO_FORMAT_SN12:
+      /* DO NOTHING. */
+      break;
     case GST_VIDEO_FORMAT_NV16:
     case GST_VIDEO_FORMAT_NV61:
       info->stride[0] = GST_ROUND_UP_4 (width);
