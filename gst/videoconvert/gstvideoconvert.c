@@ -45,6 +45,11 @@
 #include <gst/video/gstvideometa.h>
 #include <gst/video/gstvideopool.h>
 
+#ifdef USE_TBM_BUFFER
+#include <mm_types.h>
+#include "gsttbmbufferpool.h"
+#endif
+
 #include <string.h>
 
 GST_DEBUG_CATEGORY (videoconvert_debug);
@@ -83,13 +88,20 @@ enum
 };
 
 #define CSP_VIDEO_CAPS GST_VIDEO_CAPS_MAKE (GST_VIDEO_FORMATS_ALL) ";" \
-    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", GST_VIDEO_FORMATS_ALL)
+    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", GST_VIDEO_FORMATS_ALL) ";" \
+    GST_VIDEO_CAPS_MAKE("{ SUYV , SYVY , S420 , ITLV }") ";" \
+    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", "{ SUYV , SYVY , S420 , ITLV }")
+
+#define CSP_VIDEO_SRC_CAPS GST_VIDEO_CAPS_MAKE (GST_VIDEO_FORMATS_ALL) ";" \
+    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", GST_VIDEO_FORMATS_ALL) ";" \
+    GST_VIDEO_CAPS_MAKE("{ SUYV , SYVY , S420 , ITLV , SN12 }") ";" \
+    GST_VIDEO_CAPS_MAKE_WITH_FEATURES ("ANY", "{ SUYV , SYVY , S420 , ITLV , SN12 }")
 
 static GstStaticPadTemplate gst_video_convert_src_template =
 GST_STATIC_PAD_TEMPLATE ("src",
     GST_PAD_SRC,
     GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (CSP_VIDEO_CAPS)
+    GST_STATIC_CAPS (CSP_VIDEO_SRC_CAPS)
     );
 
 static GstStaticPadTemplate gst_video_convert_sink_template =
@@ -109,6 +121,13 @@ static gboolean gst_video_convert_set_info (GstVideoFilter * filter,
     GstVideoInfo * out_info);
 static GstFlowReturn gst_video_convert_transform_frame (GstVideoFilter * filter,
     GstVideoFrame * in_frame, GstVideoFrame * out_frame);
+
+#ifdef USE_TBM_BUFFER
+static gboolean gst_video_convert_decide_allocation (GstBaseTransform * bsrc,
+    GstQuery * query);
+static GstFlowReturn gst_video_convert_prepare_output_buffer (GstBaseTransform * trans,
+    GstBuffer *input, GstBuffer **outbuf);
+#endif
 
 /* copies the given caps */
 static GstCaps *
@@ -494,7 +513,13 @@ gst_video_convert_finalize (GObject * obj)
   if (space->convert) {
     gst_video_converter_free (space->convert);
   }
-
+#ifdef USE_TBM_BUFFER
+  if(space->tbm_buffer_pool) {
+     gst_buffer_pool_set_active (space->tbm_buffer_pool, FALSE);
+     gst_object_unref (space->tbm_buffer_pool);
+     space->tbm_buffer_pool = NULL;
+  }
+#endif
   G_OBJECT_CLASS (parent_class)->finalize (obj);
 }
 
@@ -536,6 +561,11 @@ gst_video_convert_class_init (GstVideoConvertClass * klass)
       GST_DEBUG_FUNCPTR (gst_video_convert_set_info);
   gstvideofilter_class->transform_frame =
       GST_DEBUG_FUNCPTR (gst_video_convert_transform_frame);
+
+#ifdef USE_TBM_BUFFER
+  gstbasetransform_class->decide_allocation = gst_video_convert_decide_allocation;
+  gstbasetransform_class->prepare_output_buffer = gst_video_convert_prepare_output_buffer;
+#endif
 
   g_object_class_install_property (gobject_class, PROP_DITHER,
       g_param_spec_enum ("dither", "Dither", "Apply dithering while converting",
@@ -581,6 +611,9 @@ gst_video_convert_class_init (GstVideoConvertClass * klass)
 static void
 gst_video_convert_init (GstVideoConvert * space)
 {
+#ifdef USE_TBM_BUFFER
+  space->tbm_buffer_pool = NULL;
+#endif
   space->dither = DEFAULT_PROP_DITHER;
   space->dither_quantization = DEFAULT_PROP_DITHER_QUANTIZATION;
   space->chroma_resampler = DEFAULT_PROP_CHROMA_RESAMPLER;
@@ -693,6 +726,85 @@ gst_video_convert_transform_frame (GstVideoFilter * filter,
 
   return GST_FLOW_OK;
 }
+
+#ifdef USE_TBM_BUFFER
+
+static gboolean
+gst_video_convert_decide_allocation (GstBaseTransform * trans,
+    GstQuery * query)
+{
+
+  GstVideoConvert *vc = NULL;
+  GstVideoFilter *filter = GST_VIDEO_FILTER_CAST (trans);
+  vc = GST_VIDEO_CONVERT_CAST(trans);
+
+  if(filter->out_info.finfo->format == GST_VIDEO_FORMAT_SN12 ) {
+
+          guint size, min, max;
+          GstStructure *config;
+          GstCaps *caps = NULL;
+#if 0
+          if (gst_query_get_n_allocation_pools (query) > 0) {
+              gst_query_parse_nth_allocation_pool (query, 0, &vc->tbm_buffer_pool, &size, &min, &max);
+
+              /* adjust size */
+              size = MAX (size, sizeof(MMVideoBuffer));
+
+          } else {
+              vc->tbm_buffer_pool = NULL;
+              min = max = 0;
+          }
+#endif
+          size = sizeof(MMVideoBuffer);
+          if(vc->tbm_buffer_pool == NULL) {
+              min = 8;
+              max = 11;
+              GST_DEBUG("[%s]CREATING VIDEO_BUFFER_POOL",__FUNCTION__);
+              vc->tbm_buffer_pool = gst_mm_buffer_pool_new(trans);
+          }
+          config = gst_buffer_pool_get_config (vc->tbm_buffer_pool);
+
+          gst_query_parse_allocation (query, &caps, NULL);
+          if (caps)
+              gst_buffer_pool_config_set_params (config, caps, size, min, max);
+
+          if (gst_query_find_allocation_meta (query, GST_VIDEO_META_API_TYPE, NULL)) {
+              gst_buffer_pool_config_add_option (config,
+                  GST_BUFFER_POOL_OPTION_VIDEO_META);
+          }
+
+          gst_buffer_pool_set_config (vc->tbm_buffer_pool, config);
+
+          gst_query_add_allocation_pool (query, vc->tbm_buffer_pool, size, min, max);
+
+          gst_buffer_pool_set_active(vc->tbm_buffer_pool,TRUE);
+
+          GST_DEBUG("[%s]BUFFER_POOL max:[%d], min:[%d]",__FUNCTION__, max, min);
+  }
+  return GST_BASE_TRANSFORM_CLASS (parent_class)->decide_allocation (trans, query);
+
+}
+
+static GstFlowReturn
+gst_video_convert_prepare_output_buffer (GstBaseTransform * trans,
+    GstBuffer *input, GstBuffer **outbuf)
+{
+  GstBuffer *out_buffer = NULL;
+  GstVideoConvert *vc = NULL;
+  GstVideoFilter *filter = GST_VIDEO_FILTER_CAST (trans);
+
+  vc = GST_VIDEO_CONVERT_CAST(trans);
+
+  if(filter->out_info.finfo->format == GST_VIDEO_FORMAT_SN12 ) {
+      if(gst_buffer_pool_acquire_buffer(vc->tbm_buffer_pool,outbuf,0) != GST_FLOW_OK) {
+        GST_ERROR("[%s] memory prepare failed.",__FUNCTION__);
+        return GST_FLOW_ERROR;
+      }
+      return GST_FLOW_OK;
+    } else
+        return GST_BASE_TRANSFORM_CLASS (parent_class)->prepare_output_buffer(trans, input, outbuf);
+}
+#endif
 
 static gboolean
 plugin_init (GstPlugin * plugin)

@@ -3474,6 +3474,10 @@ static const VideoFormat formats[] = {
       DPTH16_16_16, PSTR488, PLANE0, OFFS204, SUB422, PACK_v216),
   MAKE_YUV_FORMAT (NV12, "raw video", GST_MAKE_FOURCC ('N', 'V', '1', '2'),
       DPTH888, PSTR122, PLANE011, OFFS001, SUB420, PACK_NV12),
+  MAKE_YUV_FORMAT (SN12, "raw video", GST_MAKE_FOURCC ('S', 'N', '1', '2'),
+      DPTH888, PSTR122, PLANE011, OFFS001, SUB420, PACK_NV12),
+  MAKE_YUV_FORMAT (ST12, "raw video", GST_MAKE_FOURCC ('S', 'T', '1', '2'),
+      DPTH888, PSTR122, PLANE011, OFFS001, SUB420, PACK_NV12),
   MAKE_YUV_FORMAT (NV21, "raw video", GST_MAKE_FOURCC ('N', 'V', '2', '1'),
       DPTH888, PSTR122, PLANE011, OFFS010, SUB420, PACK_NV21),
 
@@ -3774,6 +3778,10 @@ gst_video_format_from_fourcc (guint32 fourcc)
       return GST_VIDEO_FORMAT_v216;
     case GST_MAKE_FOURCC ('N', 'V', '1', '2'):
       return GST_VIDEO_FORMAT_NV12;
+    case GST_MAKE_FOURCC ('S', 'N', '1', '2'):
+      return GST_VIDEO_FORMAT_SN12;
+    case GST_MAKE_FOURCC ('S', 'T', '1', '2'):
+      return GST_VIDEO_FORMAT_ST12;
     case GST_MAKE_FOURCC ('N', 'V', '2', '1'):
       return GST_VIDEO_FORMAT_NV21;
     case GST_MAKE_FOURCC ('N', 'V', '1', '6'):
