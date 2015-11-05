@@ -3437,6 +3437,8 @@ static const VideoFormat formats[] = {
       DPTH888, PSTR244, PLANE0, OFFS013, SUB422, PACK_YUY2),
   MAKE_YUV_FORMAT (UYVY, "raw video", GST_MAKE_FOURCC ('U', 'Y', 'V', 'Y'),
       DPTH888, PSTR244, PLANE0, OFFS102, SUB422, PACK_UYVY),
+  MAKE_YUV_FORMAT (ITLV, "raw video", GST_MAKE_FOURCC ('I', 'T', 'L', 'V'),
+      DPTH888, PSTR244, PLANE0, OFFS012, SUB422, PACK_UYVY),
   MAKE_YUVA_PACK_FORMAT (AYUV, "raw video", GST_MAKE_FOURCC ('A', 'Y', 'U',
           'V'), DPTH8888, PSTR4444, PLANE0, OFFS1230, SUB4444, PACK_AYUV),
   MAKE_RGB_FORMAT (RGBx, "raw video", DPTH888, PSTR444, PLANE0, OFFS012,
@@ -3473,6 +3475,10 @@ static const VideoFormat formats[] = {
   MAKE_YUV_FORMAT (v216, "raw video", GST_MAKE_FOURCC ('v', '2', '1', '6'),
       DPTH16_16_16, PSTR488, PLANE0, OFFS204, SUB422, PACK_v216),
   MAKE_YUV_FORMAT (NV12, "raw video", GST_MAKE_FOURCC ('N', 'V', '1', '2'),
+      DPTH888, PSTR122, PLANE011, OFFS001, SUB420, PACK_NV12),
+  MAKE_YUV_FORMAT (SN12, "raw video", GST_MAKE_FOURCC ('S', 'N', '1', '2'),
+      DPTH888, PSTR122, PLANE011, OFFS001, SUB420, PACK_NV12),
+  MAKE_YUV_FORMAT (ST12, "raw video", GST_MAKE_FOURCC ('S', 'T', '1', '2'),
       DPTH888, PSTR122, PLANE011, OFFS001, SUB420, PACK_NV12),
   MAKE_YUV_FORMAT (NV21, "raw video", GST_MAKE_FOURCC ('N', 'V', '2', '1'),
       DPTH888, PSTR122, PLANE011, OFFS010, SUB420, PACK_NV21),
@@ -3760,6 +3766,8 @@ gst_video_format_from_fourcc (guint32 fourcc)
       return GST_VIDEO_FORMAT_YVYU;
     case GST_MAKE_FOURCC ('U', 'Y', 'V', 'Y'):
       return GST_VIDEO_FORMAT_UYVY;
+    case GST_MAKE_FOURCC ('I', 'T', 'L', 'V'):
+      return GST_VIDEO_FORMAT_ITLV;
     case GST_MAKE_FOURCC ('A', 'Y', 'U', 'V'):
       return GST_VIDEO_FORMAT_AYUV;
     case GST_MAKE_FOURCC ('Y', '4', '1', 'B'):
@@ -3774,6 +3782,10 @@ gst_video_format_from_fourcc (guint32 fourcc)
       return GST_VIDEO_FORMAT_v216;
     case GST_MAKE_FOURCC ('N', 'V', '1', '2'):
       return GST_VIDEO_FORMAT_NV12;
+    case GST_MAKE_FOURCC ('S', 'N', '1', '2'):
+      return GST_VIDEO_FORMAT_SN12;
+    case GST_MAKE_FOURCC ('S', 'T', '1', '2'):
+      return GST_VIDEO_FORMAT_ST12;
     case GST_MAKE_FOURCC ('N', 'V', '2', '1'):
       return GST_VIDEO_FORMAT_NV21;
     case GST_MAKE_FOURCC ('N', 'V', '1', '6'):
