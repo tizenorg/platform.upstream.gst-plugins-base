@@ -644,7 +644,7 @@ gst_video_convert_decide_allocation (GstBaseTransform * trans,
           size = sizeof(MMVideoBuffer);
           if(vc->tbm_buffer_pool == NULL) {
               min = 8;
-              max = 11;
+              max = 13;
               GST_DEBUG("[%s]CREATING VIDEO_BUFFER_POOL",__FUNCTION__);
               vc->tbm_buffer_pool = gst_mm_buffer_pool_new(trans);
           }
