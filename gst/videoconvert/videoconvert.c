@@ -825,8 +825,13 @@ convert_I420_SN12 (VideoConvert * convert, GstVideoFrame * dest,
       GST_ERROR(" mm_video_buffer is NULL");
       return;
   }
-  mY = mm_video_buf->handle.paddr[0];
-  mUV = mm_video_buf->handle.paddr[1];
+  mY = mm_video_buf->data[0];
+  mUV = mm_video_buf->data[1];
+
+  if(!mY || !mUV ){
+      GST_ERROR("either of plane buffer is NULL");
+      return;
+  }
 
   for (int i = 0; i < GST_ROUND_DOWN_2 (height); i += 2) {
     GET_LINE_OFFSETS (interlaced, i, l1, l2);

@@ -15,9 +15,6 @@
 #include <tbm_bufmgr.h>
 #endif
 
-#define ALIGN(x, a)       (((x) + (a) - 1) & ~((a) - 1))
-#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
-
 typedef struct _GstMMVideoMemory                GstMMVideoMemory;
 typedef struct _GstMMVideoMemoryAllocator       GstMMVideoMemoryAllocator;
 typedef struct _GstMMVideoMemoryAllocatorClass  GstMMVideoMemoryAllocatorClass;
@@ -102,6 +99,31 @@ struct _GstMMBufferPoolClass
 GstBufferPool *
 gst_mm_buffer_pool_new (GstElement * element );
 
+/*MFC Buffer alignment macros*/
+#define S5P_FIMV_DEC_BUF_ALIGN                  (8 * 1024)
+#define S5P_FIMV_ENC_BUF_ALIGN                  (8 * 1024)
+#define S5P_FIMV_NV12M_HALIGN                   16
+#define S5P_FIMV_NV12M_LVALIGN                  16
+#define S5P_FIMV_NV12M_CVALIGN                  8
+#define S5P_FIMV_NV12MT_HALIGN                  128
+#define S5P_FIMV_NV12MT_VALIGN                  64
+#define S5P_FIMV_NV12M_SALIGN                   2048
+#define S5P_FIMV_NV12MT_SALIGN                  8192
+
+#define ALIGN(x, a)       (((x) + (a) - 1) & ~((a) - 1))
+
+/* Buffer alignment defines */
+#define SZ_1M                                   0x00100000
+#define S5P_FIMV_D_ALIGN_PLANE_SIZE             64
+
+#define S5P_FIMV_MAX_FRAME_SIZE                 (2 * SZ_1M)
+#define S5P_FIMV_NUM_PIXELS_IN_MB_ROW           16
+#define S5P_FIMV_NUM_PIXELS_IN_MB_COL           16
+
+/* Macro */
+#define ALIGN_TO_4KB(x)   ((((x) + (1 << 12) - 1) >> 12) << 12)
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#define CHOOSE_MAX_SIZE(a,b) ((a) > (b) ? (a) : (b))
 
 #if 0
 
