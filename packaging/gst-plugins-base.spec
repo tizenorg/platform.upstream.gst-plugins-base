@@ -10,6 +10,7 @@ Summary:        GStreamer Streaming-Media Framework Plug-Ins
 Url:            http://gstreamer.freedesktop.org/
 Group:          Multimedia/Framework
 Source:         http://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-%{version}.tar.xz
+Source100:      common.tar.gz
 BuildRequires:  gettext-tools
 BuildRequires:  glib2-devel >= 2.32
 BuildRequires:  gstreamer-devel >= 1.0.0
@@ -52,6 +53,7 @@ to compile and link applications that use gstreamer-plugins-base.
 
 %prep
 %setup -q -n gst-plugins-base-%{version}
+%setup -q -T -D -a 100
 
 %build
 # FIXME: GTKDOC_CFLAGS, GST_OBJ_CFLAGS:
