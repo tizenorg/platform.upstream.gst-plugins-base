@@ -27,6 +27,7 @@
 #include <glib.h>
 #include <string.h>
 #include <math.h>
+#include <mmf/mm_types.h>
 
 #include "video-orc.h"
 
@@ -3899,6 +3900,176 @@ convert_scale_planes (GstVideoConverter * convert,
   convert_fill_border (convert, dest);
 }
 
+static void
+convert_I420_SN12 (GstVideoConverter * convert, GstVideoFrame * src,
+    const GstVideoFrame *dest )
+{
+  MMVideoBuffer *mm_video_buf = NULL;
+  GstMemory *mem = NULL;
+  void *mm_data = NULL;
+  guint8 *mY, *mUV, *Y, *U, *V;
+  gint l1, l2;
+  gboolean interlaced = GST_VIDEO_FRAME_IS_INTERLACED (src);
+
+  gint width = convert->in_width;
+  gint height = convert->in_height;
+
+  mY = mUV = Y = U = V = NULL;
+
+  if(gst_buffer_n_memory(dest->buffer) >= 2) {
+      GstMapInfo map_info = GST_MAP_INFO_INIT;
+      mem = gst_buffer_peek_memory (dest->buffer, 1);
+      if (mem != NULL) {
+          gst_memory_map(mem, &map_info, GST_MAP_WRITE);
+          mm_data = map_info.data;
+          gst_memory_unmap(mem, &map_info);
+          mm_video_buf = (MMVideoBuffer*) mm_data;
+      }
+  }
+
+  /* convert from I420 TO SN12/NV12 format here.. */
+  if(mm_video_buf == NULL) {
+      GST_ERROR(" mm_video_buffer is NULL");
+      return;
+  }
+  mY = mm_video_buf->data[0];
+  mUV = mm_video_buf->data[1];
+
+  for (int i = 0; i < GST_ROUND_DOWN_2 (height); i += 2) {
+    GET_LINE_OFFSETS (interlaced, i, l1, l2);
+
+    Y = FRAME_GET_Y_LINE (src, l1);
+    memcpy(mY, Y, width);
+    mY += width;
+    Y = FRAME_GET_Y_LINE (src, l2);
+    memcpy(mY, Y, width);
+    mY += width;
+
+    U = FRAME_GET_U_LINE (src, i >> 1);
+    V = FRAME_GET_V_LINE (src, i >> 1);
+    for(int j = 0; j < (width + 1) / 2; j++) {
+        *mUV++ = *U++;
+        *mUV++ = *V++;
+    }
+  }
+
+}
+
+static void
+convert_ARGB_SN12 (GstVideoConverter * convert, GstVideoFrame * src,
+    const GstVideoFrame * dest)
+{
+  MMVideoBuffer *mm_video_buf = NULL;
+  GstMemory *mem = NULL;
+  void *mm_data = NULL;
+  guint8 *mY, *mUV, *Y, *U, *V;
+  gboolean interlaced = GST_VIDEO_FRAME_IS_INTERLACED (src);
+  gint l1, l2;
+  gint width = convert->in_width;
+  gint height = convert->in_height;
+  mY = mUV = Y = U = V = NULL;
+  if(gst_buffer_n_memory(dest->buffer) >= 2) {
+      GstMapInfo map_info = GST_MAP_INFO_INIT;
+      mem = gst_buffer_peek_memory (dest->buffer, 1);
+      if (mem != NULL) {
+          gst_memory_map(mem, &map_info, GST_MAP_WRITE);
+          mm_data = map_info.data;
+          gst_memory_unmap(mem, &map_info);
+          mm_video_buf = (MMVideoBuffer*) mm_data;
+      }
+  }
+  /* convert from SN12 to xRGB format here.. */
+
+  /*
+      Y' = 0.257*R' + 0.504*G' + 0.098*B' + 16
+     Cb' = -0.148*R' - 0.291*G' + 0.439*B' + 128
+     Cr' = 0.439*R' - 0.368*G' - 0.071*B' + 128
+  */
+
+  if(mm_video_buf == NULL) {
+      GST_ERROR(" mm_video_buffer is NULL");
+      return;
+  }
+  mY = mm_video_buf->data[0];
+  mUV = mm_video_buf->data[1];
+
+  memset(mY, 0, mm_video_buf->size[0]);
+  memset(mUV, 0, mm_video_buf->size[1]);
+
+  for (int i = 0; i < GST_ROUND_DOWN_2 (height); i ++) {
+    GET_LINE_OFFSETS (interlaced, i, l1, l2);
+    Y = FRAME_GET_LINE(src,i);
+
+    for(int j = 0; j < width; j++ ) {
+
+      mY[j] =  0.257*Y[1] + 0.504*Y[2] + 0.098*Y[3] + 16;
+      /*mY[j] =  ySNR[Y[1]] + ySNG[Y[2]] + ySNB[Y[3]] + 16;*/
+      Y += 4;
+      if(!(i & 0x1) && !(j & 0x1)) {
+         *mUV++ = -0.148*Y[1] - 0.291*Y[2] + 0.439*Y[3] + 128;
+         *mUV++ = 0.439*Y[1] - 0.368*Y[2] - 0.071*Y[3] + 128;
+     }
+    }
+    mY += width;
+  }
+}
+
+static void
+convert_SN12_xRGB (GstVideoConverter * convert, GstVideoFrame * src,
+    const GstVideoFrame * dest)
+{
+  MMVideoBuffer *mm_video_buf = NULL;
+  GstMemory *mem = NULL;
+  void *mm_data = NULL;
+  guint8 *mY, *mUV, *Y, *U, *V;
+  gboolean interlaced = GST_VIDEO_FRAME_IS_INTERLACED (src);
+  gint l1, l2;
+  gint width = convert->in_width;
+  gint height = convert->in_height;
+
+  mY = mUV = Y = U = V = NULL;
+
+  if(gst_buffer_n_memory(src->buffer) >= 2) {
+      GstMapInfo map_info = GST_MAP_INFO_INIT;
+      mem = gst_buffer_peek_memory (src->buffer, 1);
+      if (mem != NULL) {
+          gst_memory_map(mem, &map_info, GST_MAP_WRITE);
+          mm_data = map_info.data;
+          gst_memory_unmap(mem, &map_info);
+          mm_video_buf = (MMVideoBuffer*) mm_data;
+      }
+  }
+  /* convert from SN12 to xRGB format here.. */
+
+  /*
+    R' = 1.164*(Y' - 16) + 1.596*(Cr' - 128)
+    G' = 1.164*(Y' - 16) - 0.813*(Cr' - 128) - 0.392*(Cb' - 128)
+    B' = 1.164*(Y' - 16) + 2.017*(Cb' - 128)
+  */
+
+  if(mm_video_buf == NULL) {
+      GST_ERROR(" mm_video_buffer is NULL");
+      return;
+  }
+  mY = mm_video_buf->data[0];
+  mUV = mm_video_buf->data[1];
+  GST_DEBUG("[%s] converting SN12 to ARGB",__func__);
+  for (int i = 0; i < GST_ROUND_DOWN_2 (height); i += 2) {
+    GET_LINE_OFFSETS (interlaced, i, l1, l2);
+    Y = FRAME_GET_LINE(dest,i);
+
+    for(int j = 0; j < width; j++ ) {
+
+      Y[1] = 1.164*(mY[j] - 16) + 1.596*(mUV[j+1] - 128);
+      Y[2] = 1.164*(mY[j] - 16) - 0.813*(mUV[j+1] - 128) - 0.392*(mUV[j] - 128);
+      Y[3] = 1.164*(mY[j] - 16) + 2.017*(mUV[j] - 128);
+      Y += 4;
+    }
+    mY += width;
+    mUV += (width + 1)/2;
+  }
+}
+
 static GstVideoFormat
 get_scale_format (GstVideoFormat format, gint plane)
 {
@@ -3976,6 +4147,8 @@ get_scale_format (GstVideoFormat format, gint plane)
     case GST_VIDEO_FORMAT_A422_10LE:
     case GST_VIDEO_FORMAT_A444_10BE:
     case GST_VIDEO_FORMAT_A444_10LE:
+    case GST_VIDEO_FORMAT_SN12:
+    case GST_VIDEO_FORMAT_ST12:
       res = format;
       g_assert_not_reached ();
       break;
@@ -4040,6 +4213,8 @@ setup_scale (GstVideoConverter * convert)
         return FALSE;
       }
       break;
+    case GST_VIDEO_FORMAT_SN12:
+      return TRUE; /* do nothing for SN12 format */
     default:
       break;
   }
@@ -4369,6 +4544,12 @@ static const VideoTransform transforms[] = {
       TRUE, FALSE, FALSE, FALSE, 0, 0, convert_scale_planes},
   {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_Y444, FALSE, FALSE, FALSE, TRUE,
       TRUE, FALSE, FALSE, FALSE, 0, 0, convert_scale_planes},
+  {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_SN12, FALSE, FALSE, FALSE, TRUE,
+      TRUE, FALSE, FALSE, FALSE, 0, 0, convert_I420_SN12},
+  {GST_VIDEO_FORMAT_ARGB, GST_VIDEO_FORMAT_SN12, FALSE, FALSE, FALSE, TRUE,
+      TRUE, FALSE, FALSE, FALSE, 0, 0, convert_ARGB_SN12},
+  {GST_VIDEO_FORMAT_SN12, GST_VIDEO_FORMAT_ARGB, FALSE, FALSE, FALSE, TRUE,
+      TRUE, FALSE, FALSE, FALSE, 0, 0, convert_SN12_xRGB},
   {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_GRAY8, FALSE, FALSE, FALSE, TRUE,
       TRUE, FALSE, FALSE, FALSE, 0, 0, convert_scale_planes},
   {GST_VIDEO_FORMAT_I420, GST_VIDEO_FORMAT_A420, FALSE, FALSE, FALSE, TRUE,

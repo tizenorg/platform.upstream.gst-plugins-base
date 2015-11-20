@@ -2,29 +2,76 @@
 #include "gsttbmbufferpool.h"
 #include <gst/video/gstvideofilter.h>
 
-static GQuark gst_mm_buffer_data_quark = 0;
-
-
-int calc_yplane(int width, int height)
+int new_calc_plane(int width, int height)
 {
     int mbX, mbY;
 
-    mbX = DIV_ROUND_UP(width, 16);
-    mbY = DIV_ROUND_UP(height, 16);
+    mbX = DIV_ROUND_UP(width, S5P_FIMV_NUM_PIXELS_IN_MB_ROW);
+    mbY = DIV_ROUND_UP(height, S5P_FIMV_NUM_PIXELS_IN_MB_COL);
 
-    return (ALIGN((mbX * mbY) * 256, 256) + 256);
+    if (width * height < S5P_FIMV_MAX_FRAME_SIZE)
+      mbY = (mbY + 1) / 2 * 2;
+
+    return ((mbX * S5P_FIMV_NUM_PIXELS_IN_MB_COL) *
+     (mbY * S5P_FIMV_NUM_PIXELS_IN_MB_ROW));
 }
 
-int calc_uvplane(int width, int height)
+int new_calc_yplane(int width, int height)
+{
+    return (ALIGN_TO_4KB(new_calc_plane(width, height) +
+              S5P_FIMV_D_ALIGN_PLANE_SIZE));
+}
+
+int new_calc_uvplane(int width, int height)
+{
+    return (ALIGN_TO_4KB((new_calc_plane(width, height) >> 1) +
+              S5P_FIMV_D_ALIGN_PLANE_SIZE));
+}
+
+int
+calc_plane(int width, int height)
 {
     int mbX, mbY;
 
-    mbX = DIV_ROUND_UP(width, 16);
-    mbY = DIV_ROUND_UP(height, 16);
+    mbX = ALIGN(width, S5P_FIMV_NV12MT_HALIGN);
+    mbY = ALIGN(height, S5P_FIMV_NV12MT_VALIGN);
 
-    return (ALIGN((mbX * mbY) * 128, 256) + 128);
+    return ALIGN(mbX * mbY, S5P_FIMV_DEC_BUF_ALIGN);
 }
 
+int
+calc_yplane(int width, int height)
+{
+    int mbX, mbY;
+
+    mbX = ALIGN(width + 24, S5P_FIMV_NV12MT_HALIGN);
+    mbY = ALIGN(height + 16, S5P_FIMV_NV12MT_VALIGN);
+
+    return ALIGN(mbX * mbY, S5P_FIMV_DEC_BUF_ALIGN);
+}
+
+int
+calc_uvplane(int width, int height)
+{
+    int mbX, mbY;
+
+    mbX = ALIGN(width + 16, S5P_FIMV_NV12MT_HALIGN);
+    mbY = ALIGN(height + 4, S5P_FIMV_NV12MT_VALIGN);
+
+    return ALIGN((mbX * mbY)>>1, S5P_FIMV_DEC_BUF_ALIGN);
+}
+
+int
+gst_calculate_y_size(int width, int height)
+{
+   return CHOOSE_MAX_SIZE(calc_yplane(width,height),new_calc_yplane(width,height));
+}
+
+int
+gst_calculate_uv_size(int width, int height)
+{
+   return CHOOSE_MAX_SIZE(calc_uvplane(width,height),new_calc_uvplane(width,height));
+}
 
 static GstMemory *
 gst_mm_memory_allocator_alloc_dummy (GstAllocator * allocator, gsize size,
@@ -143,7 +190,7 @@ gst_mm_buffer_pool_stop (GstBufferPool * bpool)
 {
   GstMMBufferPool *pool = GST_MM_BUFFER_POOL (bpool);
 
-  if(gst_buffer_pool_is_active (bpool) == TRUE)
+  if(gst_buffer_pool_is_active (pool) == TRUE)
       return FALSE;
   /* Remove any buffers that are there */
   if(pool->buffers != NULL){
@@ -163,6 +210,8 @@ gst_mm_buffer_pool_stop (GstBufferPool * bpool)
 static const gchar **
 gst_mm_buffer_pool_get_options (GstBufferPool * bpool)
 {
+  static const gchar *raw_video_options[] =
+      { GST_BUFFER_POOL_OPTION_VIDEO_META, NULL };
   static const gchar *options[] = { NULL };
   return options;
 }
@@ -203,6 +252,13 @@ no_caps:
     GST_WARNING_OBJECT (pool, "no caps in config");
     return FALSE;
   }
+wrong_video_caps:
+  {
+    GST_OBJECT_UNLOCK (pool);
+    GST_WARNING_OBJECT (pool,
+        "failed getting geometry from caps %" GST_PTR_FORMAT, caps);
+    return FALSE;
+  }
 }
 
 static GstFlowReturn
@@ -222,7 +278,7 @@ gst_mm_buffer_pool_alloc_buffer (GstBufferPool * bpool,
   mm_buf = (GstMMBuffer*) malloc(sizeof(GstMMBuffer));
   mem = gst_mm_memory_allocator_alloc (pool->allocator, 0, mm_buf);
   buf = gst_buffer_new ();
-  buf->pool = bpool;
+  buf->pool = pool;
   mem->size = sizeof(GstMMBuffer);
   mem->offset = 0;
   gst_buffer_append_memory (buf, mem);
@@ -248,17 +304,16 @@ gst_mm_buffer_pool_alloc_buffer (GstBufferPool * bpool,
     mm_video_buf->type = MM_VIDEO_BUFFER_TYPE_TBM_BO;
     mm_video_buf->plane_num = 2;
     /* Setting Y plane size */
-    mm_video_buf->size[0] = calc_yplane(width, height);
+    mm_video_buf->size[0] = gst_calculate_y_size(width, height);
     /* Setting UV plane size */
-    mm_video_buf->size[1] = calc_uvplane(width, height);
+    mm_video_buf->size[1] = gst_calculate_uv_size(width, height);
     mm_video_buf->handle.bo[0] = tbm_bo_alloc(pool->hTBMBufMgr, mm_video_buf->size[0], TBM_BO_WC);
     mm_video_buf->handle.bo[1] = tbm_bo_alloc(pool->hTBMBufMgr, mm_video_buf->size[1], TBM_BO_WC);
 
     mm_video_buf->handle.dmabuf_fd[0] = (tbm_bo_get_handle(mm_video_buf->handle.bo[0], TBM_DEVICE_MM)).u32;
     mm_video_buf->handle.dmabuf_fd[1] = (tbm_bo_get_handle(mm_video_buf->handle.bo[1], TBM_DEVICE_MM)).u32;
-
-    mm_video_buf->handle.paddr[0] = (tbm_bo_map(mm_video_buf->handle.bo[0], TBM_DEVICE_CPU,TBM_OPTION_WRITE)).ptr;
-    mm_video_buf->handle.paddr[1] = (tbm_bo_map(mm_video_buf->handle.bo[1], TBM_DEVICE_CPU,TBM_OPTION_WRITE)).ptr;
+    mm_video_buf->data[0] = (tbm_bo_map(mm_video_buf->handle.bo[0], TBM_DEVICE_CPU,TBM_OPTION_WRITE)).ptr;
+    mm_video_buf->data[1] = (tbm_bo_map(mm_video_buf->handle.bo[1], TBM_DEVICE_CPU,TBM_OPTION_WRITE)).ptr;
     /* Setting stride height & width for Y plane */
     mm_video_buf->stride_height[0] = mm_video_buf->height[0] = height;
     mm_video_buf->stride_width[0] = mm_video_buf->width[0] = width;
