@@ -15,7 +15,6 @@ GObject
       GstElement
         GstAdder
         GstAudioDecoder
-          GstIVorbisDec
           GstVorbisDec
         GstAudioEncoder
           GstVorbisEnc
@@ -58,6 +57,7 @@ GObject
                 GstAlsaSrc
             GstAudioCdSrc
               GstCdParanoiaSrc
+            GstSocketSrc
             GstTCPClientSrc
             GstTCPServerSrc
             GstVideoTestSrc
@@ -117,8 +117,6 @@ GObject
   GInputStream
   GOutputStream
   GSocket
-  GTypeModule
-    PangoModule
   GstColorBalanceChannel
   GstEncodingProfile
   PangoContext

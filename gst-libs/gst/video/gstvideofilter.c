@@ -260,11 +260,12 @@ gst_video_filter_transform (GstBaseTransform * trans, GstBuffer * inbuf,
   if (fclass->transform_frame) {
     GstVideoFrame in_frame, out_frame;
 
-    if (!gst_video_frame_map (&in_frame, &filter->in_info, inbuf, GST_MAP_READ))
+    if (!gst_video_frame_map (&in_frame, &filter->in_info, inbuf,
+            GST_MAP_READ | GST_VIDEO_FRAME_MAP_FLAG_NO_REF))
       goto invalid_buffer;
 
     if (!gst_video_frame_map (&out_frame, &filter->out_info, outbuf,
-            GST_MAP_WRITE))
+            GST_MAP_WRITE | GST_VIDEO_FRAME_MAP_FLAG_NO_REF))
       goto invalid_buffer;
 
     res = fclass->transform_frame (filter, &in_frame, &out_frame);
@@ -308,7 +309,7 @@ gst_video_filter_transform_ip (GstBaseTransform * trans, GstBuffer * buf)
     GstVideoFrame frame;
     GstMapFlags flags;
 
-    flags = GST_MAP_READ;
+    flags = GST_MAP_READ | GST_VIDEO_FRAME_MAP_FLAG_NO_REF;
 
     if (!gst_base_transform_is_passthrough (trans))
       flags |= GST_MAP_WRITE;
@@ -350,9 +351,9 @@ gst_video_filter_transform_meta (GstBaseTransform * trans, GstBuffer * inbuf,
 
   tags = gst_meta_api_type_get_tags (info->api);
 
-  if (tags && g_strv_length ((gchar **) tags) == 1
-      && gst_meta_api_type_has_tag (info->api,
-          g_quark_from_string (GST_META_TAG_VIDEO_STR)))
+  if (!tags || (g_strv_length ((gchar **) tags) == 1
+          && gst_meta_api_type_has_tag (info->api,
+              g_quark_from_string (GST_META_TAG_VIDEO_STR))))
     return TRUE;
 
   return GST_BASE_TRANSFORM_CLASS (parent_class)->transform_meta (trans, inbuf,

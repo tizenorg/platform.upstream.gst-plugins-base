@@ -24,13 +24,13 @@
  * SECTION:element-alsasink
  * @see_also: alsasrc
  *
- * This element renders raw audio samples using the ALSA api.
+ * This element renders raw audio samples using the ALSA audio API.
  *
  * <refsect2>
  * <title>Example pipelines</title>
  * |[
- * gst-launch -v filesrc location=sine.ogg ! oggdemux ! vorbisdec ! audioconvert ! audioresample ! alsasink
- * ]| Play an Ogg/Vorbis file.
+ * gst-launch-1.0 -v uridecodebin uri=file:///path/to/audio.ogg ! audioconvert ! audioresample ! autoaudiosink
+ * ]| Play an Ogg/Vorbis file and output audio via ALSA.
  * </refsect2>
  */
 
@@ -51,6 +51,10 @@
 
 #include <gst/audio/gstaudioiec61937.h>
 #include <gst/gst-i18n-plugin.h>
+
+#ifndef ESTRPIPE
+#define ESTRPIPE EPIPE
+#endif
 
 #define DEFAULT_DEVICE		"default"
 #define DEFAULT_DEVICE_NAME	""
@@ -982,7 +986,7 @@ gst_alsasink_close (GstAudioSink * asink)
 static gint
 xrun_recovery (GstAlsaSink * alsa, snd_pcm_t * handle, gint err)
 {
-  GST_DEBUG_OBJECT (alsa, "xrun recovery %d: %s", err, g_strerror (-err));
+  GST_WARNING_OBJECT (alsa, "xrun recovery %d: %s", err, g_strerror (-err));
 
   if (err == -EPIPE) {          /* under-run */
     err = snd_pcm_prepare (handle);
@@ -990,6 +994,7 @@ xrun_recovery (GstAlsaSink * alsa, snd_pcm_t * handle, gint err)
       GST_WARNING_OBJECT (alsa,
           "Can't recover from underrun, prepare failed: %s",
           snd_strerror (err));
+    gst_audio_base_sink_report_device_failure (GST_AUDIO_BASE_SINK (alsa));
     return 0;
   } else if (err == -ESTRPIPE) {
     while ((err = snd_pcm_resume (handle)) == -EAGAIN)
@@ -1002,6 +1007,8 @@ xrun_recovery (GstAlsaSink * alsa, snd_pcm_t * handle, gint err)
             "Can't recover from suspend, prepare failed: %s",
             snd_strerror (err));
     }
+    if (err == 0)
+      gst_audio_base_sink_report_device_failure (GST_AUDIO_BASE_SINK (alsa));
     return 0;
   }
   return err;
@@ -1013,16 +1020,17 @@ gst_alsasink_write (GstAudioSink * asink, gpointer data, guint length)
   GstAlsaSink *alsa;
   gint err;
   gint cptr;
-  gint16 *ptr = data;
+  guint8 *ptr = data;
 
   alsa = GST_ALSA_SINK (asink);
 
   if (alsa->iec958 && alsa->need_swap) {
     guint i;
+    guint16 *ptr_tmp = (guint16 *) ptr;
 
     GST_DEBUG_OBJECT (asink, "swapping bytes");
     for (i = 0; i < length / 2; i++) {
-      ptr[i] = GUINT16_SWAP_LE_BE (ptr[i]);
+      ptr_tmp[i] = GUINT16_SWAP_LE_BE (ptr_tmp[i]);
     }
   }
 

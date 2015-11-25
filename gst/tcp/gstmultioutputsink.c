@@ -197,9 +197,7 @@ enum
 
   PROP_RESEND_STREAMHEADER,
 
-  PROP_NUM_OUTPUTS,
-
-  PROP_LAST
+  PROP_NUM_OUTPUTS
 };
 
 #define GST_TYPE_RECOVER_POLICY (gst_multi_output_sink_recover_policy_get_type())
@@ -2392,7 +2390,7 @@ gst_multi_output_sink_render (GstBaseSink * bsink, GstBuffer * buf)
   /* if we get IN_CAPS buffers, but the previous buffer was not IN_CAPS,
    * it means we're getting new streamheader buffers, and we should clear
    * the old ones */
-  if (in_caps && sink->previous_buffer_in_caps == FALSE) {
+  if (in_caps && !sink->previous_buffer_in_caps) {
     GST_DEBUG_OBJECT (sink,
         "receiving new IN_CAPS buffers, clearing old streamheader");
     g_slist_foreach (sink->streamheader, (GFunc) gst_mini_object_unref, NULL);
@@ -2788,7 +2786,8 @@ gst_multi_output_sink_unlock_stop (GstBaseSink * bsink)
   sink = GST_MULTI_OUTPUT_SINK (bsink);
 
   GST_DEBUG_OBJECT (sink, "unset flushing");
-  g_cancellable_reset (sink->cancellable);
+  g_object_unref (sink->cancellable);
+  sink->cancellable = g_cancellable_new ();
 
   return TRUE;
 }

@@ -33,29 +33,9 @@
 /* for XkbKeycodeToKeysym */
 #include <X11/XKBlib.h>
 
-GST_DEBUG_CATEGORY_EXTERN (gst_debug_xvcontext);
+GST_DEBUG_CATEGORY_EXTERN (gst_debug_xv_context);
 GST_DEBUG_CATEGORY_EXTERN (GST_CAT_PERFORMANCE);
-#define GST_CAT_DEFAULT gst_debug_xvcontext
-
-#ifdef GST_EXT_XV_ENHANCEMENT
-#define _BUFFER_WAIT_TIMEOUT            200000
-#define _CHECK_DISPLAYED_BUFFER_COUNT   30
-
-/* headers for drm */
-#include <sys/stat.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <xf86drm.h>
-#include <xf86drmMode.h>
-#include <X11/Xmd.h>
-#include <dri2/dri2.h>
-#include <tbm_bufmgr.h>
-
-static XImage *make_transparent_image(Display *d, Window win, int w, int h);
-static unsigned int drm_convert_dmabuf_gemname(GstXvContext *context, unsigned int dmabuf_fd, unsigned int *gem_handle);
-static void drm_close_gem(GstXvContext *context, unsigned int *gem_handle);
-#endif /* GST_EXT_XV_ENHANCEMENT */
+#define GST_CAT_DEFAULT gst_debug_xv_context
 
 void
 gst_xvcontext_config_clear (GstXvContextConfig * config)
@@ -173,18 +153,20 @@ gst_xvcontext_get_xv_support (GstXvContext * context,
 
   /* Set XV_AUTOPAINT_COLORKEY and XV_DOUBLE_BUFFER and XV_COLORKEY */
   {
-    int count, todo = 3;
+    int count, todo = 4;
     XvAttribute *const attr = XvQueryPortAttributes (context->disp,
         context->xv_port_id, &count);
     static const char autopaint[] = "XV_AUTOPAINT_COLORKEY";
     static const char dbl_buffer[] = "XV_DOUBLE_BUFFER";
     static const char colorkey[] = "XV_COLORKEY";
+    static const char iturbt709[] = "XV_ITURBT_709";
 
     GST_DEBUG ("Checking %d Xv port attributes", count);
 
     context->have_autopaint_colorkey = FALSE;
     context->have_double_buffer = FALSE;
     context->have_colorkey = FALSE;
+    context->have_iturbt709 = FALSE;
 
     for (i = 0; ((i < count) && todo); i++) {
       GST_DEBUG ("Got attribute %s", attr[i].name);
@@ -250,6 +232,9 @@ gst_xvcontext_get_xv_support (GstXvContext * context,
         }
         todo--;
         context->have_colorkey = TRUE;
+      } else if (!strcmp (attr[i].name, iturbt709)) {
+        todo--;
+        context->have_iturbt709 = TRUE;
       }
     }
 
@@ -404,9 +389,6 @@ gst_xvcontext_calculate_pixel_aspect_ratio (GstXvContext * context)
     {1, 1},                     /* regular screen */
     {16, 15},                   /* PAL TV */
     {11, 10},                   /* 525 line Rec.601 video */
-#ifdef GST_EXT_XV_ENHANCEMENT
-    {44, 46},			/* Curved display */
-#endif
     {54, 59},                   /* 625 line Rec.601 video */
     {64, 45},                   /* 1280x1024 on 16:9 display */
     {5, 3},                     /* 1280x1024 on 4:3 display */
@@ -465,18 +447,8 @@ gst_xvimage_handle_xerror (Display * display, XErrorEvent * xevent)
 {
   char error_msg[1024];
 
-#ifdef GST_EXT_XV_ENHANCEMENT
-  if (xevent) {
-    XGetErrorText (display, xevent->error_code, error_msg, 1024);
-    error_msg[1023] = '\0';
-    GST_DEBUG ("context triggered an XError. error: %s", error_msg);
-  } else {
-    GST_ERROR("CAUTION:xevent is NULL");
-  }
-#else /* GST_EXT_XV_ENHANCEMENT */
   XGetErrorText (display, xevent->error_code, error_msg, 1024);
   GST_DEBUG ("xvimage triggered an XError. error: %s", error_msg);
-#endif /* GST_EXT_XV_ENHANCEMENT */
   error_caught = TRUE;
   return 0;
 }
@@ -644,76 +616,11 @@ gst_xvcontext_free (GstXvContext * context)
   if (context->disp)
     XCloseDisplay (context->disp);
 
-#ifdef GST_EXT_XV_ENHANCEMENT
-  if (context->display_buffer_lock) {
-    g_mutex_free (context->display_buffer_lock);
-    context->display_buffer_lock = NULL;
-  }
-  if (context->display_buffer_cond) {
-    g_cond_free (context->display_buffer_cond);
-    context->display_buffer_cond = NULL;
-  }
-#endif /* GST_EXT_XV_ENHANCEMENT */
-
   g_mutex_clear (&context->lock);
 
   g_slice_free1 (sizeof (GstXvContext), context);
 }
 
-#ifdef GST_EXT_XV_ENHANCEMENT
-gboolean gst_xvcontext_set_display_mode(GstXvContext *context, int set_mode)
-{
-  int ret = 0;
-  static gboolean is_exist = FALSE;
-  static XvPortID current_port_id = -1;
-  Atom atom_output = None;
-
-  if (context == NULL) {
-    GST_WARNING("context is NULL");
-    return FALSE;
-  }
-
-  /* check once per one xv_port_id */
-  if (current_port_id != context->xv_port_id) {
-    /* check whether _USER_WM_PORT_ATTRIBUTE_OUTPUT attribute is existed */
-    int i = 0;
-    int count = 0;
-    XvAttribute *const attr = XvQueryPortAttributes(context->disp,
-                                                    context->xv_port_id, &count);
-    if (attr) {
-      current_port_id = context->xv_port_id;
-      for (i = 0 ; i < count ; i++) {
-        if (!strcmp(attr[i].name, "_USER_WM_PORT_ATTRIBUTE_OUTPUT")) {
-          is_exist = TRUE;
-          GST_INFO("_USER_WM_PORT_ATTRIBUTE_OUTPUT[index %d] found", i);
-          break;
-        }
-      }
-      XFree(attr);
-    } else {
-      GST_WARNING("XvQueryPortAttributes disp:%d, port_id:%d failed",
-                  context->disp, context->xv_port_id);
-    }
-  }
-
-  if (is_exist) {
-    GST_INFO("set display mode %d", set_mode);
-    atom_output = XInternAtom(context->disp,
-                              "_USER_WM_PORT_ATTRIBUTE_OUTPUT", False);
-    ret = XvSetPortAttribute(context->disp, context->xv_port_id,
-                             atom_output, set_mode);
-    if (ret == Success) {
-      return TRUE;
-    } else {
-      GST_WARNING("display mode[%d] set failed.", set_mode);
-    }
-  } else {
-    GST_WARNING("_USER_WM_PORT_ATTRIBUTE_OUTPUT is not existed");
-  }
-
-  return FALSE;
-}
-#endif /* GST_EXT_XV_ENHANCEMENT */
 
 /* This function gets the X Display and global info about it. Everything is
    stored in our object and will be cleaned when the object is disposed. Note
@@ -805,12 +712,12 @@ gst_xvcontext_new (GstXvContextConfig * config, GError ** error)
   if (XShmQueryExtension (context->disp) &&
       gst_xvcontext_check_xshm_calls (context)) {
     context->use_xshm = TRUE;
-    GST_DEBUG ("context is using XShm extension");
+    GST_DEBUG ("xvimagesink is using XShm extension");
   } else
 #endif /* HAVE_XSHM */
   {
     context->use_xshm = FALSE;
-    GST_DEBUG ("context is not using XShm extension");
+    GST_DEBUG ("xvimagesink is not using XShm extension");
   }
 
   xv_attr = XvQueryPortAttributes (context->disp, context->xv_port_id, &N_attr);
@@ -836,8 +743,8 @@ gst_xvcontext_new (GstXvContextConfig * config, GError ** error)
 
       channel = g_object_new (GST_TYPE_COLOR_BALANCE_CHANNEL, NULL);
       channel->label = g_strdup (channels[i]);
-      channel->min_value = matching_attr ? matching_attr->min_value : -1000;
-      channel->max_value = matching_attr ? matching_attr->max_value : 1000;
+      channel->min_value = matching_attr->min_value;
+      channel->max_value = matching_attr->max_value;
 
       context->channels_list = g_list_append (context->channels_list, channel);
 
@@ -866,28 +773,7 @@ gst_xvcontext_new (GstXvContextConfig * config, GError ** error)
 
   if (xv_attr)
     XFree (xv_attr);
-#ifdef GST_EXT_XV_ENHANCEMENT
-  context->xim_transparenter = NULL;
-  gst_xvcontext_set_display_mode(context, config->display_mode);
-  context->drm_fd = -1;
 
-  for (i = 0 ; i < DISPLAYING_BUFFERS_MAX_NUM ; i++) {
-    context->displaying_buffers[i].buffer = NULL;
-    for (j = 0 ; j < XV_BUF_PLANE_NUM ; j++) {
-      context->displaying_buffers[i].gem_name[j] = 0;
-      context->displaying_buffers[i].gem_handle[j] = 0;
-      context->displaying_buffers[i].dmabuf_fd[j] = 0;
-      context->displaying_buffers[i].ref_count = 0;
-    }
-  }
-
-  context->display_buffer_lock = g_mutex_new ();
-  context->display_buffer_cond = g_cond_new ();
-
-  context->displayed_buffer_count = 0;
-  context->displaying_buffer_count = 0;
-
-#endif /* GST_EXT_XV_ENHANCEMENT */
   return context;
 
   /* ERRORS */
@@ -984,7 +870,7 @@ gst_xvcontext_update_colorbalance (GstXvContext * context,
 }
 
 /* This function tries to get a format matching with a given caps in the
-   supported list of formats we generated in gst_context_get_xv_support */
+   supported list of formats we generated in gst_xvimagesink_get_xv_support */
 gint
 gst_xvcontext_get_format_from_info (GstXvContext * context, GstVideoInfo * info)
 {
@@ -1010,6 +896,9 @@ gst_xvcontext_set_colorimetry (GstXvContext * context,
   Atom prop_atom;
   int xv_value;
 
+  if (!context->have_iturbt709)
+    return;
+
   switch (colorimetry->matrix) {
     case GST_VIDEO_COLOR_MATRIX_SMPTE240M:
     case GST_VIDEO_COLOR_MATRIX_BT709:
@@ -1029,45 +918,12 @@ gst_xvcontext_set_colorimetry (GstXvContext * context,
   g_mutex_unlock (&context->lock);
 }
 
-#ifdef GST_EXT_XV_ENHANCEMENT
-static XImage *make_transparent_image(Display *d, Window win, int w, int h)
-{
-  XImage *xim;
-
-  /* create a normal ximage */
-  xim = XCreateImage(d, DefaultVisualOfScreen(DefaultScreenOfDisplay(d)),  24, ZPixmap, 0, NULL, w, h, 32, 0);
-
-  GST_INFO("ximage %p", xim);
-
-  /* allocate data for it */
-  if (xim) {
-    xim->data = (char *)malloc(xim->bytes_per_line * xim->height);
-    if (xim->data) {
-      memset(xim->data, 0x00, xim->bytes_per_line * xim->height);
-      return xim;
-    } else {
-      GST_ERROR("failed to alloc data - size %d", xim->bytes_per_line * xim->height);
-    }
-
-    XDestroyImage(xim);
-  }
-
-  GST_ERROR("failed to create Ximage");
-
-  return NULL;
-}
-#endif /* GST_EXT_XV_ENHANCEMENT */
-
 GstXWindow *
 gst_xvcontext_create_xwindow (GstXvContext * context, gint width, gint height)
 {
   GstXWindow *window;
   Atom wm_delete;
   Atom hints_atom = None;
-#ifdef GST_EXT_XV_ENHANCEMENT
-  XSetWindowAttributes win_attr;
-  XWindowAttributes root_attr;
-#endif /* GST_EXT_XV_ENHANCEMENT */
 
   g_return_val_if_fail (GST_IS_XVCONTEXT (context), NULL);
 
@@ -1081,45 +937,12 @@ gst_xvcontext_create_xwindow (GstXvContext * context, gint width, gint height)
 
   window->width = width;
   window->height = height;
-#ifdef GST_EXT_XV_ENHANCEMENT
-  XGetWindowAttributes(context->disp, context->root, &root_attr);
-
-  if (window->width > root_attr.width) {
-    GST_INFO_OBJECT(context, "Width[%d] is bigger than Max width. Set Max[%d].",
-                                 window->width, root_attr.width);
-    window->render_rect.w = window->width = root_attr.width;
-  }
-  if (window->height > root_attr.height) {
-    GST_INFO_OBJECT(context, "Height[%d] is bigger than Max Height. Set Max[%d].",
-                                 window->height, root_attr.height);
-    window->render_rect.h = window->height = root_attr.height;
-  }
-  window->internal = TRUE;
-
-  g_mutex_lock (&context->lock);
-
-  GST_DEBUG_OBJECT( context, "window create [%dx%d]", window->width, window->height );
-
-  window->win = XCreateSimpleWindow(context->disp,
-                                     context->root,
-                                     0, 0, window->width, window->height,
-                                     0, 0, 0);
-
-  context->xim_transparenter = make_transparent_image(context->disp,
-                                                          context->root,
-                                                          window->width, window->height);
-
-  /* Make window manager not to change window size as Full screen */
-  win_attr.override_redirect = True;
-  XChangeWindowAttributes(context->disp, window->win, CWOverrideRedirect, &win_attr);
-#else /* GST_EXT_XV_ENHANCEMENT */
   window->internal = TRUE;
 
   g_mutex_lock (&context->lock);
 
   window->win = XCreateSimpleWindow (context->disp,
       context->root, 0, 0, width, height, 0, 0, context->black);
-#endif /* GST_EXT_XV_ENHANCEMENT */
 
   /* We have to do that to prevent X from redrawing the background on
    * ConfigureNotify. This takes away flickering of video when resizing. */
@@ -1203,15 +1026,8 @@ gst_xwindow_destroy (GstXWindow * window)
   g_mutex_lock (&context->lock);
 
   /* If we did not create that window we just free the GC and let it live */
-  if (window->internal) {
+  if (window->internal)
     XDestroyWindow (context->disp, window->win);
-#ifdef GST_EXT_XV_ENHANCEMENT
-    if (context->xim_transparenter) {
-      XDestroyImage(context->xim_transparenter);
-      context->xim_transparenter = NULL;
-    }
-#endif /* GST_EXT_XV_ENHANCEMENT */
-  }
   else
     XSelectInput (context->disp, window->win, 0);
 
@@ -1264,10 +1080,18 @@ gst_xwindow_set_title (GstXWindow * window, const gchar * title)
   /* we have a window */
   if (window->internal && title) {
     XTextProperty xproperty;
+    XClassHint *hint = XAllocClassHint ();
 
     if ((XStringListToTextProperty (((char **) &title), 1, &xproperty)) != 0) {
       XSetWMName (context->disp, window->win, &xproperty);
       XFree (xproperty.value);
+
+      if (hint) {
+        hint->res_name = (char *) title;
+        hint->res_class = (char *) "GStreamer";
+        XSetClassHint (context->disp, window->win, hint);
+      }
+      XFree (hint);
     }
   }
 }
@@ -1275,19 +1099,7 @@ gst_xwindow_set_title (GstXWindow * window, const gchar * title)
 void
 gst_xwindow_update_geometry (GstXWindow * window)
 {
-#ifdef GST_EXT_XV_ENHANCEMENT
-  Window root_window, child_window;
-  XWindowAttributes root_attr;
-
-  int cur_win_x = 0;
-  int cur_win_y = 0;
-  unsigned int cur_win_width = 0;
-  unsigned int cur_win_height = 0;
-  unsigned int cur_win_border_width = 0;
-  unsigned int cur_win_depth = 0;
-#else /* GST_EXT_XV_ENHANCEMENT */
   XWindowAttributes attr;
-#endif /* GST_EXT_XV_ENHANCEMENT */
   GstXvContext *context;
 
   g_return_if_fail (window != NULL);
@@ -1296,39 +1108,6 @@ gst_xwindow_update_geometry (GstXWindow * window)
 
   /* Update the window geometry */
   g_mutex_lock (&context->lock);
-#ifdef GST_EXT_XV_ENHANCEMENT
-  /* Get root window and size of current window */
-  XGetGeometry( context->disp, window->win, &root_window,
-    &cur_win_x, &cur_win_y, /* relative x, y */
-    &cur_win_width, &cur_win_height,
-    &cur_win_border_width, &cur_win_depth );
-
-  window->width = cur_win_width;
-  window->height = cur_win_height;
-
-  /* Get absolute coordinates of current window */
-  XTranslateCoordinates( context->disp,
-    window->win,
-    root_window,
-    0, 0,
-    &cur_win_x, &cur_win_y, // relative x, y to root window == absolute x, y
-    &child_window );
-
-  /* Get size of root window == size of screen */
-  XGetWindowAttributes(context->disp, root_window, &root_attr);
-
-  if (!window->have_render_rect) {
-      window->render_rect.x = window->render_rect.y = 0;
-      window->render_rect.w = cur_win_width;
-      window->render_rect.h = cur_win_height;
-  }
-
-  GST_LOG_OBJECT(window, "screen size %dx%d, current window geometry %dx%d, render_rect %d,%d,%dx%d",
-          root_attr.width, root_attr.height,
-    window->width, window->height,
-    window->render_rect.x, window->render_rect.y,
-    window->render_rect.w, window->render_rect.h);
-#else /* GST_EXT_XV_ENHANCEMENT */
   XGetWindowAttributes (context->disp, window->win, &attr);
 
   window->width = attr.width;
@@ -1339,7 +1118,6 @@ gst_xwindow_update_geometry (GstXWindow * window)
     window->render_rect.w = attr.width;
     window->render_rect.h = attr.height;
   }
-#endif /* GST_EXT_XV_ENHANCEMENT */
 
   g_mutex_unlock (&context->lock);
 }
@@ -1355,9 +1133,6 @@ gst_xwindow_clear (GstXWindow * window)
   context = window->context;
 
   g_mutex_lock (&context->lock);
-#ifdef GST_EXT_XV_ENHANCEMENT
-  GST_WARNING_OBJECT(context, "CALL XvStopVideo");
-#endif /* GST_EXT_XV_ENHANCEMENT */
 
   XvStopVideo (context->disp, context->xv_port_id, window->win);
 
@@ -1386,465 +1161,3 @@ gst_xwindow_set_render_rectangle (GstXWindow * window,
     window->have_render_rect = FALSE;
   }
 }
-
-#ifdef GST_EXT_XV_ENHANCEMENT
-void gst_xvcontext_drm_init(GstXvContext *context)
-{
-   Display *dpy;
-   int eventBase = 0;
-   int errorBase = 0;
-   int dri2Major = 0;
-   int dri2Minor = 0;
-   char *driverName = NULL;
-   char *deviceName = NULL;
-   struct drm_auth auth_arg = {0};
-
-   context->drm_fd = -1;
-
-   dpy = XOpenDisplay(0);
-   if (!dpy) {
-       GST_ERROR("XOpenDisplay failed errno:%d", errno);
-       return;
-   }
-
-   GST_INFO("START");
-
-   /* DRI2 */
-   if (!DRI2QueryExtension(dpy, &eventBase, &errorBase)) {
-       GST_ERROR("DRI2QueryExtension !!");
-       goto DRM_INIT_ERROR;
-   }
-
-   if (!DRI2QueryVersion(dpy, &dri2Major, &dri2Minor)) {
-       GST_ERROR("DRI2QueryVersion !!");
-       goto DRM_INIT_ERROR;
-   }
-
-   if (!DRI2Connect(dpy, RootWindow(dpy, DefaultScreen(dpy)), &driverName, &deviceName)) {
-       GST_ERROR("DRI2Connect !!");
-       goto DRM_INIT_ERROR;
-   }
-
-   if (!driverName || !deviceName) {
-       GST_ERROR("driverName or deviceName is not valid");
-       goto DRM_INIT_ERROR;
-   }
-
-   GST_INFO("Open drm device : %s", deviceName);
-
-   /* get the drm_fd though opening the deviceName */
-   context->drm_fd = open(deviceName, O_RDWR);
-   if (context->drm_fd < 0) {
-       GST_ERROR("cannot open drm device (%s)", deviceName);
-       goto DRM_INIT_ERROR;
-   }
-
-   /* get magic from drm to authentication */
-   if (ioctl(context->drm_fd, DRM_IOCTL_GET_MAGIC, &auth_arg)) {
-       GST_ERROR("cannot get drm auth magic");
-       goto DRM_INIT_ERROR;
-   }
-
-   if (!DRI2Authenticate(dpy, RootWindow(dpy, DefaultScreen(dpy)), auth_arg.magic)) {
-       GST_ERROR("cannot get drm authentication from X");
-       goto DRM_INIT_ERROR;
-   }
-
-   XCloseDisplay(dpy);
-   free(driverName);
-   free(deviceName);
-
-   GST_INFO("DONE");
-
-   return;
-
-DRM_INIT_ERROR:
-   if (context->drm_fd >= 0) {
-       close(context->drm_fd);
-       context->drm_fd = -1;
-   }
-   if (dpy) {
-       XCloseDisplay(dpy);
-   }
-   if (driverName) {
-       free(driverName);
-   }
-   if (deviceName) {
-       free(deviceName);
-   }
-
-   return;
-}
-
-void gst_xvcontext_drm_fini(GstXvContext *context)
-{
-   GST_INFO("START");
-
-   if (context->drm_fd >= 0) {
-       int i;
-       int j;
-       gboolean is_timeout = FALSE;
-
-       /* close remained gem handle */
-       g_mutex_lock(context->display_buffer_lock);
-       for (i = 0 ; i < DISPLAYING_BUFFERS_MAX_NUM ; i++) {
-               if (context->displaying_buffers[i].buffer) {
-                       GTimeVal abstimeout;
-
-                       GST_WARNING("remained buffer %p, name %u %u %u, handle %u %u %u",
-                                   context->displaying_buffers[i].buffer,
-                                   context->displaying_buffers[i].gem_name[0],
-                                   context->displaying_buffers[i].gem_name[1],
-                                   context->displaying_buffers[i].gem_name[2],
-                                   context->displaying_buffers[i].gem_handle[0],
-                                   context->displaying_buffers[i].gem_handle[1],
-                                   context->displaying_buffers[i].gem_handle[2]);
-
-                       g_get_current_time(&abstimeout);
-                       g_time_val_add(&abstimeout, _BUFFER_WAIT_TIMEOUT);
-
-                       if (is_timeout ||
-                           !g_cond_timed_wait(context->display_buffer_cond,
-                                              context->display_buffer_lock,
-                                              &abstimeout)) {
-                               GST_ERROR("Buffer wait timeout[%d usec] or is_timeout[%d]. Force Unref buffer",
-                                         _BUFFER_WAIT_TIMEOUT, is_timeout);
-
-                               /* set flag not to wait next time */
-                               is_timeout = TRUE;
-
-                               for (j = 0 ; j < XV_BUF_PLANE_NUM ; j++) {
-                                       if (context->displaying_buffers[i].gem_handle[j] > 0) {
-                                               drm_close_gem(context, &(context->displaying_buffers[i].gem_handle[j]));
-                                       }
-                                       context->displaying_buffers[i].gem_name[j] = 0;
-                                       context->displaying_buffers[i].dmabuf_fd[j] = 0;
-                                       context->displaying_buffers[i].bo[j] = NULL;
-                               }
-
-                               gst_buffer_unref(context->displaying_buffers[i].buffer);
-                               context->displaying_buffers[i].buffer = NULL;
-                       } else {
-                               GST_WARNING("Signal received. check again...");
-                       }
-
-                       /* init index and check again from first */
-                       i = -1;
-               }
-       }
-       g_mutex_unlock(context->display_buffer_lock);
-       GST_INFO("close drm_fd %d", context->drm_fd);
-       close(context->drm_fd);
-       context->drm_fd = -1;
-   } else {
-       GST_INFO("DRM device is NOT opened");
-   }
-
-   /* init displaying_buffer_count */
-   context->displaying_buffer_count = 0;
-
-   GST_INFO("DONE");
-}
-
-static unsigned int drm_convert_dmabuf_gemname(GstXvContext *context, unsigned int dmabuf_fd, unsigned int *gem_handle)
-{
-   int ret = 0;
-
-   struct drm_prime_handle prime_arg = {0,};
-   struct drm_gem_flink flink_arg = {0,};
-
-   if (!context || !gem_handle) {
-       GST_ERROR("handle[%p,%p] is NULL", context, gem_handle);
-       return 0;
-   }
-
-   if (context->drm_fd <= 0) {
-       GST_ERROR("DRM is not opened");
-       return 0;
-   }
-
-   if (dmabuf_fd <= 0) {
-       GST_LOG("Ignore wrong dmabuf fd [%u]", dmabuf_fd);
-       return 0;
-   }
-
-   prime_arg.fd = dmabuf_fd;
-   ret = ioctl(context->drm_fd, DRM_IOCTL_PRIME_FD_TO_HANDLE, &prime_arg);
-   if (ret) {
-       GST_ERROR("DRM_IOCTL_PRIME_FD_TO_HANDLE failed. ret %d, dmabuf fd : %u", ret, dmabuf_fd);
-       return 0;
-   }
-
-   *gem_handle = prime_arg.handle;
-   flink_arg.handle = prime_arg.handle;
-   ret = ioctl(context->drm_fd, DRM_IOCTL_GEM_FLINK, &flink_arg);
-   if (ret) {
-       GST_ERROR("DRM_IOCTL_GEM_FLINK failed. ret %d, gem_handle %u, gem_name %u", ret, *gem_handle, flink_arg.name);
-       return 0;
-   }
-
-   return flink_arg.name;
-}
-
-static void drm_close_gem(GstXvContext *context, unsigned int *gem_handle)
-{
-       struct drm_gem_close close_arg = {0,};
-
-       if (context->drm_fd < 0 || !gem_handle) {
-               GST_ERROR("DRM is not opened");
-               return;
-       }
-
-       if (*gem_handle <= 0) {
-               GST_DEBUG("invalid gem handle %u", *gem_handle);
-               return;
-       }
-
-       GST_LOG("Call DRM_IOCTL_GEM_CLOSE - handle %u", *gem_handle);
-
-       close_arg.handle = *gem_handle;
-       if (ioctl(context->drm_fd, DRM_IOCTL_GEM_CLOSE, &close_arg)) {
-               GST_ERROR("cannot close drm gem handle %u", gem_handle);
-               return;
-       }
-
-       *gem_handle = 0;
-
-       return;
-}
-
-void gst_xvcontext_add_displaying_buffer(GstXvContext *context, XV_DATA_PTR img_data, GstBuffer *buffer)
-{
-    int i = 0;
-    int j = 0;
-
-    if (!context || !img_data) {
-        GST_ERROR("handle is NULL %p, %p", context, img_data);
-        return;
-    }
-
-    /* lock display buffer mutex */
-    g_mutex_lock(context->display_buffer_lock);
-
-    /* increase displaying buffer count */
-    context->displaying_buffer_count++;
-
-    /* check duplicated */
-    for (i = 0 ; i < DISPLAYING_BUFFERS_MAX_NUM ; i++) {
-        if (context->displaying_buffers[i].gem_name[0] > 0) {
-            if ((img_data->dmabuf_fd[0] > 0 &&
-                 context->displaying_buffers[i].dmabuf_fd[0] == img_data->dmabuf_fd[0] &&
-                 context->displaying_buffers[i].dmabuf_fd[1] == img_data->dmabuf_fd[1] &&
-                 context->displaying_buffers[i].dmabuf_fd[2] == img_data->dmabuf_fd[2]) ||
-                (img_data->bo[0] &&
-                 context->displaying_buffers[i].bo[0] == img_data->bo[0] &&
-                 context->displaying_buffers[i].bo[1] == img_data->bo[1] &&
-                 context->displaying_buffers[i].bo[2] == img_data->bo[2])) {
-                /* increase ref count */
-                context->displaying_buffers[i].ref_count++;
-
-                /* set buffer info */
-                img_data->YBuf = context->displaying_buffers[i].gem_name[0];
-                img_data->CbBuf = context->displaying_buffers[i].gem_name[1];
-                img_data->CrBuf = context->displaying_buffers[i].gem_name[2];
-
-                if (img_data->dmabuf_fd[0] > 0) {
-                    GST_WARNING("already converted fd [%u %u %u] name [%u %u %u]",
-                                img_data->dmabuf_fd[0], img_data->dmabuf_fd[1], img_data->dmabuf_fd[2],
-                                img_data->YBuf, img_data->CbBuf, img_data->CrBuf);
-                } else {
-                    GST_WARNING("already exported bo [%p %p %p] gem name [%u %u %u]",
-                                img_data->bo[0], img_data->bo[1], img_data->bo[2],
-                                img_data->YBuf, img_data->CbBuf, img_data->CrBuf);
-                }
-
-                /* unlock display buffer mutex */
-                g_mutex_unlock(context->display_buffer_lock);
-                return;
-            }
-        }
-    }
-
-    /* store buffer temporarily */
-    for (i = 0 ; i < DISPLAYING_BUFFERS_MAX_NUM ; i++) {
-        if (context->displaying_buffers[i].gem_name[0] == 0) {
-            if (buffer) {
-                /* increase ref count of buffer */
-                gst_buffer_ref(buffer);
-                context->displaying_buffers[i].buffer = buffer;
-            }
-
-            if (img_data->dmabuf_fd[0] > 0) {
-                /* convert fd to name */
-                img_data->YBuf = drm_convert_dmabuf_gemname(context, img_data->dmabuf_fd[0], &img_data->gem_handle[0]);
-                img_data->CbBuf = drm_convert_dmabuf_gemname(context, img_data->dmabuf_fd[1], &img_data->gem_handle[1]);
-                img_data->CrBuf = drm_convert_dmabuf_gemname(context, img_data->dmabuf_fd[2], &img_data->gem_handle[2]);
-            } else {
-                /* export bo */
-                if (img_data->bo[0]) {
-                    img_data->YBuf = tbm_bo_export(img_data->bo[0]);
-                }
-                if (img_data->bo[1]) {
-                    img_data->CbBuf = tbm_bo_export(img_data->bo[1]);
-                }
-                if (img_data->bo[2]) {
-                    img_data->CrBuf = tbm_bo_export(img_data->bo[2]);
-                }
-            }
-
-            for (j = 0 ; j < XV_BUF_PLANE_NUM ; j++) {
-                context->displaying_buffers[i].dmabuf_fd[j] = img_data->dmabuf_fd[j];
-                context->displaying_buffers[i].gem_handle[j] = img_data->gem_handle[j];
-                context->displaying_buffers[i].bo[j] = img_data->bo[j];
-            }
-
-            /* set buffer info */
-            context->displaying_buffers[i].gem_name[0] = img_data->YBuf;
-            context->displaying_buffers[i].gem_name[1] = img_data->CbBuf;
-            context->displaying_buffers[i].gem_name[2] = img_data->CrBuf;
-
-            /* set ref count */
-            context->displaying_buffers[i].ref_count = 1;
-
-            if (context->displayed_buffer_count < _CHECK_DISPLAYED_BUFFER_COUNT) {
-                GST_WARNING_OBJECT(context, "cnt %d - add idx %d, buf %p, fd [%u %u %u], handle [%u %u %u], name [%u %u %u]",
-                                                context->displayed_buffer_count,
-                                                i, context->displaying_buffers[i].buffer,
-                                                context->displaying_buffers[i].dmabuf_fd[0],
-                                                context->displaying_buffers[i].dmabuf_fd[1],
-                                                context->displaying_buffers[i].dmabuf_fd[2],
-                                                context->displaying_buffers[i].gem_handle[0],
-                                                context->displaying_buffers[i].gem_handle[1],
-                                                context->displaying_buffers[i].gem_handle[2],
-                                                context->displaying_buffers[i].gem_name[0],
-                                                context->displaying_buffers[i].gem_name[1],
-                                                context->displaying_buffers[i].gem_name[2]);
-            } else {
-                GST_DEBUG_OBJECT(context, "add idx %d, buf %p, fd [%u %u %u], handle [%u %u %u], name [%u %u %u]",
-                                              i, context->displaying_buffers[i].buffer,
-                                              context->displaying_buffers[i].dmabuf_fd[0],
-                                              context->displaying_buffers[i].dmabuf_fd[1],
-                                              context->displaying_buffers[i].dmabuf_fd[2],
-                                              context->displaying_buffers[i].gem_handle[0],
-                                              context->displaying_buffers[i].gem_handle[1],
-                                              context->displaying_buffers[i].gem_handle[2],
-                                              context->displaying_buffers[i].gem_name[0],
-                                              context->displaying_buffers[i].gem_name[1],
-                                              context->displaying_buffers[i].gem_name[2]);
-            }
-
-            /* unlock display buffer mutex */
-            g_mutex_unlock(context->display_buffer_lock);
-
-            /* get current time */
-            gettimeofday(&context->request_time[i], NULL);
-            return;
-        }
-    }
-
-    /* decrease displaying buffer count */
-    context->displaying_buffer_count--;
-
-    /* unlock display buffer mutex */
-    g_mutex_unlock(context->display_buffer_lock);
-
-    GST_ERROR("should not be reached here. buffer slot is FULL...");
-}
-
-void gst_xvcontext_remove_displaying_buffer(GstXvContext *context, unsigned int *gem_name)
-{
-    int i = 0;
-    int j = 0;
-
-    if (!context || !gem_name) {
-        GST_ERROR("handle is NULL %p, %p", context, gem_name);
-        return;
-    }
-
-    /* lock display buffer mutex */
-    g_mutex_lock(context->display_buffer_lock);
-
-    if (context->displaying_buffer_count == 0) {
-        GST_WARNING("there is no displaying buffer");
-        /* unlock display buffer mutex */
-        g_mutex_unlock(context->display_buffer_lock);
-        return;
-    }
-
-    GST_DEBUG("gem name [%u %u %u], displaying buffer count %d",
-              gem_name[0], gem_name[1], gem_name[2],
-              context->displaying_buffer_count);
-
-    for (i = 0 ; i < DISPLAYING_BUFFERS_MAX_NUM ; i++) {
-        if (context->displaying_buffers[i].gem_name[0] == gem_name[0] &&
-            context->displaying_buffers[i].gem_name[1] == gem_name[1] &&
-            context->displaying_buffers[i].gem_name[2] == gem_name[2]) {
-            struct timeval current_time;
-
-            /* get current time to calculate displaying time */
-            gettimeofday(&current_time, NULL);
-
-            GST_DEBUG_OBJECT(context, "buffer return time %8d us",
-                                          (current_time.tv_sec - context->request_time[i].tv_sec)*1000000 + \
-                                          (current_time.tv_usec - context->request_time[i].tv_usec));
-
-            if (context->displayed_buffer_count < _CHECK_DISPLAYED_BUFFER_COUNT) {
-                context->displayed_buffer_count++;
-                GST_WARNING_OBJECT(context, "cnt %d - remove idx %d, buf %p, handle [%u %u %u], name [%u %u %u]",
-                                                context->displayed_buffer_count,
-                                                i, context->displaying_buffers[i].buffer,
-                                                context->displaying_buffers[i].gem_handle[0],
-                                                context->displaying_buffers[i].gem_handle[1],
-                                                context->displaying_buffers[i].gem_handle[2],
-                                                context->displaying_buffers[i].gem_name[0],
-                                                context->displaying_buffers[i].gem_name[1],
-                                                context->displaying_buffers[i].gem_name[2]);
-            } else {
-                GST_DEBUG_OBJECT(context, "remove idx %d, buf %p, handle [%u %u %u], name [%u %u %u]",
-                                              i, context->displaying_buffers[i].buffer,
-                                              context->displaying_buffers[i].gem_handle[0],
-                                              context->displaying_buffers[i].gem_handle[1],
-                                              context->displaying_buffers[i].gem_handle[2],
-                                              context->displaying_buffers[i].gem_name[0],
-                                              context->displaying_buffers[i].gem_name[1],
-                                              context->displaying_buffers[i].gem_name[2]);
-            }
-
-            /* decrease displaying buffer count */
-            context->displaying_buffer_count--;
-
-            /* decrease ref count */
-            context->displaying_buffers[i].ref_count--;
-
-            if (context->displaying_buffers[i].ref_count > 0) {
-                GST_WARNING("ref count not zero[%d], skip close gem handle",
-                            context->displaying_buffers[i].ref_count);
-                break;
-            }
-
-            for (j = 0 ; j < XV_BUF_PLANE_NUM ; j++) {
-                if (context->displaying_buffers[i].gem_handle[j] > 0) {
-                    drm_close_gem(context, &(context->displaying_buffers[i].gem_handle[j]));
-                }
-                context->displaying_buffers[i].gem_name[j] = 0;
-                context->displaying_buffers[i].dmabuf_fd[j] = 0;
-                context->displaying_buffers[i].bo[j] = NULL;
-            }
-
-            if (context->displaying_buffers[i].buffer) {
-                gst_buffer_unref(context->displaying_buffers[i].buffer);
-                context->displaying_buffers[i].buffer = NULL;
-            } else {
-                GST_WARNING("no buffer to unref");
-            }
-            break;
-        }
-    }
-
-    /* send signal to wait display_buffer_cond */
-    g_cond_signal(context->display_buffer_cond);
-
-    /* unlock display buffer mutex */
-    g_mutex_unlock(context->display_buffer_lock);
-}
-#endif /* GST_EXT_XV_ENHANCEMENT */

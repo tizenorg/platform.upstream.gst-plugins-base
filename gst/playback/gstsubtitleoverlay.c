@@ -29,8 +29,8 @@
  * <refsect2>
  * <title>Examples</title>
  * |[
- * gst-launch -v filesrc location=test.mkv ! matroskademux name=demux ! "video/x-h264" ! queue2 ! decodebin ! subtitleoverlay name=overlay ! videoconvert ! autovideosink  demux. ! "subpicture/x-dvd" ! queue2 ! overlay.
- * ]| This will play back the given Matroska file with h264 video and subpicture subtitles.
+ * gst-launch-1.0 -v filesrc location=test.mkv ! matroskademux name=demux ! video/x-h264 ! queue ! decodebin ! subtitleoverlay name=overlay ! videoconvert ! autovideosink  demux. ! subpicture/x-dvd ! queue ! overlay.
+ * ]| This will play back the given Matroska file with h264 video and dvd subpicture style subtitles.
  * </refsect2>
  */
 
@@ -239,7 +239,7 @@ _is_video_pad (GstPad * pad, gboolean * hw_accelerated)
     caps = gst_pad_query_caps (pad, NULL);
   }
 
-  for (i = 0; i < gst_caps_get_size (caps) && ret == FALSE; i++) {
+  for (i = 0; i < gst_caps_get_size (caps) && !ret; i++) {
     name = gst_structure_get_name (gst_caps_get_structure (caps, i));
     if (g_str_equal (name, "video/x-raw")) {
       ret = TRUE;
@@ -1333,8 +1333,11 @@ gst_subtitle_overlay_change_state (GstElement * element,
 
     bret = GST_ELEMENT_CLASS (parent_class)->change_state (element, transition);
     GST_DEBUG_OBJECT (self, "Base class state changed returned: %d", bret);
-    if (G_UNLIKELY (bret == GST_STATE_CHANGE_FAILURE))
+    if (G_UNLIKELY (bret == GST_STATE_CHANGE_FAILURE)) {
+      do_async_done (self);
       return ret;
+    }
+
     else if (bret == GST_STATE_CHANGE_ASYNC)
       ret = bret;
     else if (G_UNLIKELY (bret == GST_STATE_CHANGE_NO_PREROLL)) {
@@ -1405,11 +1408,11 @@ gst_subtitle_overlay_handle_message (GstBin * bin, GstMessage * message)
      * warnings and switch to passthrough mode */
     if (src && (
             (self->overlay
-                && gst_object_has_ancestor (src,
+                && gst_object_has_as_ancestor (src,
                     GST_OBJECT_CAST (self->overlay))) || (self->parser
-                && gst_object_has_ancestor (src,
+                && gst_object_has_as_ancestor (src,
                     GST_OBJECT_CAST (self->parser))) || (self->renderer
-                && gst_object_has_ancestor (src,
+                && gst_object_has_as_ancestor (src,
                     GST_OBJECT_CAST (self->renderer))))) {
       GError *err = NULL;
       gchar *debug = NULL;
@@ -1778,12 +1781,15 @@ gst_subtitle_overlay_subtitle_sink_chain (GstPad * pad, GstObject * parent,
 static GstCaps *
 gst_subtitle_overlay_subtitle_sink_getcaps (GstPad * pad, GstCaps * filter)
 {
-  GstCaps *ret;
+  GstCaps *ret, *subcaps;
 
-  if (filter)
-    ret = gst_caps_ref (filter);
-  else
-    ret = gst_caps_new_any ();
+  subcaps = gst_subtitle_overlay_create_factory_caps ();
+  if (filter) {
+    ret = gst_caps_intersect_full (filter, subcaps, GST_CAPS_INTERSECT_FIRST);
+    gst_caps_unref (subcaps);
+  } else {
+    ret = subcaps;
+  }
 
   return ret;
 }
@@ -1793,7 +1799,7 @@ gst_subtitle_overlay_subtitle_sink_setcaps (GstSubtitleOverlay * self,
     GstCaps * caps)
 {
   gboolean ret = TRUE;
-  GstPad *target = NULL;;
+  GstPad *target = NULL;
 
   GST_DEBUG_OBJECT (self, "Setting caps: %" GST_PTR_FORMAT, caps);
 

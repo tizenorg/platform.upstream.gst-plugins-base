@@ -323,12 +323,14 @@ gst_rtp_buffer_map (GstBuffer * buffer, GstMapFlags flags, GstRTPBuffer * rtp)
   guint size;
   gsize bufsize, skip;
   guint idx, length;
+  guint n_mem;
 
   g_return_val_if_fail (GST_IS_BUFFER (buffer), FALSE);
   g_return_val_if_fail (rtp != NULL, FALSE);
   g_return_val_if_fail (rtp->buffer == NULL, FALSE);
 
-  if (gst_buffer_n_memory (buffer) < 1)
+  n_mem = gst_buffer_n_memory (buffer);
+  if (n_mem < 1)
     goto no_memory;
 
   /* map first memory, this should be the header */
@@ -397,8 +399,9 @@ gst_rtp_buffer_map (GstBuffer * buffer, GstMapFlags flags, GstRTPBuffer * rtp)
     rtp->size[1] = 0;
   }
 
-  /* check for padding */
-  if (data[0] & 0x20) {
+  /* check for padding unless flags says to skip */
+  if ((data[0] & 0x20) != 0 &&
+      (flags & GST_RTP_BUFFER_MAP_FLAG_SKIP_PADDING) == 0) {
     /* find memory for the padding bits */
     if (!gst_buffer_find_memory (buffer, bufsize - 1, 1, &idx, &length, &skip))
       goto wrong_length;
@@ -423,10 +426,19 @@ gst_rtp_buffer_map (GstBuffer * buffer, GstMapFlags flags, GstRTPBuffer * rtp)
     goto wrong_padding;
 
   rtp->buffer = buffer;
-  /* we have not yet mapped the payload */
-  rtp->data[2] = NULL;
-  rtp->size[2] = 0;
-  rtp->state = 0;
+
+  if (n_mem == 1) {
+    /* we have mapped the buffer already, so might just as well fill in the
+     * payload pointer and size and avoid another buffer map/unmap later */
+    rtp->data[2] = rtp->map[0].data + header_len;
+    rtp->size[2] = bufsize - header_len - padding;
+  } else {
+    /* we have not yet mapped the payload */
+    rtp->data[2] = NULL;
+    rtp->size[2] = 0;
+  }
+
+  /* rtp->state = 0; *//* unused */
 
   return TRUE;
 
@@ -469,7 +481,7 @@ dump_packet:
     GST_MEMDUMP ("buffer", data, size);
 
     for (i = 0; i < G_N_ELEMENTS (rtp->map); ++i) {
-      if (rtp->data[i] != NULL)
+      if (rtp->map[i].memory != NULL)
         gst_buffer_unmap (buffer, &rtp->map[i]);
     }
     return FALSE;
@@ -491,8 +503,12 @@ gst_rtp_buffer_unmap (GstRTPBuffer * rtp)
   g_return_if_fail (rtp->buffer != NULL);
 
   for (i = 0; i < 4; i++) {
-    if (rtp->data[i])
+    if (rtp->map[i].memory != NULL) {
       gst_buffer_unmap (rtp->buffer, &rtp->map[i]);
+      rtp->map[i].memory = NULL;
+    }
+    rtp->data[i] = NULL;
+    rtp->size[i] = 0;
   }
   rtp->buffer = NULL;
 }
@@ -703,7 +719,7 @@ gst_rtp_buffer_get_extension_data (GstRTPBuffer * rtp, guint16 * bits,
 }
 
 /**
- * gst_rtp_buffer_get_extension_bytes:
+ * gst_rtp_buffer_get_extension_bytes: (rename-to gst_rtp_buffer_get_extension_data)
  * @rtp: the RTP packet
  * @bits: (out): location for header bits
  *
@@ -718,8 +734,6 @@ gst_rtp_buffer_get_extension_data (GstRTPBuffer * rtp, guint16 * bits,
  *
  * Returns: (transfer full): A new #GBytes if an extension header was present
  * and %NULL otherwise.
- *
- * Rename to: gst_rtp_buffer_get_extension_data
  *
  * Since: 1.2
  */
@@ -774,9 +788,11 @@ ensure_buffers (GstRTPBuffer * rtp)
   }
 
   if (changed) {
+    GstBuffer *buf = rtp->buffer;
+
     gst_rtp_buffer_unmap (rtp);
-    gst_buffer_remove_memory_range (rtp->buffer, pos, -1);
-    gst_rtp_buffer_map (rtp->buffer, GST_MAP_READWRITE, rtp);
+    gst_buffer_remove_memory_range (buf, pos, -1);
+    gst_rtp_buffer_map (buf, GST_MAP_READWRITE, rtp);
   }
 }
 
@@ -1148,7 +1164,7 @@ gst_rtp_buffer_get_payload (GstRTPBuffer * rtp)
 }
 
 /**
- * gst_rtp_buffer_get_payload_bytes:
+ * gst_rtp_buffer_get_payload_bytes: (rename-to gst_rtp_buffer_get_payload)
  * @rtp: the RTP packet
  *
  * Similar to gst_rtp_buffer_get_payload, but more suitable for language
@@ -1156,8 +1172,6 @@ gst_rtp_buffer_get_payload (GstRTPBuffer * rtp)
  * containing the payload data in @rtp.
  *
  * Returns: (transfer full): A new #GBytes containing the payload data in @rtp.
- *
- * Rename to: gst_rtp_buffer_get_payload
  *
  * Since: 1.2
  */
@@ -1216,6 +1230,11 @@ gst_rtp_buffer_default_clock_rate (guint8 payload_type)
 gint
 gst_rtp_buffer_compare_seqnum (guint16 seqnum1, guint16 seqnum2)
 {
+  /* See http://en.wikipedia.org/wiki/Serial_number_arithmetic
+   * for an explanation why this does the right thing even for
+   * wraparounds, under the assumption that the difference is
+   * never bigger than 2**15 sequence numbers
+   */
   return (gint16) (seqnum2 - seqnum1);
 }
 
@@ -1520,7 +1539,7 @@ gst_rtp_buffer_add_extension_onebyte_header (GstRTPBuffer * rtp, guint8 id,
 
 
 static guint
-get_twobytes_header_end_offset (guint8 * pdata, guint wordlen)
+get_twobytes_header_end_offset (const guint8 * pdata, guint wordlen)
 {
   guint offset = 0;
   guint bytelen = wordlen * 4;

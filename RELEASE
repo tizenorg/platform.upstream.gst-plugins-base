@@ -1,17 +1,16 @@
 
-Release notes for GStreamer Base Plugins 1.4.1
+Release notes for GStreamer Base Plugins 1.6.1
 
 
-The GStreamer team is pleased to announce a bugfix release of the stable
-1.4 release series. The 1.4 release series is adding new features on top
-of the 1.2 series and is part of the API and ABI-stable 1.x release
-series of the GStreamer multimedia framework that contains new features.
-The 1.4.x bugfix releases only contain important bugfixes compared to 1.4.0.
+The GStreamer team is proud to announce the first bugfix release in the stable
+1.6 release series of your favourite cross-platform multimedia framework!
 
 
 Binaries for Android, iOS, Mac OS X and Windows are provided by the
 GStreamer project for this release.
 
+This release only contains bugfixes and it is safe to update from 1.6.0. For a
+full list of bugfixes see Bugzilla.
 
 The 1.x series is a stable series targeted at end users. It is not API
 or ABI compatible with the 0.10.x series. It can, however, be installed
@@ -19,10 +18,9 @@ in parallel with the 0.10.x series and will not affect an existing
 0.10.x installation.
 
 
-The stable 1.4.x release series is API and ABI compatible with 1.0.x and
-any other 1.x release series in the future. Compared to 1.0.x it contains
-some new features and more intrusive changes that were considered too
-risky as a bugfix.
+See http://gstreamer.freedesktop.org/releases/1.6/
+for the full release notes.
+
 
 
 This module contains a set of reference plugins, base classes for other
@@ -71,10 +69,16 @@ contains a set of codecs plugins based on libav (formerly gst-ffmpeg)
 
 Bugs fixed in this release
      
-      * 733916 : basetextoverlay: Simple pipeline with textoverlay and fakesink fails to negotiate
-      * 733976 : uridecodebin: Does not set the dec- > source uri when an error occurred with a first uri and we set a new one in READY state
-      * 734683 : playsinkconvertbin: returns true from accept caps but rejects it later
-      * 734822 : playsinkconvertbin: only intersect with the filter at the end
+      * 752705 : rtpbuffer: Add map flag to skip padding
+      * 754459 : decodebin: fix event leak with validate.hls.playback.play_15s.hls_bibbop scenario
+      * 754567 : video: gst_video_calculate_display_ratio() should have out parameter
+      * 754980 : audiobasesink: audio skipping when playing it repeatedly.
+      * 755494 : gst-plugins-base fails to build with --with-pkg-config-path
+      * 755770 : decodebin: Free unlinked chains at time of switching chains
+      * 755867 : playsink: fix leak of audio sink
+      * 755875 : subparse: < / i > should be handled like < /i > 
+      * 756611 : playbin: Leak of playbin on errors from the source element
+      * 756893 : video: Missing closing parenthesis in video overlay composition cast macros
 
 ==== Download ====
 
@@ -111,8 +115,15 @@ subscribe to the gstreamer-devel list.
         
 Contributors to this release
     
-      * Edward Hervey
+      * Guillaume Desmottes
+      * Matthew Waters
+      * Pavel Bludov
+      * Perry Hung
+      * Rajat Verma
       * Sebastian Dröge
-      * Thiago Santos
-      * Thibault Saunier
+      * Stian Selnes
+      * Tim-Philipp Müller
+      * Vineeth TM
+      * Wim Taymans
+      * eunhae choi
  

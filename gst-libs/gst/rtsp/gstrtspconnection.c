@@ -159,6 +159,7 @@ struct _GstRTSPConnection
 
   /* TLS */
   GTlsDatabase *tls_database;
+  GTlsInteraction *tls_interaction;
 
   DecodeCtx ctx;
   DecodeCtx *ctxp;
@@ -253,7 +254,7 @@ verify_error:
 
 static void
 socket_client_event (GSocketClient * client, GSocketClientEvent event,
-    GSocketConnectable * connectable, GIOStream * connection,
+    GSocketConnectable * connectable, GTlsConnection * connection,
     GstRTSPConnection * rtspconn)
 {
   if (event == G_SOCKET_CLIENT_TLS_HANDSHAKING) {
@@ -261,6 +262,8 @@ socket_client_event (GSocketClient * client, GSocketClientEvent event,
 
     g_signal_connect (connection, "accept-certificate",
         (GCallback) tls_accept_certificate, rtspconn);
+
+    g_tls_connection_set_interaction (connection, rtspconn->tls_interaction);
   }
 }
 
@@ -353,6 +356,8 @@ collect_addresses (GSocket * socket, gchar ** ip, guint16 * port,
  *
  * Returns: #GST_RTSP_OK when @conn contains a valid connection.
  */
+/* FIXME 2.0 We don't need the ip and port since they can be got from the
+ * GSocket */
 GstRTSPResult
 gst_rtsp_connection_create_from_socket (GSocket * socket, const gchar * ip,
     guint16 port, const gchar * initial_buffer, GstRTSPConnection ** conn)
@@ -617,6 +622,61 @@ gst_rtsp_connection_get_tls_database (GstRTSPConnection * conn)
   g_return_val_if_fail (conn != NULL, NULL);
 
   if ((result = conn->tls_database))
+    g_object_ref (result);
+
+  return result;
+}
+
+/**
+ * gst_rtsp_connection_set_tls_interaction:
+ * @conn: a #GstRTSPConnection
+ * @interaction: a #GTlsInteraction
+ *
+ * Sets a #GTlsInteraction object to be used when the connection or certificate
+ * database need to interact with the user. This will be used to prompt the
+ * user for passwords where necessary.
+ *
+ * Since: 1.6
+ */
+void
+gst_rtsp_connection_set_tls_interaction (GstRTSPConnection * conn,
+    GTlsInteraction * interaction)
+{
+  GTlsInteraction *old_interaction;
+
+  g_return_if_fail (conn != NULL);
+
+  if (interaction)
+    g_object_ref (interaction);
+
+  old_interaction = conn->tls_interaction;
+  conn->tls_interaction = interaction;
+
+  if (old_interaction)
+    g_object_unref (old_interaction);
+}
+
+/**
+ * gst_rtsp_connection_get_tls_interaction:
+ * @conn: a #GstRTSPConnection
+ *
+ * Gets a #GTlsInteraction object to be used when the connection or certificate
+ * database need to interact with the user. This will be used to prompt the
+ * user for passwords where necessary.
+ *
+ * Returns: (transfer full): a reference on the #GTlsInteraction. Use
+ * g_object_unref() to release.
+ *
+ * Since: 1.6
+ */
+GTlsInteraction *
+gst_rtsp_connection_get_tls_interaction (GstRTSPConnection * conn)
+{
+  GTlsInteraction *result;
+
+  g_return_val_if_fail (conn != NULL, NULL);
+
+  if ((result = conn->tls_interaction))
     g_object_ref (result);
 
   return result;
@@ -1782,6 +1842,19 @@ parse_line (guint8 * buffer, GstRTSPMessage * msg)
       next_value++;
     }
 
+    if (msg->type == GST_RTSP_MESSAGE_REQUEST && field == GST_RTSP_HDR_SESSION) {
+      /* The timeout parameter is only allowed in a session response header
+       * but some clients send it as part of the session request header.
+       * Ignore everything from the semicolon to the end of the line. */
+      next_value = value;
+      while (*next_value != '\0') {
+        if (*next_value == ';') {
+          break;
+        }
+        next_value++;
+      }
+    }
+
     /* trim space */
     if (value != next_value && next_value[-1] == ' ')
       next_value[-1] = '\0';
@@ -2285,6 +2358,8 @@ gst_rtsp_connection_free (GstRTSPConnection * conn)
     g_object_unref (conn->client);
   if (conn->tls_database)
     g_object_unref (conn->tls_database);
+  if (conn->tls_interaction)
+    g_object_unref (conn->tls_interaction);
 
   g_timer_destroy (conn->timer);
   gst_rtsp_url_free (conn->url);
@@ -2461,10 +2536,12 @@ gst_rtsp_connection_flush (GstRTSPConnection * conn, gboolean flush)
 {
   g_return_val_if_fail (conn != NULL, GST_RTSP_EINVAL);
 
-  if (flush)
+  if (flush) {
     g_cancellable_cancel (conn->cancellable);
-  else
-    g_cancellable_reset (conn->cancellable);
+  } else {
+    g_object_unref (conn->cancellable);
+    conn->cancellable = g_cancellable_new ();
+  }
 
   return GST_RTSP_OK;
 }
@@ -2760,7 +2837,7 @@ gst_rtsp_connection_set_ip (GstRTSPConnection * conn, const gchar * ip)
 }
 
 /**
- * gst_rtsp_connection_get_readfd:
+ * gst_rtsp_connection_get_read_socket:
  * @conn: a #GstRTSPConnection
  *
  * Get the file descriptor for reading.
@@ -2927,7 +3004,8 @@ gst_rtsp_connection_do_tunnel (GstRTSPConnection * conn,
     conn2->stream1 = NULL;
     conn2->input_stream = NULL;
     conn2->control_stream = NULL;
-    g_cancellable_reset (conn2->cancellable);
+    g_object_unref (conn2->cancellable);
+    conn2->cancellable = NULL;
 
     /* We make socket0 the write socket and socket1 the read socket. */
     conn->write_socket = conn->socket0;
@@ -3127,8 +3205,10 @@ gst_rtsp_source_dispatch_read (GPollableInputStream * stream,
   if (res == GST_RTSP_EINTR)
     goto done;
   else if (G_UNLIKELY (res == GST_RTSP_EEOF)) {
+    g_mutex_lock (&watch->mutex);
     if (watch->readsrc) {
-      g_source_remove_child_source ((GSource *) watch, watch->readsrc);
+      if (!g_source_is_destroyed ((GSource *) watch))
+        g_source_remove_child_source ((GSource *) watch, watch->readsrc);
       g_source_unref (watch->readsrc);
       watch->readsrc = NULL;
     }
@@ -3139,6 +3219,7 @@ gst_rtsp_source_dispatch_read (GPollableInputStream * stream,
       conn->socket1 = NULL;
       conn->input_stream = NULL;
     }
+    g_mutex_unlock (&watch->mutex);
 
     /* When we are in tunnelled mode, the read socket can be closed and we
      * should be prepared for a new POST method to reopen it */
@@ -3150,6 +3231,7 @@ gst_rtsp_source_dispatch_read (GPollableInputStream * stream,
       if (watch->funcs.tunnel_lost)
         res = watch->funcs.tunnel_lost (watch, watch->user_data);
       /* we add read source on the write socket able to detect when client closes get channel in tunneled mode */
+      g_mutex_lock (&watch->mutex);
       if (watch->conn->control_stream && !watch->controlsrc) {
         watch->controlsrc =
             g_pollable_input_stream_create_source (G_POLLABLE_INPUT_STREAM
@@ -3159,6 +3241,7 @@ gst_rtsp_source_dispatch_read (GPollableInputStream * stream,
             NULL);
         g_source_add_child_source ((GSource *) watch, watch->controlsrc);
       }
+      g_mutex_unlock (&watch->mutex);
       goto read_done;
     } else
       goto eof;
@@ -3288,7 +3371,8 @@ gst_rtsp_source_dispatch_write (GPollableOutputStream * stream,
       rec = g_queue_pop_tail (watch->messages);
       if (rec == NULL) {
         if (watch->writesrc) {
-          g_source_remove_child_source ((GSource *) watch, watch->writesrc);
+          if (!g_source_is_destroyed ((GSource *) watch))
+            g_source_remove_child_source ((GSource *) watch, watch->writesrc);
           g_source_unref (watch->writesrc);
           watch->writesrc = NULL;
           /* we create and add the write source again when we actually have
@@ -3378,6 +3462,9 @@ gst_rtsp_source_finalize (GSource * source)
 {
   GstRTSPWatch *watch = (GstRTSPWatch *) source;
 
+  if (watch->notify)
+    watch->notify (watch->user_data);
+
   build_reset (&watch->builder);
   gst_rtsp_message_unset (&watch->message);
 
@@ -3397,9 +3484,6 @@ gst_rtsp_source_finalize (GSource * source)
     g_source_unref (watch->controlsrc);
 
   g_mutex_clear (&watch->mutex);
-
-  if (watch->notify)
-    watch->notify (watch->user_data);
 }
 
 static GSourceFuncs gst_rtsp_source_funcs = {
@@ -3412,7 +3496,7 @@ static GSourceFuncs gst_rtsp_source_funcs = {
 };
 
 /**
- * gst_rtsp_watch_new:
+ * gst_rtsp_watch_new: (skip)
  * @conn: a #GstRTSPConnection
  * @funcs: watch functions
  * @user_data: user data to pass to @funcs
@@ -3471,6 +3555,7 @@ gst_rtsp_watch_new (GstRTSPConnection * conn,
 void
 gst_rtsp_watch_reset (GstRTSPWatch * watch)
 {
+  g_mutex_lock (&watch->mutex);
   if (watch->readsrc) {
     g_source_remove_child_source ((GSource *) watch, watch->readsrc);
     g_source_unref (watch->readsrc);
@@ -3513,6 +3598,7 @@ gst_rtsp_watch_reset (GstRTSPWatch * watch)
   } else {
     watch->controlsrc = NULL;
   }
+  g_mutex_unlock (&watch->mutex);
 }
 
 /**
@@ -3849,7 +3935,7 @@ gst_rtsp_watch_set_flushing (GstRTSPWatch * watch, gboolean flushing)
   g_mutex_lock (&watch->mutex);
   watch->flushing = flushing;
   g_cond_signal (&watch->queue_not_full);
-  if (flushing == TRUE) {
+  if (flushing) {
     g_queue_foreach (watch->messages, (GFunc) gst_rtsp_rec_free, NULL);
     g_queue_clear (watch->messages);
   }

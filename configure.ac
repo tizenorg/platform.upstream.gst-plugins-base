@@ -1,16 +1,16 @@
-AC_PREREQ([2.68])
+AC_PREREQ([2.69])
 
 dnl please read gstreamer/docs/random/autotools before changing this file
 
 dnl initialize autoconf
 dnl releases only do -Wall, git and prerelease does -Werror too
 dnl use a three digit version number for releases, and four for git/prerelease
-AC_INIT([GStreamer Base Plug-ins],[1.4.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-base])
+AC_INIT([GStreamer Base Plug-ins],[1.6.1],[http://bugzilla.gnome.org/enter_bug.cgi?product=GStreamer],[gst-plugins-base])
 
 AG_GST_INIT
 
 dnl initialize automake
-AM_INIT_AUTOMAKE([-Wno-portability 1.11 no-dist-gzip dist-xz tar-ustar subdir-objects])
+AM_INIT_AUTOMAKE([-Wno-portability 1.14 no-dist-gzip dist-xz tar-ustar subdir-objects])
 
 dnl define PACKAGE_VERSION_* variables
 AS_VERSION
@@ -56,10 +56,10 @@ dnl      1.2.5 => 205
 dnl      1.10.9 (who knows) => 1009
 dnl
 dnl sets GST_LT_LDFLAGS
-AS_LIBTOOL(GST, 401, 0, 401)
+AS_LIBTOOL(GST, 601, 0, 601)
 
 dnl *** required versions of GStreamer stuff ***
-GST_REQ=1.4.0
+GST_REQ=1.6.1
 
 dnl *** autotools stuff ****
 
@@ -263,11 +263,12 @@ dnl GLib
 GLIB_REQ=2.32
 AG_GST_GLIB_CHECK([$GLIB_REQ])
 
-ORC_CHECK([0.4.18])
+ORC_CHECK([0.4.23])
 
 dnl checks for gstreamer
 dnl uninstalled is selected preferentially -- see pkg-config(1)
 AG_GST_CHECK_GST($GST_API_VERSION, [$GST_REQ], yes)
+AG_GST_CHECK_GST_NET($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_BASE($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_CONTROLLER($GST_API_VERSION, [$GST_REQ], yes)
 AG_GST_CHECK_GST_CHECK($GST_API_VERSION, [$GST_REQ], no)
@@ -282,7 +283,7 @@ AC_SUBST(GST_PREFIX)
 dnl GTK is optional and only used in examples
 HAVE_GTK=no
 HAVE_GTK_X11=no
-GTK_REQ=3.0.0
+GTK_REQ=3.10
 if test "x$BUILD_EXAMPLES" = "xyes"; then
   PKG_CHECK_MODULES(GTK, gtk+-3.0 >= $GTK_REQ, HAVE_GTK=yes, HAVE_GTK=no)
   dnl some examples need gtk+-x11
@@ -555,73 +556,30 @@ dnl *** X11 ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_X, true)
 AG_GST_CHECK_FEATURE(X, [X libraries and plugins],
                   [ximagesink], [
-  AG_GST_CHECK_X
-  AC_PATH_XTRA
-  ac_cflags_save="$CFLAGS"
-  ac_cppflags_save="$CPPFLAGS"
-  CFLAGS="$CFLAGS $X_CFLAGS"
-  CPPFLAGS="$CPPFLAGS $X_CFLAGS"
-
-  dnl now try to find the HEADER
-  AC_CHECK_HEADER([X11/Xlib.h], [HAVE_X="yes"], [HAVE_X="no"], [AC_INCLUDES_DEFAULT])
-
-  if test "x$HAVE_X" = "xno"
-  then
-    AC_MSG_NOTICE([cannot find X11 development files])
-  else
-    dnl this is much more than we want
-    X_LIBS="$X_LIBS $X_PRE_LIBS $X_EXTRA_LIBS"
-    dnl AC_PATH_XTRA only defines the path needed to find the X libs,
-    dnl it does not add the libs; therefore we add them here
-    X_LIBS="$X_LIBS -lX11"
-    AC_SUBST(X_CFLAGS)
-    AC_SUBST(X_LIBS)
-
-    dnl use xfixes
-    PKG_CHECK_MODULES(XFIXES, xfixes)
-    AC_SUBST(XFIXES_CFLAGS)
-    AC_SUBST(XFIXES_LIBS)
-
-    dnl use dri2proto
-    PKG_CHECK_MODULES(DRI2PROTO, dri2proto)
-    AC_SUBST(DRI2PROTO_CFLAGS)
-    AC_SUBST(DRI2PROTO_LIBS)
-
-    dnl use dri2
-    PKG_CHECK_MODULES(DRI2, libdri2)
-    AC_SUBST(DRI2_CFLAGS)
-    AC_SUBST(DRI2_LIBS)
-  fi
-  AC_SUBST(HAVE_X)
-  CFLAGS="$ac_cflags_save"
-  CPPFLAGS="$ac_cppflags_save"
+  AG_GST_PKG_CHECK_MODULES(X, x11)
 ])
 
 dnl Check for Xv extension
 translit(dnm, m, l) AM_CONDITIONAL(USE_XVIDEO, true)
 AG_GST_CHECK_FEATURE(XVIDEO, [X11 XVideo extensions],
                   [xvimagesink], [
-  AG_GST_CHECK_XV
+  AG_GST_PKG_CHECK_MODULES(XVIDEO, x11 xv)
 ])
 
 dnl check for X Shm
 translit(dnm, m, l) AM_CONDITIONAL(USE_XSHM, true)
-AG_GST_CHECK_FEATURE(XSHM, [X Shared Memory extension], , [
+AG_GST_CHECK_FEATURE(XSHM, [X Shared Memory extension], [ ], [
   if test x$HAVE_X = xyes; then
-    AC_CHECK_LIB(Xext, XShmAttach,
-		 HAVE_XSHM="yes", HAVE_XSHM="no",
-		 $X_LIBS)
-    if test "x$HAVE_XSHM" = "xyes"; then
-      XSHM_LIBS="-lXext"
-    else
-      dnl On AIX, it is in XextSam instead, but we still need -lXext
-      AC_CHECK_LIB(XextSam, XShmAttach,
-		   HAVE_XSHM="yes", HAVE_XSHM="no",
-		   $X_LIBS)
-      if test "x$HAVE_XSHM" = "xyes"; then
-	XSHM_LIBS="-lXext -lXextSam"
-      fi
-    fi
+    PKG_CHECK_MODULES(XSHM, xext, [
+      AC_CHECK_LIB(Xext, XShmAttach, [
+        HAVE_XSHM="yes"
+      ], [
+        HAVE_XSHM="no"
+        XSHM_LIBS=""
+      ], [ $X_LIBS ])
+    ], [
+      HAVE_XSHM="no"
+    ])
   fi
 ], , [
   AC_SUBST(HAVE_XSHM)
@@ -756,6 +714,12 @@ dnl *** vorbis ***
 translit(dnm, m, l) AM_CONDITIONAL(USE_VORBIS, true)
 AG_GST_CHECK_FEATURE(VORBIS, [Xiph Vorbis audio codec], vorbis, [
   AG_GST_PKG_CHECK_MODULES(VORBIS, vorbis >= 1.0 vorbisenc >= 1.0)
+])
+
+dnl *** gio-unix-2.0 for tests/check/pipelines/tcp.c ***
+translit(dnm, m, l) AM_CONDITIONAL(USE_GIO_UNIX_2_0, true)
+AG_GST_CHECK_FEATURE(GIO_UNIX_2_0, [glib GIO unix], gio-unix-2.0, [
+  AG_GST_PKG_CHECK_MODULES(GIO_UNIX_2_0, gio-unix-2.0 >= 2.24)
 ])
 
 if test "x$HAVE_VORBIS" = "xyes"; then
