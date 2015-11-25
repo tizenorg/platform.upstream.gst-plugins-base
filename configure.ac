@@ -250,8 +250,8 @@ dnl Check for fast float to int casting as defined in C99
 dnl used to be used in gst-libs/gst/floatcast/floatcast.h (FIXME: still needed?)
 save_libs=$LIBS
 LIBS="$LIBS $LIBM"
-AC_C99_FUNC_LRINT
-AC_C99_FUNC_LRINTF
+#AC_C99_FUNC_LRINT
+#AC_C99_FUNC_LRINTF
 LIBS=$save_libs
 
 dnl Check for a way to display the function name in debug output

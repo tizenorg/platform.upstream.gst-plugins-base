@@ -2,6 +2,8 @@
 #include "gsttbmbufferpool.h"
 #include <gst/video/gstvideofilter.h>
 
+static GQuark gst_mm_buffer_data_quark = 0;
+
 
 int calc_yplane(int width, int height)
 {
@@ -132,7 +134,6 @@ G_DEFINE_TYPE (GstMMBufferPool, gst_mm_buffer_pool, GST_TYPE_BUFFER_POOL);
 static gboolean
 gst_mm_buffer_pool_start (GstBufferPool * bpool)
 {
-  GstMMBufferPool *pool = GST_MM_BUFFER_POOL (bpool);
   return
       GST_BUFFER_POOL_CLASS (gst_mm_buffer_pool_parent_class)->start (bpool);
 }
@@ -142,7 +143,7 @@ gst_mm_buffer_pool_stop (GstBufferPool * bpool)
 {
   GstMMBufferPool *pool = GST_MM_BUFFER_POOL (bpool);
 
-  if(gst_buffer_pool_is_active (pool) == TRUE)
+  if(gst_buffer_pool_is_active (bpool) == TRUE)
       return FALSE;
   /* Remove any buffers that are there */
   if(pool->buffers != NULL){
@@ -162,11 +163,7 @@ gst_mm_buffer_pool_stop (GstBufferPool * bpool)
 static const gchar **
 gst_mm_buffer_pool_get_options (GstBufferPool * bpool)
 {
-  static const gchar *raw_video_options[] =
-      { GST_BUFFER_POOL_OPTION_VIDEO_META, NULL };
   static const gchar *options[] = { NULL };
-  GstMMBufferPool *pool = GST_MM_BUFFER_POOL (bpool);
-
   return options;
 }
 
@@ -206,13 +203,6 @@ no_caps:
     GST_WARNING_OBJECT (pool, "no caps in config");
     return FALSE;
   }
-wrong_video_caps:
-  {
-    GST_OBJECT_UNLOCK (pool);
-    GST_WARNING_OBJECT (pool,
-        "failed getting geometry from caps %" GST_PTR_FORMAT, caps);
-    return FALSE;
-  }
 }
 
 static GstFlowReturn
@@ -232,7 +222,7 @@ gst_mm_buffer_pool_alloc_buffer (GstBufferPool * bpool,
   mm_buf = (GstMMBuffer*) malloc(sizeof(GstMMBuffer));
   mem = gst_mm_memory_allocator_alloc (pool->allocator, 0, mm_buf);
   buf = gst_buffer_new ();
-  buf->pool = pool;
+  buf->pool = bpool;
   mem->size = sizeof(GstMMBuffer);
   mem->offset = 0;
   gst_buffer_append_memory (buf, mem);
@@ -309,6 +299,7 @@ gst_mm_buffer_pool_free_buffer (GstBufferPool * bpool, GstBuffer * buffer)
       gst_mm_buffer_data_quark, NULL, NULL);
 
 #ifdef USE_TBM_BUFFER
+  {
   GstMapInfo map_info = GST_MAP_INFO_INIT;
   mem = gst_buffer_peek_memory (buffer, 1);
   if (mem != NULL) {
@@ -324,6 +315,7 @@ gst_mm_buffer_pool_free_buffer (GstBufferPool * bpool, GstBuffer * buffer)
          tbm_bo_unmap(mm_video_buf->handle.bo[1]);
          tbm_bo_unref(mm_video_buf->handle.bo[1]);
       }
+    }
   }
 #endif
   GST_BUFFER_POOL_CLASS (gst_mm_buffer_pool_parent_class)->free_buffer (bpool,
@@ -376,7 +368,6 @@ static void
 gst_mm_buffer_pool_release_buffer (GstBufferPool * bpool, GstBuffer * buffer)
 {
   GstMMBufferPool *pool = GST_MM_BUFFER_POOL (bpool);
-  int err;
   GstMMBuffer *mm_buf;
 
   if (!pool->allocating && !pool->deactivated) {
