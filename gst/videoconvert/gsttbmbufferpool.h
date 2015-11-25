@@ -9,7 +9,7 @@
 #include <string.h>
 
 #ifdef USE_TBM_BUFFER
-#include <mm_types.h>
+#include <mmf/mm_types.h>
 #include <tbm_type.h>
 #include <tbm_surface.h>
 #include <tbm_bufmgr.h>
@@ -51,7 +51,7 @@ struct _GstMMBuffer
 #define GST_MM_VIDEO_MEMORY_TYPE "mmvideobuffer"
 
 
-static GQuark gst_mm_buffer_data_quark = 0;
+/*static GQuark gst_mm_buffer_data_quark = 0;*/
 
 #define GST_MM_BUFFER_POOL(pool) ((GstMMBufferPool *) pool)
 typedef struct _GstMMBufferPool GstMMBufferPool;
@@ -101,6 +101,12 @@ struct _GstMMBufferPoolClass
 
 GstBufferPool *
 gst_mm_buffer_pool_new (GstElement * element );
+
+int
+calc_yplane(int width, int height);
+
+int
+calc_uvplane(int width, int height);
 
 
 #if 0
