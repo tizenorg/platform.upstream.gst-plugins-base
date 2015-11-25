@@ -1,4 +1,4 @@
-DISTCHECK_CONFIGURE_FLAGS=--enable-gtk-doc
+DISTCHECK_CONFIGURE_FLAGS=--disable-gtk-doc
 
 if BUILD_EXTERNAL
 SUBDIRS_EXT = ext
@@ -12,14 +12,12 @@ SUBDIRS = 			\
 	gst sys $(SUBDIRS_EXT) 	\
 	tools 			\
 	tests 			\
-	docs			\
 	po 			\
 	common 			\
 	m4
 
 DIST_SUBDIRS = 			\
 	pkgconfig		\
-	docs			\
 	gst-libs		\
 	gst sys ext		\
 	tools 			\
