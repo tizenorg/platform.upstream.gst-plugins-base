@@ -4,7 +4,7 @@
 
 Name:           gst-plugins-base
 Version:        1.6.1
-Release:        1
+Release:        2
 License:        LGPL-2.1+ and GPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 Url:            http://gstreamer.freedesktop.org/

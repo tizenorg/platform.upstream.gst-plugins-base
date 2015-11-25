@@ -720,15 +720,14 @@ fill_planes (GstVideoInfo * info)
       info->size = info->stride[0] * height * 3;
       break;
     case GST_VIDEO_FORMAT_NV12:
+    case GST_VIDEO_FORMAT_SN12:
+    case GST_VIDEO_FORMAT_ST12:
     case GST_VIDEO_FORMAT_NV21:
       info->stride[0] = GST_ROUND_UP_4 (width);
       info->stride[1] = info->stride[0];
       info->offset[0] = 0;
       info->offset[1] = info->stride[0] * GST_ROUND_UP_2 (height);
-      cr_h = GST_ROUND_UP_2 (height) / 2;
-      if (GST_VIDEO_INFO_IS_INTERLACED (info))
-        cr_h = GST_ROUND_UP_2 (cr_h);
-      info->size = info->offset[1] + info->stride[0] * cr_h;
+      info->size = info->stride[0] * GST_ROUND_UP_2 (height) * 3 / 2;
       break;
     case GST_VIDEO_FORMAT_NV16:
     case GST_VIDEO_FORMAT_NV61:
