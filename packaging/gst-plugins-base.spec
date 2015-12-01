@@ -1,3 +1,4 @@
+%bcond_with x
 %define gst_branch 1.0
 %define _lib_gstreamer_dir %{_libdir}/gstreamer-%{gst_branch}
 %define _libdebug_dir %{_libdir}/debug/usr/lib
@@ -33,6 +34,16 @@ BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libtbm)
 BuildRequires:  pkgconfig(mm-ta)
 BuildRequires:  pkgconfig(mm-common)
+%if %{with x}
+BuildRequires:  pkgconfig(ice)
+BuildRequires:  pkgconfig(sm)
+BuildRequires:  pkgconfig(xext)
+BuildRequires:  pkgconfig(xv)
+BuildRequires:  pkgconfig(xfixes)
+BuildRequires:  pkgconfig(dri2proto)
+BuildRequires:  pkgconfig(libdri2)
+%endif
+
 Requires:       gstreamer >= 1.0.0
 Supplements:    gstreamer
 
@@ -135,6 +146,11 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_libdir}/libgstsdp-%{gst_branch}.so.0
 %{_libdir}/libgsttag-%{gst_branch}.so.0
 %{_libdir}/libgstvideo-%{gst_branch}.so.0
+
+%if %{with x}
+%{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
+%{_libdir}/gstreamer-%{gst_branch}/libgstxvimagesink.so
+%endif
 
 %doc %{_mandir}/man1/gst-device-monitor-*
 %doc %{_mandir}/man1/gst-discoverer-*
