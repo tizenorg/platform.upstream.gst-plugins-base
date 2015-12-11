@@ -15,9 +15,6 @@
 #include <tbm_bufmgr.h>
 #endif
 
-#define ALIGN(x, a)       (((x) + (a) - 1) & ~((a) - 1))
-#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
-
 typedef struct _GstMMVideoMemory                GstMMVideoMemory;
 typedef struct _GstMMVideoMemoryAllocator       GstMMVideoMemoryAllocator;
 typedef struct _GstMMVideoMemoryAllocatorClass  GstMMVideoMemoryAllocatorClass;
@@ -51,7 +48,7 @@ struct _GstMMBuffer
 #define GST_MM_VIDEO_MEMORY_TYPE "mmvideobuffer"
 
 
-/*static GQuark gst_mm_buffer_data_quark = 0;*/
+static GQuark gst_mm_buffer_data_quark = 0;
 
 #define GST_MM_BUFFER_POOL(pool) ((GstMMBufferPool *) pool)
 typedef struct _GstMMBufferPool GstMMBufferPool;
@@ -102,12 +99,35 @@ struct _GstMMBufferPoolClass
 GstBufferPool *
 gst_mm_buffer_pool_new (GstElement * element );
 
-int
-calc_yplane(int width, int height);
+#ifdef USE_TBM_BUFFER
 
-int
-calc_uvplane(int width, int height);
+/*MFC Buffer alignment macros*/
+#define S5P_FIMV_DEC_BUF_ALIGN                  (8 * 1024)
+#define S5P_FIMV_ENC_BUF_ALIGN                  (8 * 1024)
+#define S5P_FIMV_NV12M_HALIGN                   16
+#define S5P_FIMV_NV12M_LVALIGN                  16
+#define S5P_FIMV_NV12M_CVALIGN                  8
+#define S5P_FIMV_NV12MT_HALIGN                  128
+#define S5P_FIMV_NV12MT_VALIGN                  64
+#define S5P_FIMV_NV12M_SALIGN                   2048
+#define S5P_FIMV_NV12MT_SALIGN                  8192
 
+#define ALIGN(x, a)       (((x) + (a) - 1) & ~((a) - 1))
+
+/* Buffer alignment defines */
+#define SZ_1M                                   0x00100000
+#define S5P_FIMV_D_ALIGN_PLANE_SIZE             64
+
+#define S5P_FIMV_MAX_FRAME_SIZE                 (2 * SZ_1M)
+#define S5P_FIMV_NUM_PIXELS_IN_MB_ROW           16
+#define S5P_FIMV_NUM_PIXELS_IN_MB_COL           16
+
+/* Macro */
+#define ALIGN_TO_4KB(x)   ((((x) + (1 << 12) - 1) >> 12) << 12)
+#define DIV_ROUND_UP(n,d) (((n) + (d) - 1) / (d))
+#define CHOOSE_MAX_SIZE(a,b) ((a) > (b) ? (a) : (b))
+
+#endif
 
 #if 0
 
