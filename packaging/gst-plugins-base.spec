@@ -13,12 +13,12 @@ Group:          Multimedia/Framework
 Source:         http://gstreamer.freedesktop.org/src/gst-plugins-base/gst-plugins-base-%{version}.tar.xz
 Source100:      common.tar.gz
 BuildRequires:  gettext-tools
-BuildRequires:  glib2-devel >= 2.32
-BuildRequires:  gstreamer-devel >= 1.0.0
+BuildRequires:  pkgconfig(glib-2.0) >= 2.32
+BuildRequires:  pkgconfig(gstreamer-1.0)
 BuildRequires:  orc >= 0.4.16
 BuildRequires:  python
 BuildRequires:  update-desktop-files
-BuildRequires:  gobject-introspection-devel >= 1.31.1
+BuildRequires:  pkgconfig(gobject-introspection-1.0) >= 1.31.1
 BuildRequires:  pkgconfig(alsa) >= 0.9.1
 BuildRequires:  pkgconfig(freetype2) >= 2.0.9
 BuildRequires:  pkgconfig(libxml-2.0)
