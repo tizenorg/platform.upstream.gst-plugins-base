@@ -6,7 +6,7 @@
 Name:           gst-plugins-base
 Version:        1.6.1
 Release:        3
-License:        LGPL-2.1+ and GPL-2.0+
+License:        LGPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 Url:            http://gstreamer.freedesktop.org/
 Group:          Multimedia/Framework
@@ -104,7 +104,7 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %files
 %manifest %{name}.manifest
 %defattr(-, root, root)
-%license COPYING COPYING.LIB
+%license COPYING.LIB
 
 %{_bindir}/gst-device-monitor-%{gst_branch}
 %{_bindir}/gst-discoverer-%{gst_branch}
