@@ -5,7 +5,7 @@
 
 Name:           gst-plugins-base
 Version:        1.6.1
-Release:        3
+Release:        4
 License:        LGPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 Url:            http://gstreamer.freedesktop.org/
@@ -77,6 +77,7 @@ export CFLAGS="%{optflags} -fno-strict-aliasing\
  -DGST_EXT_LINK_FIMCCONVERT\
  -DGST_EXT_MIME_TYPES\
  -DGST_TIZEN_MODIFICATION\
+ -DGST_TIZEN_SUBPARSE_MODIFICATION\
 %endif
  "
 %configure\

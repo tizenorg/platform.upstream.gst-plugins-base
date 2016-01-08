@@ -31,6 +31,9 @@ void    sami_context_init   (ParserState * state);
 void    sami_context_deinit (ParserState * state);
 
 void    sami_context_reset  (ParserState * state);
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+void    sami_context_change_language  (ParserState * state);
+#endif
 
 G_END_DECLS
 

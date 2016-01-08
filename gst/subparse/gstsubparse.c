@@ -40,11 +40,17 @@ GST_DEBUG_CATEGORY (sub_parse_debug);
 
 #define DEFAULT_ENCODING   NULL
 
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+#define DEFAULT_CURRENT_LANGUAGE   NULL
+#endif
 enum
 {
   PROP_0,
   PROP_ENCODING,
-  PROP_VIDEOFPS
+  PROP_VIDEOFPS,
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  PROP_EXTSUB_CURRENT_LANGUAGE
+#endif
 };
 
 static void
@@ -114,6 +120,12 @@ gst_sub_parse_dispose (GObject * object)
     subparse->textbuf = NULL;
   }
 
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  if (subparse->state.current_language) {
+    g_free (subparse->state.current_language);
+    subparse->state.current_language = NULL;
+  }
+#endif
   GST_CALL_PARENT (G_OBJECT_CLASS, dispose, (object));
 }
 
@@ -154,6 +166,13 @@ gst_sub_parse_class_init (GstSubParseClass * klass)
           "and the subtitle format requires it subtitles may be out of sync.",
           0, 1, G_MAXINT, 1, 24000, 1001,
           G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  g_object_class_install_property (object_class, PROP_EXTSUB_CURRENT_LANGUAGE,
+      g_param_spec_string ("current-language", "Current language",
+            "Current language of the subtitle in external subtitle case.",
+            DEFAULT_CURRENT_LANGUAGE,
+            G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+#endif
 }
 
 static void
@@ -184,6 +203,11 @@ gst_sub_parse_init (GstSubParse * subparse)
 
   subparse->fps_n = 24000;
   subparse->fps_d = 1001;
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  subparse->state.language_list = NULL;
+  subparse->state.current_language = NULL;
+  subparse->state.langlist_msg_posted = FALSE;
+#endif
 }
 
 /*
@@ -324,6 +348,17 @@ gst_sub_parse_set_property (GObject * object, guint prop_id,
       }
       break;
     }
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+    case PROP_EXTSUB_CURRENT_LANGUAGE:
+      if (subparse->state.current_language)
+        g_free(subparse->state.current_language);
+
+      subparse->state.current_language = g_value_dup_string (value);
+      GST_LOG_OBJECT (subparse, "subtitle current language set to %s",
+                      GST_STR_NULL (subparse->state.current_language));
+      sami_context_change_language(&subparse->state);
+      break;
+#endif
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -345,6 +380,11 @@ gst_sub_parse_get_property (GObject * object, guint prop_id,
     case PROP_VIDEOFPS:
       gst_value_set_fraction (value, subparse->fps_n, subparse->fps_d);
       break;
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+    case PROP_EXTSUB_CURRENT_LANGUAGE:
+      g_value_set_string (value, subparse->state.current_language);
+      break;
+#endif
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, prop_id, pspec);
       break;
@@ -1179,6 +1219,12 @@ parser_state_init (ParserState * state)
   state->max_duration = 0;      /* no limit */
   state->state = 0;
   state->segment = NULL;
+
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  state->language_list = NULL;
+  state->current_language = NULL;
+  state->langlist_msg_posted = FALSE;
+#endif
 }
 
 static void
@@ -1488,6 +1534,9 @@ handle_buffer (GstSubParse * self, GstBuffer * buf)
   GstCaps *caps = NULL;
   gchar *line, *subtitle;
   gboolean need_tags = FALSE;
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  GstMessage *m = NULL;
+#endif
 
   if (self->first_buffer) {
     GstMapInfo map;
@@ -1544,7 +1593,16 @@ handle_buffer (GstSubParse * self, GstBuffer * buf)
     GST_LOG_OBJECT (self, "Parsing line '%s'", line + offset);
     subtitle = self->parse_line (&self->state, line + offset);
     g_free (line);
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+    if (!self->state.langlist_msg_posted && self->state.language_list) {
+      m = gst_message_new_element (GST_OBJECT_CAST (self), gst_structure_new("Ext_Sub_Language_List",
+                                 "lang_list", G_TYPE_POINTER, self->state.language_list, NULL));
 
+      gst_element_post_message (GST_ELEMENT_CAST (self), m);
+      self->state.langlist_msg_posted = TRUE;
+      GST_DEBUG_OBJECT (self, "curr lang as : %s ", GST_STR_NULL(self->state.current_language));
+    }
+#endif
     if (subtitle) {
       guint subtitle_len = strlen (subtitle);
 

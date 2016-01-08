@@ -32,6 +32,14 @@
 typedef struct _HtmlParser HtmlParser;
 typedef struct _HtmlContext HtmlContext;
 typedef struct _GstSamiContext GstSamiContext;
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+typedef struct _LanguageStruct  GstLangStruct;
+struct _LanguageStruct
+{
+    gchar *language_code;
+    gchar *language_key;
+};
+#endif
 
 struct _GstSamiContext
 {
@@ -52,6 +60,14 @@ struct _GstSamiContext
                                  * content of the sync elements to buf */
   guint64 time1;                /* previous start attribute in sync tag */
   guint64 time2;                /* current start attribute in sync tag  */
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  guint64 time3;                /* To store the last current time when language is changed */
+  GList *lang_list;             /* Language list for an external subtitle file */
+  gchar *current_language;      /* Current language parsed */
+  gchar *desired_language;      /* Language set by user */
+  gboolean language_changed;    /* language changed signal */
+  gboolean end_body;            /* </BODY> reached */
+#endif
 };
 
 struct _HtmlParser
@@ -470,6 +486,10 @@ html_context_handle_element (HtmlContext * ctxt,
   gint count = 0, i;
   gchar **attrs;
   const gchar *found, *next;
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  const gchar *name_temp = NULL;
+  gint j = 0;
+#endif
 
   /* split element name and attributes */
   next = string_token (string, " ", &name);
@@ -511,7 +531,78 @@ html_context_handle_element (HtmlContext * ctxt,
     attrs[i] = attr_name;
     attrs[i + 1] = attr_value;
   }
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  /* sometimes spaces can be there in between !-- and P
+   * that also we have to take care */
+  if (!g_ascii_strcasecmp("!--", name)) {
+    gchar* tempchar = (gchar*)(string + 3);
+    while (*tempchar == ' ') {
+      tempchar++;
+      if (*tempchar == 'P' || *tempchar == 'p') {
+        *(name + 3) = *tempchar;
+        *(name + 4) = '\0';
+        next = tempchar + 1;
+        break;
+      }
+    }
+  }
+  if (next && (!g_ascii_strcasecmp("!--P", name))) {
+    gint attrindex = 0;
+    count = 0;
+    /* count attributes */
+    found = next + 1;
+    while (TRUE) {
+      found = (gchar*)strcasestr (found, "lang:");
+      if (!found)
+        break;
+      found++;
+      count++;
+    }
+    g_strfreev (attrs);
 
+    attrs = g_new0 (gchar *, count * 2);
+
+    for (i = 0; i < count; i++) {
+      gchar *attr_name = NULL, *attr_value = NULL;
+
+      next = (gchar*)strcasestr (next, "lang:");
+      attr_value = (gchar*)malloc (3);
+      next = next + 5;
+      strncpy (attr_value, next, 2);
+      attr_value[2] = '\0';
+      GST_LOG ("Language value comes as %s", attr_value);
+      name_temp = next;
+      while (TRUE) {
+        if (*name_temp == '{') {
+          int character_count = 0;
+
+          while (TRUE) {
+            name_temp--;
+
+            if (*name_temp == '.') {
+              attr_name = (gchar*) malloc (character_count + 1);
+              break;
+            }
+            else if (*name_temp != ' ')
+              character_count++;
+          }
+          break;
+        }
+        name_temp--;
+      }
+      name_temp++;
+      for (j = 0; *(name_temp + j) != ' '; j++) {
+        attr_name[j] = *(name_temp + j);
+      }
+      attr_name[j] = '\0';
+      attrs[attrindex++] = attr_name;
+      attrs[attrindex++] = attr_value;
+    }
+  } else {
+    count = 0;
+  }
+
+#endif
   ctxt->parser->start_element (ctxt, name,
       (const gchar **) attrs, ctxt->user_data);
   if (must_close) {
@@ -658,6 +749,9 @@ handle_start_sync (GstSamiContext * sctx, const gchar ** atts)
           sctx->time1 = sctx->time2;
 
         sctx->time2 = atoi ((const char *) value) * GST_MSECOND;
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+        sctx->time3 = sctx->time2;
+#endif
         sctx->time2 = MAX (sctx->time2, sctx->time1);
         g_string_append (sctx->resultbuf, sctx->buf->str);
         sctx->has_result = (sctx->resultbuf->len != 0) ? TRUE : FALSE;
@@ -730,6 +824,88 @@ handle_start_font (GstSamiContext * sctx, const gchar ** atts)
     sami_context_push_state (sctx, SPAN_TAG);
   }
 }
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+static void
+handle_p (GstSamiContext * sctx, const gchar ** atts)
+{
+  int i;
+
+  if (atts != NULL) {
+    for (i = 0; (atts[i] != NULL); i += 2) {
+      const gchar *key, *value;
+
+      key = atts[i];
+      value = atts[i + 1];
+
+      if (sctx->current_language && value && strcmp(sctx->current_language, value)
+          && (sctx->time1 == sctx->time2))
+        sctx->language_changed = TRUE;
+      else if (!sctx->current_language)
+        sctx->current_language = (gchar*) malloc (128);
+
+      if (key && !g_ascii_strcasecmp ("class", key) && value) {
+        strcpy (sctx->current_language, value);
+        if (sctx->desired_language == NULL) {
+          sctx->desired_language = g_strdup(value);
+          GST_LOG("no language list was found and desired lang was set to %s", sctx->desired_language);
+        }
+      }
+      if (sctx->language_changed)
+      {
+         sctx->time1 = 0;
+         sctx->time2 = sctx->time3;
+         sctx->language_changed = FALSE;
+      }
+      if (!value)
+        continue;
+    }
+  }
+}
+
+static void
+handle_start_language_list (GstSamiContext * sctx, const gchar ** atts)
+{
+  int i = 0;
+  int attrIndex = 0;
+  GstLangStruct *new = NULL;
+  GstLangStruct *temp = NULL;
+
+  if (atts != NULL) {
+    if (g_list_length (sctx->lang_list)) {
+      GST_LOG ("We already got the language list");
+      return;
+    }
+    for (i = 0; (atts[attrIndex] != NULL); i++) {
+      const gchar *key, *value;
+
+      key = atts[attrIndex++];
+      value = atts[attrIndex++];
+
+      GST_LOG ("Inside handle_start_language_list key: %s, value: %s", key, value);
+
+      if (!value)
+        continue;
+
+      new = g_new0 (GstLangStruct, 1);
+      new->language_code = (gchar*) malloc (strlen(value) + 1);
+      if (new->language_code && value)
+        strcpy (new->language_code, value);
+      new->language_key = (gchar*) malloc (strlen(key) + 1);
+      if (new->language_key && key)
+        strcpy (new->language_key, key);
+      sctx->lang_list = g_list_append (sctx->lang_list, new);
+      temp = g_list_nth_data (sctx->lang_list, i);
+      if (sctx->desired_language == NULL && key){
+        sctx->desired_language = g_strdup(key);
+      }
+
+      if (temp)
+        GST_LOG ("Inside handle_start_language_list of glist key: %s, value: %s",
+                    temp->language_key, temp->language_code);
+    }
+  }
+}
+#endif
 
 static void
 handle_start_element (HtmlContext * ctx, const gchar * name,
@@ -747,6 +923,10 @@ handle_start_element (HtmlContext * ctx, const gchar * name,
   } else if (!g_ascii_strcasecmp ("ruby", name)) {
     sami_context_push_state (sctx, RUBY_TAG);
   } else if (!g_ascii_strcasecmp ("br", name)) {
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  if (sctx->current_language && sctx->desired_language &&
+      !strcmp(sctx->current_language, sctx->desired_language))
+#endif
     g_string_append_c (sctx->buf, '\n');
     /* FIXME: support for furigana/ruby once implemented in pango */
   } else if (!g_ascii_strcasecmp ("rt", name)) {
@@ -756,9 +936,18 @@ handle_start_element (HtmlContext * ctx, const gchar * name,
     g_string_append (sctx->rubybuf, "<span size='xx-small' rise='-100'>");
     sami_context_push_state (sctx, RT_TAG);
   } else if (!g_ascii_strcasecmp ("i", name)) {
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  if (sctx->current_language && sctx->desired_language &&
+      !strcmp(sctx->current_language, sctx->desired_language))
+#endif
     g_string_append (sctx->buf, "<i>");
     sami_context_push_state (sctx, ITALIC_TAG);
   } else if (!g_ascii_strcasecmp ("p", name)) {
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+    handle_p (sctx, atts);
+  } else if (!g_ascii_strcasecmp ("!--P", name)) {
+    handle_start_language_list (sctx, atts);
+#endif
   }
 }
 
@@ -775,6 +964,11 @@ handle_end_element (HtmlContext * ctx, const char *name, gpointer user_data)
       (!g_ascii_strcasecmp ("sami", name))) {
     /* We will usually have one buffer left when the body is closed
      * as we need the next sync to actually send it */
+
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+    sctx->end_body = TRUE;
+#endif
+
     if (sctx->buf->len != 0) {
       /* Only set a new start time if we don't have text pending */
       if (sctx->resultbuf->len == 0)
@@ -804,11 +998,20 @@ handle_text (HtmlContext * ctx, const gchar * text, gsize text_len,
   if (!sctx->in_sync)
     return;
 
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  if (has_tag (sctx->state, RT_TAG) && (sctx->current_language && sctx->desired_language &&
+       !strcmp(sctx->current_language, sctx->desired_language))) {
+#else
   if (has_tag (sctx->state, RT_TAG)) {
+#endif
     g_string_append_c (sctx->rubybuf, ' ');
     g_string_append (sctx->rubybuf, text);
     g_string_append_c (sctx->rubybuf, ' ');
   } else {
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+    if (sctx->current_language && sctx->desired_language &&
+        !strcmp(sctx->current_language, sctx->desired_language))
+#endif
     g_string_append (sctx->buf, text);
   }
 }
@@ -833,6 +1036,35 @@ sami_context_init (ParserState * state)
   context->rubybuf = g_string_new ("");
   context->resultbuf = g_string_new ("");
   context->state = g_string_new ("");
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  if (context->current_language)
+    free(context->current_language);
+  context->current_language = NULL;
+  if (context->desired_language)
+    free(context->desired_language);
+  context->desired_language = NULL;
+
+  if (context->lang_list) {
+    GstLangStruct *temp = NULL;
+    int i = 0;
+
+    while ((temp = g_list_nth_data (context->lang_list, i))) {
+      if (temp->language_code)
+        free (temp->language_code);
+      temp->language_code = NULL;
+      if (temp->language_key)
+        free (temp->language_key);
+      temp->language_key = NULL;
+      g_free (temp);
+      i++;
+    }
+    g_list_free (context->lang_list);
+  }
+  context->lang_list = NULL;
+
+  context->language_changed = FALSE;
+  context->end_body = FALSE;
+#endif
 
   state->user_data = context;
 }
@@ -841,6 +1073,10 @@ void
 sami_context_deinit (ParserState * state)
 {
   GstSamiContext *context = (GstSamiContext *) state->user_data;
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  GstLangStruct *temp = NULL;
+  int i = 0;
+#endif
 
   if (context) {
     html_context_free (context->htmlctxt);
@@ -849,6 +1085,31 @@ sami_context_deinit (ParserState * state)
     g_string_free (context->rubybuf, TRUE);
     g_string_free (context->resultbuf, TRUE);
     g_string_free (context->state, TRUE);
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+    if (context->lang_list) {
+      while ((temp = g_list_nth_data (context->lang_list, i))) {
+        if (temp->language_code)
+          free (temp->language_code);
+        temp->language_code = NULL;
+        if (temp->language_key)
+          free (temp->language_key);
+        temp->language_key = NULL;
+        g_free (temp);
+        i++;
+      }
+      g_list_free (context->lang_list);
+    }
+    context->lang_list = NULL;
+
+    if (context->current_language)
+      free (context->current_language);
+    context->current_language = NULL;
+
+    if (context->desired_language)
+      free (context->desired_language);
+    context->desired_language = NULL;
+#endif
+
     g_free (context);
     state->user_data = NULL;
   }
@@ -871,6 +1132,22 @@ sami_context_reset (ParserState * state)
   }
 }
 
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+void
+sami_context_change_language (ParserState * state)
+{
+  GstSamiContext *context = (GstSamiContext *) state->user_data;
+  if (context->desired_language) {
+    GST_LOG ("desired language was %s", context->desired_language);
+    free (context->desired_language);
+  }
+  if(state->current_language) {
+    context->desired_language = g_strdup(state->current_language);
+  }
+  GST_LOG ("desired language changed to %s", GST_STR_NULL(context->desired_language));
+}
+#endif
+
 gchar *
 parse_sami (ParserState * state, const gchar * line)
 {
@@ -880,20 +1157,38 @@ parse_sami (ParserState * state, const gchar * line)
   gchar *unescaped = unescape_string (line);
   html_context_parse (context->htmlctxt, (gchar *) unescaped,
       strlen (unescaped));
-  g_free (unescaped);
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  if (context->lang_list)
+    state->language_list = context->lang_list;
 
-  if (context->has_result) {
-    if (context->rubybuf->len) {
-      context->rubybuf = g_string_append_c (context->rubybuf, '\n');
-      g_string_prepend (context->resultbuf, context->rubybuf->str);
-      context->rubybuf = g_string_truncate (context->rubybuf, 0);
-    }
-
-    ret = g_string_free (context->resultbuf, FALSE);
-    context->resultbuf = g_string_new ("");
-    state->start_time = context->time1;
-    state->duration = context->time2 - context->time1;
-    context->has_result = FALSE;
+  if (context->desired_language) {
+    if (state->current_language)
+      free (state->current_language);
+    state->current_language = g_strdup(context->desired_language);
   }
+#endif
+  g_free (unescaped);
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  if (context->desired_language && context->current_language) {
+    if (!strcmp(context->current_language, context->desired_language)) {
+#endif
+      if (context->has_result) {
+        if (context->rubybuf->len) {
+          context->rubybuf = g_string_append_c (context->rubybuf, '\n');
+          g_string_prepend (context->resultbuf, context->rubybuf->str);
+          context->rubybuf = g_string_truncate (context->rubybuf, 0);
+        }
+
+        ret = g_string_free (context->resultbuf, FALSE);
+        context->resultbuf = g_string_new ("");
+        state->start_time = context->time1;
+        state->duration = context->time2 - context->time1;
+        context->has_result = FALSE;
+      }
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+    }
+  }
+#endif
+
   return ret;
 }

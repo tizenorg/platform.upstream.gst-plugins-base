@@ -69,6 +69,11 @@ typedef struct {
   gpointer user_data;
   gboolean have_internal_fps; /* If TRUE don't overwrite fps by property */
   gint fps_n, fps_d;     /* used by frame based parsers */
+#ifdef GST_TIZEN_SUBPARSE_MODIFICATION
+  GList* language_list;
+  gchar* current_language;
+  gboolean langlist_msg_posted;
+#endif
 } ParserState;
 
 typedef gchar* (*Parser) (ParserState *state, const gchar *line);
@@ -92,11 +97,11 @@ struct _GstSubParse {
 
   /* seek */
   guint64 offset;
-  
+
   /* Segment */
   GstSegment    segment;
   gboolean      need_segment;
-  
+
   gboolean flushing;
   gboolean valid_utf8;
   gchar   *detected_encoding;
@@ -105,7 +110,7 @@ struct _GstSubParse {
   gboolean first_buffer;
 
   /* used by frame based parsers */
-  gint fps_n, fps_d;          
+  gint fps_n, fps_d;
 };
 
 struct _GstSubParseClass {
