@@ -5536,9 +5536,9 @@ plugin_init (GstPlugin * plugin)
       musepack_type_find, "mpc,mpp,mp+", MUSEPACK_CAPS, NULL, NULL);
   TYPE_FIND_REGISTER (plugin, "audio/x-au", GST_RANK_MARGINAL,
       au_type_find, "au,snd", AU_CAPS, NULL, NULL);
-#ifndef GST_EXT_MIME_TYPES
   TYPE_FIND_REGISTER_RIFF (plugin, "video/x-msvideo", GST_RANK_PRIMARY,
       "avi", "AVI ");
+#ifndef GST_EXT_MIME_TYPES
   TYPE_FIND_REGISTER_RIFF (plugin, "audio/qcelp", GST_RANK_PRIMARY,
       "qcp", "QLCM");
   TYPE_FIND_REGISTER_RIFF (plugin, "video/x-cdxa", GST_RANK_PRIMARY,
