@@ -66,6 +66,8 @@ struct _GstVideoOverlayInterface {
                                 gint width, gint height);
 
   void (*set_window_handle)    (GstVideoOverlay *overlay, guintptr handle);
+  void (*set_wl_window_wl_surface_id)   (GstVideoOverlay * overlay, guintptr wl_surface_id);
+
 };
 
 GType   gst_video_overlay_get_type (void);
@@ -93,6 +95,8 @@ void            gst_video_overlay_got_window_handle     (GstVideoOverlay * overl
 void            gst_video_overlay_prepare_window_handle (GstVideoOverlay * overlay);
 
 gboolean        gst_is_video_overlay_prepare_window_handle_message (GstMessage * msg);
+void gst_video_overlay_set_wl_window_wl_surface_id (GstVideoOverlay * overlay,
+    guintptr wl_surface_id);
 
 G_END_DECLS
 

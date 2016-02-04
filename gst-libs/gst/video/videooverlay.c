@@ -343,6 +343,33 @@ gst_video_overlay_get_type (void)
   return gst_video_overlay_type;
 }
 
+#ifdef GST_EXT_WAYLAND_ENHANCEMENT
+/**
+* gst_video_overlay_set_wl_window_wl_surface_id:
+* @overlay: a #GstVideoOverlay to set the window on.
+* @wl_surface_id: a global resource id of wl_surface referencing the wayland window.
+
+* This will call the video overlay's set_wayland_window_handle method.  You
+* should use this medtod  to tell to an overlay to display video output to a
+* specific window(e.g. an Wayland Window on Wayland).
+* But you can also set handle to waylandsink with gst_video_overlay_set_window_handle().
+*/
+void
+gst_video_overlay_set_wl_window_wl_surface_id (GstVideoOverlay * overlay,
+    guintptr wl_surface_id)
+{
+  GstVideoOverlayInterface *iface;
+
+  g_return_if_fail (overlay != NULL);
+  g_return_if_fail (GST_IS_VIDEO_OVERLAY (overlay));
+
+  iface = GST_VIDEO_OVERLAY_GET_INTERFACE (overlay);
+
+  if (iface->set_wl_window_wl_surface_id) {
+    iface->set_wl_window_wl_surface_id (overlay, wl_surface_id);
+  }
+}
+#endif
 /**
  * gst_video_overlay_set_window_handle:
  * @overlay: a #GstVideoOverlay to set the window on.
