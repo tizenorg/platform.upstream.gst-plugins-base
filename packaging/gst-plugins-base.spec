@@ -71,9 +71,9 @@ to compile and link applications that use gstreamer-plugins-base.
 export V=1
 NOCONFIGURE=1 ./autogen.sh
 export CFLAGS="%{optflags} -fno-strict-aliasing\
+ -DGST_EXT_WAYLAND_ENHANCEMENT\
 %ifarch %{arm}
  -DGST_EXT_AUDIODECODER_MODIFICATION\
- -DGST_EXT_WAYLAND_ENHANCEMENT\
  -DGST_EXT_LINK_FIMCCONVERT\
  -DGST_EXT_MIME_TYPES\
  -DGST_TIZEN_MODIFICATION\
