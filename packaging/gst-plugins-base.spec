@@ -31,7 +31,6 @@ BuildRequires:  pkgconfig(zlib)
 
 BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(libtbm)
-BuildRequires:  pkgconfig(mm-ta)
 BuildRequires:  pkgconfig(mm-common)
 %if %{with x}
 BuildRequires:  pkgconfig(ice)
