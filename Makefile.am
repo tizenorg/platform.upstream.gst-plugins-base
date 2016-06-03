@@ -6,12 +6,17 @@ else
 SUBDIRS_EXT =
 endif
 
+if TV_PROFILE
+SUBDIRS_TOOLS =
+else
+SUBDIRS_TOOLS = tools
+endif
+
 SUBDIRS = 			\
 	pkgconfig		\
 	gst-libs 		\
 	gst sys $(SUBDIRS_EXT) 	\
-	tools 			\
-	tests 			\
+	tests $(SUBDIRS_TOOLS) \
 	po 			\
 	common 			\
 	m4
@@ -20,8 +25,7 @@ DIST_SUBDIRS = 			\
 	pkgconfig		\
 	gst-libs		\
 	gst sys ext		\
-	tools 			\
-	tests 			\
+	tests $(SUBDIRS_TOOLS) \
 	po 			\
 	common 			\
 	m4
