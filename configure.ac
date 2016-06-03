@@ -153,6 +153,19 @@ AM_CONDITIONAL(HAVE_CXX, test "x$working_cxx" = "xyes")
 AC_PATH_PROG(VALGRIND_PATH, valgrind, no)
 AM_CONDITIONAL(HAVE_VALGRIND, test ! "x$VALGRIND_PATH" = "xno")
 
+dnl check for tv profile
+
+AC_ARG_ENABLE(tv, AC_HELP_STRING([--enable-tv], [enable tv profile]),
+        [
+          case "${enableval}" in
+           yes) TV_PROFILE=yes ;;
+           no)  TV_PROFILE=no ;;
+           *)   AC_MSG_ERROR(bad value ${enableval} for --enable-tv) ;;
+          esac
+        ],
+        [TV_PROFILE=no])
+AM_CONDITIONAL([TV_PROFILE], [test "x$TV_PROFILE" = "xyes"])
+
 dnl check for tbm buffer
 
 AC_ARG_ENABLE(tbmbuf, AC_HELP_STRING([--enable-use-tbmbuf], [use tbm buf]),

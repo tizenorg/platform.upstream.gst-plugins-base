@@ -5,7 +5,7 @@
 
 Name:           gst-plugins-base
 Version:        1.6.1
-Release:        4
+Release:        5
 License:        LGPL-2.0+
 Summary:        GStreamer Streaming-Media Framework Plug-Ins
 Url:            http://gstreamer.freedesktop.org/
@@ -86,6 +86,10 @@ export CFLAGS="%{optflags} -fno-strict-aliasing\
         --enable-introspection\
         --disable-encoding\
         --disable-examples\
+        --disable-adder\
+%if "%{?profile}" == "tv"
+        --enable-tv\
+%endif
         --enable-use-tbmbuf
 make %{?_smp_mflags}
 
@@ -106,14 +110,16 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %defattr(-, root, root)
 %license COPYING.LIB
 
+%if "%{?profile}" != "tv"
 %{_bindir}/gst-device-monitor-%{gst_branch}
 %{_bindir}/gst-discoverer-%{gst_branch}
 %{_bindir}/gst-play-%{gst_branch}
+%endif
 
 %define _lib_gstreamer_dir %{_libdir}/gstreamer-%{gst_branch}
 %define _libdebug_dir %{_libdir}/debug/usr/lib
 
-%{_lib_gstreamer_dir}/libgstadder.so
+#%{_lib_gstreamer_dir}/libgstadder.so
 %{_lib_gstreamer_dir}/libgstalsa.so
 %{_lib_gstreamer_dir}/libgstapp.so
 %{_lib_gstreamer_dir}/libgstaudioconvert.so
@@ -134,9 +140,11 @@ mv %{name}-%{gst_branch}.lang %{name}.lang
 %{_lib_gstreamer_dir}/libgstvolume.so
 %{_lib_gstreamer_dir}/libgstvorbis.so
 
+%if "%{?profile}" != "tv"
 %doc %{_mandir}/man1/gst-device-monitor-*
 %doc %{_mandir}/man1/gst-discoverer-*
 %doc %{_mandir}/man1/gst-play-*
+%endif
 
 %if %{with x}
 %{_libdir}/gstreamer-%{gst_branch}/libgstximagesink.so
